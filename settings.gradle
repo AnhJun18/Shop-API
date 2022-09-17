@@ -1,0 +1,5 @@
+rootProject.name = 'shop-api'
+include 'api'
+include 'common'
+include 'repository'
+
