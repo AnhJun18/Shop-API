@@ -1,19 +1,21 @@
-plugins {
-    id 'java'
+
+jar {
+    enabled = true
 }
 
-group 'com.myshop'
-version '0.0.1'
-
-repositories {
-    mavenCentral()
+bootJar{
+    enabled = false
 }
 
 dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
-}
+    implementation project(":common")
 
-test {
-    useJUnitPlatform()
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+
+    compile 'com.vladmihalcea:hibernate-types-52:2.9.13'
+
+
 }

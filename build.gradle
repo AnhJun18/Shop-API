@@ -16,6 +16,10 @@ allprojects {
     sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11
 
+    bootJar {
+        mainClassName = "com.myshop.api.Application"
+    }
+
     repositories {
         mavenLocal()
         mavenCentral()

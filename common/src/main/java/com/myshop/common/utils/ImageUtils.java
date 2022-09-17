@@ -1,4 +1,4 @@
-package com.craw.common.utils;
+package com.myshop.common.utils;
 
 import org.imgscalr.Scalr;
 import org.springframework.web.multipart.MultipartFile;

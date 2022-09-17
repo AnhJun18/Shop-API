@@ -1,5 +1,19 @@
 rootProject.name = 'shop-api'
-include 'api'
-include 'common'
-include 'repository'
+
+rootDir.listFiles().each {File directory ->
+    if (directory.isDirectory()) {
+        if (directory.list({ dir, name -> name == 'build.gradle' }).length > 0) {
+            include ":${directory.name}"
+
+            directory.listFiles().each { File subDirectory ->
+                if (subDirectory.isDirectory()) {
+                    if (subDirectory.list({ dir, name -> name == 'build.gradle' }).length > 0) {
+                        include ":${directory.name}:${subDirectory.name}"
+                    }
+                }
+            }
+        }
+
+    }
+}
 

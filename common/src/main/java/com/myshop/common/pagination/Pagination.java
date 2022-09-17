@@ -1,4 +1,4 @@
-package com.craw.common.pagination;
+package com.myshop.common.pagination;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;

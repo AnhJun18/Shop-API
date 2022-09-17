@@ -1,11 +1,12 @@
-package com.craw.common.utils;
+package com.myshop.common.utils;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
 public class JsonUtils {
 

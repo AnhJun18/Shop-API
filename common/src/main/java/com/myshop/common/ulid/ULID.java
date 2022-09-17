@@ -32,7 +32,7 @@
  * limitations under the License.
  */
 
-package com.craw.common.ulid;
+package com.myshop.common.ulid;
 
 import java.io.Serializable;
 import java.security.SecureRandom;

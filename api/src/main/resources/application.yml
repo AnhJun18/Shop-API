@@ -20,13 +20,6 @@ spring:
     hikari:
       max-lifetime: 30
 
-  flyway:
-    enabled: true
-  jackson:
-    serialization:
-      FAIL_ON_EMPTY_BEANS: false
-
-
 springdoc:
   swagger-ui:
     path: "/swagger-ui.html"

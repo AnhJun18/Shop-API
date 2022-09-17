@@ -1,4 +1,4 @@
-package com.craw.common.utils;
+package com.myshop.common.utils;
 
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 
