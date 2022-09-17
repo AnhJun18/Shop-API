@@ -1,0 +1,42 @@
+spring:
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        enable_lazy_load_no_trans: true
+
+  datasource:
+    url: "jdbc:sqlserver://anhjun18.database.windows.net:1433;database=MyShop"
+    sqlScriptEncoding: UTF-8
+    username: pa
+    password: 123456qQ
+    hikari:
+      max-lifetime: 30
+
+  flyway:
+    enabled: true
+  jackson:
+    serialization:
+      FAIL_ON_EMPTY_BEANS: false
+
+
+springdoc:
+  swagger-ui:
+    path: "/swagger-ui.html"
+  api-docs:
+    path: "/api-docs"
+
+jwkPublicFile: classpath:jwt-public.json
+jwkFile: classpath:jwt.json
+
+logging:
+  level:
+    ROOT: INFO
+
