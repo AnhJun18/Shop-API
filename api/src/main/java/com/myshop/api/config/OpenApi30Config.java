@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @OpenAPIDefinition(info = @Info(title = "Shop API", version = "v1"),
-        servers = @Server(url = "https://pa-shop-service.azurewebsites.net/"))
+        servers = @Server(url = "https://"))
 @SecurityScheme(
         name = "bearerAuth",
         type = SecuritySchemeType.HTTP,
