@@ -18,8 +18,8 @@ import reactor.core.publisher.Mono;
 import javax.validation.Valid;
 
 /**
- * @author Jun
- * @author  Jun
+ * @author Anh Jun
+ * @author  Anh Jun
  */
 @RestController
 @RequestMapping("/api/auth/user")
@@ -33,9 +33,6 @@ public class AuthController {
         LoginResponse resp = userService.login(loginRequest);
         return Mono.just(ApiResponse.of(resp));
     }
-
-
-
 
     @Transactional
     @PostMapping("/register")

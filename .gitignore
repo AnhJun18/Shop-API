@@ -10,5 +10,3 @@
 build/
 */build/
 out
-
-api/src/main/java/com/myshop/api/config/OpenApi30Config.java
