@@ -128,4 +128,12 @@ public class UserServiceImpl extends CRUDBaseServiceImpl<User, UserRequest, User
     }
 
 
+    @Override
+    public UserResponse getUserProfile(long userId) {
+        User user = userRepository.findById(userId).orElseThrow();
+        return UserResponse.builder()
+                .user(user)
+                .role(user.getRole())
+                .build();
+    }
 }

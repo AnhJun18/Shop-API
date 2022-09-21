@@ -12,4 +12,7 @@ public interface UserService {
 
     UserResponse registerUser(UserRequest userRequest);
 
+    UserResponse getUserProfile(long userId);
+
+
 }
