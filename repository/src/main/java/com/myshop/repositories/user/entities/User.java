@@ -26,7 +26,7 @@ public class User extends Auditing {
     @NonNull
     private String salt;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     private Role role;
 
     private int deleteFlag;

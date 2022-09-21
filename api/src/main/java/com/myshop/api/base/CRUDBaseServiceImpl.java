@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public abstract class CRUDBaseServiceImpl<E, R, T, ID> implements CRUDBaseService<E, R, T, ID>, com.craw.api.base.BaseEntityMapping<E, R, T> {
+public abstract class CRUDBaseServiceImpl<E, R, T, ID> implements CRUDBaseService<E, R, T, ID>, com.myshop.api.base.BaseEntityMapping<E, R, T> {
     private final Class<R> requestClazz;
 
     private final Class<T> responseClazz;
