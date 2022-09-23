@@ -84,7 +84,7 @@ public class JWTSecurityConfig {
                 .and()
                 .authorizeExchange()
                 .pathMatchers(HttpMethod.OPTIONS).permitAll()
-                .pathMatchers("/api/auth/**", "/api/address/**", "/api/common/**", "/swagger-ui.html", "/webjars/**", "/api-docs/**", "/uploads/**", "/api/file/download/**").permitAll()
+                .pathMatchers("/api/auth/**", "/api/address/**", "/api/common/**", "/swagger-ui.html", "/webjars/**", "/api-docs/**", "/uploads/**", "/api/upload/**").permitAll()
                 .anyExchange().authenticated()
                 .and().build();
     }

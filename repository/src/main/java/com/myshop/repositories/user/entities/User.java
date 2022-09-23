@@ -16,34 +16,19 @@ public class User extends Auditing {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NonNull
-    @Column(unique=true)
-    private String username;
-
-    @NonNull
-    private String password;
-
-    @NonNull
-    private String salt;
-
-    @OneToOne(fetch = FetchType.EAGER)
-    private Role role;
-
-    private int deleteFlag;
-
-    private String fullName;
-
-    private String phone;
-
-    private String dob;
-
-    private String email;
-
-    private String address;
-
     private String firstName;
 
     private String lastName;
 
     private String gender;
+
+    private String phone;
+
+    private String address;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    private Role role;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    private Account account;
 }

@@ -1,9 +1,11 @@
 package com.myshop.repositories.user.entities;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 
 @Builder
 @Entity
@@ -17,9 +19,4 @@ public class Role {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-    private String grand;
-    private Boolean status;
-    private boolean showRole;
-    @ManyToMany(fetch = FetchType.LAZY)
-    private List<Permission> permissions = new ArrayList<>();
 }
