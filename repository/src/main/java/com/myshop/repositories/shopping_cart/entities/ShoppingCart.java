@@ -1,5 +1,6 @@
-package com.myshop.repositories.product.entities;
+package com.myshop.repositories.shopping_cart.entities;
 
+import com.myshop.repositories.product.entities.ProductDetail;
 import com.myshop.repositories.user.entities.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,7 +27,7 @@ public class ShoppingCart {
     @OneToOne(fetch = FetchType.EAGER)
     private ProductDetail product;
 
-    private int amount;
+    private Long amount;
 
 
 }

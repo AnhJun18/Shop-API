@@ -25,6 +25,8 @@ public class FirebaseImageServiceImpl implements IImageService {
     @Autowired
     FirebaseConfig properties;
 
+
+
     @EventListener
     public void init(ApplicationReadyEvent event) {
 
@@ -61,8 +63,7 @@ public class FirebaseImageServiceImpl implements IImageService {
         String name = generateFileName(file.filename());
 
         bucket.create(name,convertFilePartToByteArray(file),file.headers().getContentType().toString());
-
-        return name;
+        return properties.prefixImageUrl.concat(name).concat(properties.suffixImageUrl);
     }
 
     @Override

@@ -19,6 +19,10 @@ public class ApiResponse<T> {
   private int status = 200;
   @Default
   private int error = 0;
+  @Default
+  private String message = null;
+
+
   private T data;
 
   public ApiResponse(int status) {

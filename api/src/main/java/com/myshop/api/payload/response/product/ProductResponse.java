@@ -1,4 +1,4 @@
-package com.myshop.api.payload.response.user;
+package com.myshop.api.payload.response.product;
 
 import com.myshop.repositories.product.entities.Product;
 import lombok.Builder;
