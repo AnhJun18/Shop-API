@@ -6,6 +6,7 @@ import com.myshop.api.payload.request.user.UserRequest;
 import com.myshop.api.payload.response.user.LoginResponse;
 import com.myshop.api.payload.response.user.UserResponse;
 import com.myshop.common.Constants;
+import com.myshop.common.http.ApiResponse;
 import com.myshop.common.http.CodeStatus;
 import com.myshop.common.http.ServiceException;
 import com.myshop.common.utils.Utils;
@@ -30,6 +31,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -64,14 +66,13 @@ public class UserServiceImpl extends CRUDBaseServiceImpl<User, UserRequest, User
 
     @Override
     public LoginResponse login(LoginRequest loginRequest) {
-        int count = 4;
         Account account = accountRepository.findAccountByUsername(loginRequest.getUsername());
         if (account == null || account.getId() == null) {
             return LoginResponse.builder().message("Invalid account . Please try again.").status(false).build();
         }
-        /*if (account.getDeleteFlag() == 0) {
-            return LoginResponse.builder().message("Your account has been temporarily locked, please contact us again").errorCode(12).status(false).build();
-        }*/
+        if (account.isDeleteFlag() == true) {
+            return LoginResponse.builder().message("Your account has been temporarily locked, please contact us again").status(false).build();
+        }
         if (passwordEncoder.matches(loginRequest.getPassword() + Constants.SALT_DEFAULT, account.getPassword())) {
             return buildTokenResponse(userRepository.findUserByAccount(account));
         } else {
@@ -122,7 +123,7 @@ public class UserServiceImpl extends CRUDBaseServiceImpl<User, UserRequest, User
         if (role == null) {
             return UserResponse.builder().status(false).message("Role is not exists, please check again").build();
         }
-        account = Account.builder().username(userRequest.getUserName())
+        account = Account.builder().username(userRequest.getUserName()).deleteFlag(false)
                 .password(passwordEncoder.encode(userRequest.getPassword() + Constants.SALT_DEFAULT)).build();
         User user = User.builder().firstName(userRequest.getFirstName())
                 .lastName(userRequest.getLastName())
@@ -145,5 +146,18 @@ public class UserServiceImpl extends CRUDBaseServiceImpl<User, UserRequest, User
                 .user(user)
                 .role(user.getRole())
                 .build();
+    }
+
+    @Override
+    public ApiResponse<Object> deleteAccountUser(long userID) {
+        Account account = accountRepository.findById(userID).orElseThrow();
+        account.setDeleteFlag(true);
+        accountRepository.save(account);
+        return ApiResponse.builder().status(200).message("Account is blocked").data(Mono.just(account)).build();
+    }
+
+    @Override
+    public Iterable<Account> getAll() {
+        return accountRepository.findAllByDeleteFlag(false);
     }
 }

@@ -24,4 +24,6 @@ public class Account extends Auditing {
     private String password;
 
     private String email;
+
+    private  boolean deleteFlag;
 }

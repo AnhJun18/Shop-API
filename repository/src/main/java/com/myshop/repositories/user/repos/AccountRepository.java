@@ -12,5 +12,7 @@ public interface AccountRepository extends CrudRepository<Account, Long>, JpaSpe
     @Query("SELECT u FROM Account u WHERE u.username=:userName")
     Account findAccountByUsername(@Param("userName") String userName);
 
+    Iterable<Account> findAllByDeleteFlag(boolean deleteFlag);
+
     boolean existsByEmail( String email);
 }
