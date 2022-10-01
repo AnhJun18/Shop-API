@@ -1,6 +1,7 @@
 package com.myshop.api.controller;
 
 
+import com.myshop.api.payload.request.shopping_cart.ShoppingCartRequest;
 import com.myshop.api.service.shopping_cart.ShoppingCartService;
 import com.myshop.common.http.ApiResponse;
 import com.myshop.security.jwt.CustomAuthUser;
@@ -8,7 +9,10 @@ import com.myshop.security.jwt.JWTAuthenticationToken;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 import java.security.Principal;
@@ -28,11 +32,10 @@ public class ShoppingCartController {
 
     @PostMapping()
     public Mono<ApiResponse<Object>> addToCart(Principal principal,
-                                               @RequestParam("product_id") Long productID,
-                                               @RequestParam("amount") Long amount) {
+                                               @RequestBody ShoppingCartRequest item) {
         JWTAuthenticationToken jwtTokenObject = (JWTAuthenticationToken) principal;
         String userID = ((CustomAuthUser) jwtTokenObject.getPrincipal()).getUserId();
-        return Mono.just(shoppingCartService.addToCart(Long.parseLong(userID), productID, amount));
+        return Mono.just(shoppingCartService.addToCart(Long.parseLong(userID),item));
     }
 }
 
