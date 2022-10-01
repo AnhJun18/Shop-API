@@ -1,4 +1,4 @@
-package com.myshop.repositories.user.entities;
+package com.myshop.repositories.product.entities;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,17 +9,16 @@ import javax.persistence.*;
 
 @Builder
 @Entity
-@Table(name = "auth_permission")
+@Table(name = "category")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Permission {
+public class Category {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     private String name;
 
-    private String displayName;
 }

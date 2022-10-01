@@ -12,7 +12,7 @@ public enum CodeStatus {
   REQUEST_EXPIRED (410, HttpStatus.GONE),
 
   MISSING_PARAM(1000, HttpStatus.BAD_REQUEST),
-  USERNAME_EMPTY(1001, HttpStatus.BAD_REQUEST, "Can not get phone or email of accounr"),
+  USERNAME_EMPTY(1001, HttpStatus.BAD_REQUEST, "Can not get phone or email of account"),
 
   PHONE_INVALID(2000, HttpStatus.BAD_REQUEST),
   PHONE_SMS_FAIL(2001, HttpStatus.BAD_REQUEST),

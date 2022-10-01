@@ -20,9 +20,11 @@ dependencies {
     implementation 'com.github.spullara.mustache.java:compiler:0.9.6'
     implementation 'javax.servlet:javax.servlet-api:4.0.1'
     implementation 'com.google.code.gson:gson:2.8.6'
+    implementation 'com.google.cloud:google-cloud-storage:1.66.0'
 
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'com.microsoft.sqlserver:mssql-jdbc'
+    implementation 'com.google.firebase:firebase-admin:6.4.0'
 
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
@@ -32,4 +34,9 @@ dependencies {
 
     compile group: 'org.thymeleaf', name: 'thymeleaf', version: '3.0.11.RELEASE'
     compile group: 'org.xhtmlrenderer', name: 'flying-saucer-pdf', version: '9.1.20'
+}
+configurations {
+    implementation {
+        exclude group: 'org.springframework', module: 'spring-webmvc'
+    }
 }

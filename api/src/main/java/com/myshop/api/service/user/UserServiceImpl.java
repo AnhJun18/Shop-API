@@ -3,16 +3,18 @@ package com.myshop.api.service.user;
 import com.myshop.api.base.CRUDBaseServiceImpl;
 import com.myshop.api.payload.request.user.LoginRequest;
 import com.myshop.api.payload.request.user.UserRequest;
-import com.myshop.api.payload.response.user.AbilityResponse;
 import com.myshop.api.payload.response.user.LoginResponse;
 import com.myshop.api.payload.response.user.UserResponse;
 import com.myshop.common.Constants;
+import com.myshop.common.http.ApiResponse;
 import com.myshop.common.http.CodeStatus;
 import com.myshop.common.http.ServiceException;
 import com.myshop.common.utils.Utils;
+import com.myshop.repositories.user.entities.Account;
 import com.myshop.repositories.user.entities.Role;
 import com.myshop.repositories.user.entities.Token;
 import com.myshop.repositories.user.entities.User;
+import com.myshop.repositories.user.repos.AccountRepository;
 import com.myshop.repositories.user.repos.RoleRepository;
 import com.myshop.repositories.user.repos.TokenRepository;
 import com.myshop.repositories.user.repos.UserRepository;
@@ -29,12 +31,11 @@ import org.springframework.core.io.Resource;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.UUID;
 
 
@@ -52,6 +53,8 @@ public class UserServiceImpl extends CRUDBaseServiceImpl<User, UserRequest, User
     private TokenRepository tokenRepository;
     @Autowired
     private RoleRepository roleRepository;
+    @Autowired
+    private AccountRepository accountRepository;
 
     @Value("${jwkFile}")
     private Resource jwkFile;
@@ -63,20 +66,19 @@ public class UserServiceImpl extends CRUDBaseServiceImpl<User, UserRequest, User
 
     @Override
     public LoginResponse login(LoginRequest loginRequest) {
-        int count = 4;
-        User user = userRepository.findUserByUsername(loginRequest.getUsername());
-        if (user == null || user.getId() == null) {
-            return LoginResponse.builder().message("Invalid email . Please try again.").errorCode(10).status(false).build();
+        Account account = accountRepository.findAccountByUsername(loginRequest.getUsername());
+        if (account == null || account.getId() == null) {
+            return LoginResponse.builder().message("Invalid account . Please try again.").status(false).build();
         }
-        if (user.getDeleteFlag() == 0) {
-            return LoginResponse.builder().message("Your account has been temporarily locked, please contact us again").errorCode(12).status(false).build();
+        if (account.isDeleteFlag() == true) {
+            return LoginResponse.builder().message("Your account has been temporarily locked, please contact us again").status(false).build();
         }
-        if (passwordEncoder.matches(loginRequest.getPassword() + user.getSalt(), user.getPassword())) {
-            return buildTokenResponse(user);
+        if (passwordEncoder.matches(loginRequest.getPassword() + Constants.SALT_DEFAULT, account.getPassword())) {
+            return buildTokenResponse(userRepository.findUserByAccount(account));
         } else {
-            return LoginResponse.builder().message("Invalid email or password. Please try again.").errorCount(count)
-                    .errorCode(11).status(false).build();
+            return LoginResponse.builder().message("Invalid email or password. Please try again.").status(false).build();
         }
+
     }
 
 
@@ -100,32 +102,62 @@ public class UserServiceImpl extends CRUDBaseServiceImpl<User, UserRequest, User
             throw new ServiceException(CodeStatus.INTERNAL_ERROR);
         }
         tokenRepository.save(Token.builder().userId(user.getId()).tokenId(jti).expiredTime(System.currentTimeMillis() + expireIn).build());
-        List<AbilityResponse> abilities = new ArrayList<>();
-        if (user.getRole().getName().equals("admin")) {
-            abilities.add(AbilityResponse.builder().action("manage").subject("all").build());
-        } else {
-            abilities.add(AbilityResponse.builder().action("view").subject("auth").build());
-            abilities.add(AbilityResponse.builder().action("view").subject("dashboard").build());
+
+        return LoginResponse.builder().user(user).accessToken(accessToken).expiresIn(expireIn).refreshToken(jti).status(true).build();
+    }
+
+    @Transactional
+    @Override
+    public UserResponse registerUser(UserRequest userRequest) {
+        Account account = accountRepository.findAccountByUsername(userRequest.getUserName());
+        if (account != null && account.getId() > 0) {
+            return UserResponse.builder().status(false).message("Your account already exists, please check again").build();
         }
-        return LoginResponse.builder().user(user).ability(abilities).accessToken(accessToken).expiresIn(expireIn).refreshToken(jti).status(true).build();
+        if (accountRepository.existsByEmail(userRequest.getEmail())) {
+            return UserResponse.builder().status(false).message("Email already exists, please check again").build();
+        }
+        if (userRepository.existsByPhone(userRequest.getPhone())) {
+            return UserResponse.builder().status(false).message("Phone already exists, please check again").build();
+        }
+        Role role = roleRepository.findByName(userRequest.getRoleName());
+        if (role == null) {
+            return UserResponse.builder().status(false).message("Role is not exists, please check again").build();
+        }
+        account = Account.builder().username(userRequest.getUserName()).deleteFlag(false)
+                .password(passwordEncoder.encode(userRequest.getPassword() + Constants.SALT_DEFAULT)).build();
+        User user = User.builder().firstName(userRequest.getFirstName())
+                .lastName(userRequest.getLastName())
+                .gender(userRequest.getGender())
+                .phone(Utils.normalPhone(userRequest.getPhone()))
+                .address(userRequest.getAddress())
+                .role(role)
+                .account(account)
+                .build();
+        accountRepository.save(account);
+        userRepository.save(user);
+        return UserResponse.builder().status(true).message("New account registration is successful").build();
+    }
+
+
+    @Override
+    public UserResponse getUserProfile(long userId) {
+        User user = userRepository.findById(userId).orElseThrow();
+        return UserResponse.builder()
+                .user(user)
+                .role(user.getRole())
+                .build();
     }
 
     @Override
-    public UserResponse registerUser(UserRequest userRequest) {
-        User user = userRepository.findUserByUsername(userRequest.getUserName());
-        if (user != null && user.getId() > 0) {
-            return UserResponse.builder().status(false).message("Your admin account already exists, please check again").build();
-        }
-        Role role = roleRepository.findByName(userRequest.getRoleName());
-        user = User.builder().role(role).username(userRequest.getUserName()).salt(Constants.SALT_DEFAULT)
-                .fullName(userRequest.getFirstName() + ' ' + userRequest.getLastName())
-                .phone(Utils.normalPhone(userRequest.getPhone()))
-                .email(userRequest.getEmail())
-                .address(userRequest.getAddress())
-                .password(passwordEncoder.encode(userRequest.getPassword() + Constants.SALT_DEFAULT)).deleteFlag(1).build();
-        userRepository.save(user);
-        return UserResponse.builder().status(true).message("New admin account registration is successful").build();
+    public ApiResponse<Object> deleteAccountUser(long userID) {
+        Account account = accountRepository.findById(userID).orElseThrow();
+        account.setDeleteFlag(true);
+        accountRepository.save(account);
+        return ApiResponse.builder().status(200).message("Account is blocked").data(Mono.just(account)).build();
     }
 
-
+    @Override
+    public Iterable<Account> getAll() {
+        return accountRepository.findAllByDeleteFlag(false);
+    }
 }

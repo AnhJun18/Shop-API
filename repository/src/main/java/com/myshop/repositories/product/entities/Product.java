@@ -1,4 +1,4 @@
-package com.myshop.repositories.user.entities;
+package com.myshop.repositories.product.entities;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,14 +9,27 @@ import javax.persistence.*;
 
 @Builder
 @Entity
-@Table(name = "auth_role")
+@Table(name = "product")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Role {
+public class Product {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String name;
+
+    private String linkImg;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    private Category category;
+
+    private String describe;
+
+    private Double price;
+
+    private Long sold;
+
 }
