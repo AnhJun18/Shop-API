@@ -2,7 +2,7 @@ package com.myshop.security.jwt;
 
 import com.myshop.common.http.filter.OptionFilter;
 import com.myshop.security.filter.HeaderFilter;
-import com.myshop.security.jwt.service.TokenService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,13 +11,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
-import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
@@ -31,7 +29,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 
-
+@Slf4j
 @Configuration
 @EnableWebFluxSecurity
 public class JWTSecurityConfig {
@@ -40,8 +38,8 @@ public class JWTSecurityConfig {
     private Resource jwkPublicFile;
 
     @Bean
-    public ReactiveAuthenticationManager authenticationManager(TokenService tokenService) throws Exception {
-        return new JWTAuthenticationManager(jwkPublicFile, tokenService);
+    public ReactiveAuthenticationManager authenticationManager( ) throws Exception {
+        return new JWTAuthenticationManager(jwkPublicFile);
     }
 
     public AuthenticationWebFilter authenticationWebFilter(ReactiveAuthenticationManager authenticationManager) {
@@ -49,10 +47,9 @@ public class JWTSecurityConfig {
         filter.setServerAuthenticationConverter(exchange -> {
             ServerHttpRequest request = exchange.getRequest();
             String authHeader = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
-
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
                 String authToken = authHeader.substring(7);
-                Authentication auth = new PreAuthenticatedAuthenticationToken(authToken, "");
+                Authentication auth = new PreAuthenticatedAuthenticationToken(authToken,"");
                 return Mono.just(auth);
             }
 
@@ -85,6 +82,8 @@ public class JWTSecurityConfig {
                 .authorizeExchange()
                 .pathMatchers(HttpMethod.OPTIONS).permitAll()
                 .pathMatchers("/api/auth/**", "/api/address/**", "/api/common/**", "/swagger-ui.html", "/webjars/**", "/api-docs/**", "/uploads/**", "/api/upload/**").permitAll()
+                .pathMatchers("/api/user/**").hasAuthority("ROLE_USER")
+                .pathMatchers("/api/product/**").hasAuthority("ROLE_ADMIN")
                 .anyExchange().authenticated()
                 .and().build();
     }
@@ -100,4 +99,6 @@ public class JWTSecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
+
+
 }

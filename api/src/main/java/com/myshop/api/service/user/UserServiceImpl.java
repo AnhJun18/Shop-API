@@ -87,6 +87,7 @@ public class UserServiceImpl extends CRUDBaseServiceImpl<User, UserRequest, User
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                 .subject(user.getId().toString())
                 .jwtID(jti)
+                .claim("authorities",user.getRole().getName())
                 .expirationTime(new Date(Instant.now().plusSeconds(expireIn).toEpochMilli()))
                 .build();
         String accessToken;
