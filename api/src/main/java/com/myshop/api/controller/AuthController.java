@@ -9,10 +9,7 @@ import com.myshop.api.service.user.UserService;
 import com.myshop.common.http.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
@@ -39,6 +36,11 @@ public class AuthController {
     public Mono<ApiResponse<UserResponse>> registerRootStaff(@Valid @RequestBody UserRequest userRequest) {
         UserResponse resp = userService.registerUser(userRequest);
         return Mono.just(ApiResponse.of(resp));
+    }
+
+    @GetMapping("/refresh/{refresh-token}")
+    public Mono<ApiResponse<LoginResponse>> refreshToken(@PathVariable("refresh-token") String refreshToken) {
+        return Mono.just(ApiResponse.of(userService.refreshToken(refreshToken)));
     }
 
 }

@@ -7,7 +7,6 @@ import com.myshop.api.payload.response.user.LoginResponse;
 import com.myshop.api.payload.response.user.UserResponse;
 import com.myshop.common.http.ApiResponse;
 import com.myshop.repositories.user.entities.Account;
-import com.myshop.repositories.user.entities.User;
 
 public interface UserService {
 
@@ -16,6 +15,8 @@ public interface UserService {
     UserResponse registerUser(UserRequest userRequest);
 
     UserResponse getUserProfile(long userId);
+
+    LoginResponse refreshToken(String refreshToken);
 
     ApiResponse<Object> deleteAccountUser(long userID);
     

@@ -1,5 +1,6 @@
 package com.myshop.api.service.user;
 
+import com.google.api.client.util.DateTime;
 import com.myshop.api.base.CRUDBaseServiceImpl;
 import com.myshop.api.payload.request.user.LoginRequest;
 import com.myshop.api.payload.request.user.UserRequest;
@@ -25,6 +26,7 @@ import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -38,12 +40,13 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.UUID;
 
-
+@Slf4j
 @Transactional
 @Service
 public class UserServiceImpl extends CRUDBaseServiceImpl<User, UserRequest, User, Long> implements UserService {
 
-    private final long expireIn = Duration.ofHours(8).toSeconds();
+    private final long expireIn = Duration.ofHours(8).toMillis();
+    private final long expireInRefresh = Duration.ofMinutes(2).toMillis();
 
     private final UserRepository userRepository;
 
@@ -103,8 +106,7 @@ public class UserServiceImpl extends CRUDBaseServiceImpl<User, UserRequest, User
             throw new ServiceException(CodeStatus.INTERNAL_ERROR);
         }
         tokenRepository.save(Token.builder().userId(user.getId()).tokenId(jti).expiredTime(System.currentTimeMillis() + expireIn).build());
-
-        return LoginResponse.builder().user(user).accessToken(accessToken).expiresIn(expireIn).refreshToken(jti).status(true).build();
+        return LoginResponse.builder().user(user).accessToken(accessToken).expiresIn(System.currentTimeMillis() +expireInRefresh).refreshToken(jti).status(true).build();
     }
 
     @Transactional
@@ -147,6 +149,24 @@ public class UserServiceImpl extends CRUDBaseServiceImpl<User, UserRequest, User
                 .user(user)
                 .role(user.getRole())
                 .build();
+    }
+
+    @Override
+    public LoginResponse refreshToken(String refreshToken) {
+        Token token = tokenRepository.findByTokenId(refreshToken);
+        if(System.currentTimeMillis() > token.getExpiredTime()){
+            return LoginResponse.builder().message("Jwt refresh token expired at "+new DateTime(token.getExpiredTime())).status(false).build();
+        }
+        if (token != null && token.getId() > 0) {
+            User user = userRepository.findById(token.getUserId()).orElseThrow();
+            if (user.getAccount().isDeleteFlag()) {
+                return LoginResponse.builder().message("Your account has been temporarily locked, please contact us again").status(false).build();
+            } else{
+                return buildTokenResponse(user);
+            }
+        } else{
+            return LoginResponse.builder().message("Not find the token with current refresh_token").status(false).build();
+        }
     }
 
     @Override
