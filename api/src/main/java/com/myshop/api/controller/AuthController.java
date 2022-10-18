@@ -5,6 +5,7 @@ import com.myshop.api.payload.request.user.LoginRequest;
 import com.myshop.api.payload.request.user.UserRequest;
 import com.myshop.api.payload.response.user.LoginResponse;
 import com.myshop.api.payload.response.user.UserResponse;
+import com.myshop.api.service.email.EmailSenderService;
 import com.myshop.api.service.user.UserService;
 import com.myshop.common.http.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +42,14 @@ public class AuthController {
     @GetMapping("/refresh/{refresh-token}")
     public Mono<ApiResponse<LoginResponse>> refreshToken(@PathVariable("refresh-token") String refreshToken) {
         return Mono.just(ApiResponse.of(userService.refreshToken(refreshToken)));
+    }
+
+    @Autowired
+    private EmailSenderService emailSenderService;
+    @GetMapping("/email")
+    public String refToken() {
+        emailSenderService.sendEmail();
+        return "OKE";
     }
 
 }

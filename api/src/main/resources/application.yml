@@ -22,11 +22,30 @@ spring:
     hikari:
       max-lifetime: 30
 
-springdoc:
+
+  thymeleaf:
+    check-templat: true # Check that the template exists before rendering it.
+    check-template-location: true # Check that the templates location exists.
+    enabled: true # Enable MVC Thymeleaf view resolution.
+    prefix: classpath:/templates/ # Prefix that gets prepended to view names when building a URL.
+    suffix: .html
+
+
+    springdoc:
   swagger-ui:
     path: "/swagger-ui.html"
   api-docs:
     path: "/api-docs"
+
+spring.mail:
+  host: smtp.gmail.com
+  port: 587
+  username: anhle180101@gmail.com
+  password: ftzipjplmsdeycid
+  properties.mail.smtp:
+        auth: true
+        starttls:
+            enable: true
 
 jwkPublicFile: classpath:jwt-public.json
 jwkFile: classpath:jwt.json
