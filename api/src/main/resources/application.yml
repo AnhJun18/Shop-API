@@ -28,6 +28,16 @@ springdoc:
   api-docs:
     path: "/api-docs"
 
+spring.mail:
+  host: smtp.gmail.com
+  port: 587
+  username: anhle180101@gmail.com
+  password: ftzipjplmsdeycid
+  properties.mail.smtp:
+        auth: true
+        starttls:
+            enable: true
+
 jwkPublicFile: classpath:jwt-public.json
 jwkFile: classpath:jwt.json
 
