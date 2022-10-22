@@ -1,8 +1,140 @@
 <!DOCTYPE html>
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
-<head></head>
-<body>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoldStar</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
 
-<p>APPCC</p>
+        body {
+            background-color: #f2f2f2;
+            font-family: Roboto, "Helvetica Neue", sans-serif;
+        }
+
+        .container {
+            width: 993px;
+            background-color: #f2f2f2;
+            height: 100%;
+        }
+
+        .form-background {
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        .form-container {
+            position: relative;
+            z-index: 9999;
+            /* padding-top: 30px; */
+            padding-left: 197px;
+        }
+
+        .confirm-acount {
+            background-color: #ffffff;
+            border: 1px solid #E3E3E3;
+            box-sizing: border-box;
+            box-shadow: 2px 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+            width: 600px;
+            padding: 49px 45px 50px 45px;
+        }
+
+        .form-title {
+            font-weight: bold;
+            font-size: 24px;
+            line-height: 34px;
+            margin-bottom: 28px;
+        }
+
+        .say-hi {
+            font-weight: 400;
+            font-size: 24px;
+            line-height: 24px;
+            margin-bottom: 23px;
+        }
+
+        .thank-mess {
+            font-size: 15.5px;
+            line-height: 24px;
+            min-width: 510px;
+            font-weight: 400;
+            margin-bottom: 35px;
+            text-align: left;
+            color: #262626;
+        }
+
+        a {
+            font-size: 15.5px;
+            line-height: 24px;
+            text-decoration: none;
+            color: #D0A138;
+        }
+        .confirm-btn{
+            height: 46px;
+            width: 345px;
+            background: #D0A138;
+            border: 1px solid #B78413;
+            box-sizing: border-box;
+            font-size: 18px;
+            line-height: 22px;
+            font-family: Impact;
+            color: #ffffff;
+            padding: 12px 105px;
+            text-decoration: none;
+        }
+        .welcome{
+            margin-top: 36px;
+            font-size: 16px;
+            line-height: 24px;
+            color: #262626;
+            font-weight: 400;
+            margin-bottom: 25px;
+        }
+        .custom-border{
+            margin-bottom: 15px;
+        }
+        .follow-text{
+            font-weight: normal;
+            mix-blend-mode: normal;
+            font-size: 14px;
+            line-height: 17px;
+            color: #090907;
+        }
+        .social{
+            margin-top: 15px;
+        }
+        .social a{
+            margin-left: 6px;
+            margin-right: 6px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="form-background">
+    </div>
+    <div class="form-container">
+        <div class="confirm-acount">
+            <div class="say-hi"><span class="client-name"></span></div>
+            <div class="thank-mess">
+                <p style="padding-left: 30px;">
+                    <span style="font-weight: 400;">Happy Women's day</span>
+                </p>
+                <p style="padding-left: 30px;">
+                    <a href="{{link}}" target="_blank">Reset</a>
+                </p>
+                <p> {{name}}</p>
+                <p><strong>PTIT Team</strong></p>
+
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>

@@ -22,16 +22,7 @@ spring:
     hikari:
       max-lifetime: 30
 
-
-  thymeleaf:
-    check-templat: true # Check that the template exists before rendering it.
-    check-template-location: true # Check that the templates location exists.
-    enabled: true # Enable MVC Thymeleaf view resolution.
-    prefix: classpath:/templates/ # Prefix that gets prepended to view names when building a URL.
-    suffix: .html
-
-
-    springdoc:
+springdoc:
   swagger-ui:
     path: "/swagger-ui.html"
   api-docs:
