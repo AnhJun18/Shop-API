@@ -154,7 +154,7 @@ public class UserServiceImpl extends CRUDBaseServiceImpl<User, UserRequest, User
     @Override
     public LoginResponse refreshToken(String refreshToken) {
         Token token = tokenRepository.findByTokenId(refreshToken);
-        if (token == null && token.getId() <=0){
+        if (token == null || token.getId() <=0){
             return LoginResponse.builder().message("Refresh token is not exist").status(false).build();
         }
         else  {
