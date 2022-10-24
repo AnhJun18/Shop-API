@@ -45,8 +45,8 @@ import java.util.UUID;
 @Service
 public class UserServiceImpl extends CRUDBaseServiceImpl<User, UserRequest, User, Long> implements UserService {
 
-    private final long expireIn = Duration.ofHours(8).toMillis();
-    private final long expireInRefresh = Duration.ofMinutes(2).toMillis();
+    private final long expireIn = Duration.ofMinutes(1).toSeconds();
+    private final long expireInRefresh = Duration.ofHours(10).toMillis();
 
     private final UserRepository userRepository;
 
@@ -105,7 +105,7 @@ public class UserServiceImpl extends CRUDBaseServiceImpl<User, UserRequest, User
         } catch (Exception e) {
             throw new ServiceException(CodeStatus.INTERNAL_ERROR);
         }
-        tokenRepository.save(Token.builder().userId(user.getId()).tokenId(jti).expiredTime(System.currentTimeMillis() + expireIn).build());
+        tokenRepository.save(Token.builder().userId(user.getId()).tokenId(jti).expiredTime(System.currentTimeMillis() + expireInRefresh).build());
         return LoginResponse.builder().user(user).accessToken(accessToken).expiresIn(System.currentTimeMillis() +expireInRefresh).refreshToken(jti).status(true).build();
     }
 
@@ -154,22 +154,19 @@ public class UserServiceImpl extends CRUDBaseServiceImpl<User, UserRequest, User
     @Override
     public LoginResponse refreshToken(String refreshToken) {
         Token token = tokenRepository.findByTokenId(refreshToken);
-        if (token != null && token.getId() > 0){
+        if (token == null && token.getId() <=0){
             return LoginResponse.builder().message("Refresh token is not exist").status(false).build();
-
         }
-        if(System.currentTimeMillis() > token.getExpiredTime()){
-            return LoginResponse.builder().message("Jwt refresh token expired at "+new DateTime(token.getExpiredTime())).status(false).build();
-        }
-        if (token != null && token.getId() > 0) {
+        else  {
+            if(System.currentTimeMillis() > token.getExpiredTime()){
+                return LoginResponse.builder().message("Jwt refresh token expired at "+new DateTime(token.getExpiredTime())).status(false).build();
+            }
             User user = userRepository.findById(token.getUserId()).orElseThrow();
             if (user.getAccount().isDeleteFlag()) {
                 return LoginResponse.builder().message("Your account has been temporarily locked, please contact us again").status(false).build();
             } else{
                 return buildTokenResponse(user);
             }
-        } else{
-            return LoginResponse.builder().message("Not find the token with current refresh_token").status(false).build();
         }
     }
 
