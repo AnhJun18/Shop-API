@@ -1,12 +1,13 @@
 package com.myshop.api.controller;
 
 
+import com.myshop.api.payload.request.user.ForgotPasswordRequest;
 import com.myshop.api.payload.request.user.LoginRequest;
 import com.myshop.api.payload.request.user.ResetPasswordRequest;
 import com.myshop.api.payload.request.user.UserRequest;
 import com.myshop.api.payload.response.user.LoginResponse;
+import com.myshop.api.payload.response.user.PasswordResponse;
 import com.myshop.api.payload.response.user.UserResponse;
-import com.myshop.api.service.email.EmailSenderService;
 import com.myshop.api.service.user.UserService;
 import com.myshop.common.http.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 
 /**
  * @author Anh Jun
@@ -46,12 +46,12 @@ public class AuthController {
         return Mono.just(ApiResponse.of(userService.refreshToken(refreshToken)));
     }
 
-    @Autowired
-    private EmailSenderService emailSenderService;
-    @GetMapping("/forgot-pass")
-    public String refToken(@Email @RequestParam String email) {
-        emailSenderService.sendEmail();
-        return "OKE";
+
+    @Transactional
+    @PostMapping("/forgot-password")
+    public Mono<ApiResponse<PasswordResponse>> forgotPassword(@Valid @RequestBody ForgotPasswordRequest forgotPasswordRequest) {
+        PasswordResponse resp = userService.forgotPassword(forgotPasswordRequest);
+        return Mono.just(ApiResponse.of(resp));
     }
 
     @PostMapping("/verify-code/{code}")
