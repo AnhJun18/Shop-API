@@ -2,6 +2,7 @@ package com.myshop.api.controller;
 
 
 import com.myshop.api.payload.request.user.LoginRequest;
+import com.myshop.api.payload.request.user.ResetPasswordRequest;
 import com.myshop.api.payload.request.user.UserRequest;
 import com.myshop.api.payload.response.user.LoginResponse;
 import com.myshop.api.payload.response.user.UserResponse;
@@ -51,6 +52,19 @@ public class AuthController {
     public String refToken(@Email @RequestParam String email) {
         emailSenderService.sendEmail();
         return "OKE";
+    }
+
+    @PostMapping("/verify-code/{code}")
+    public Mono<PasswordResponse> verifyCode(@PathVariable("code") String codeRequest) {
+        PasswordResponse resp = userService.verifyCode(codeRequest);
+        return Mono.just(resp);
+    }
+
+    @Transactional
+    @PostMapping("/reset-password")
+    public Mono<ApiResponse<PasswordResponse>> forgotPassword(@Valid @RequestBody ResetPasswordRequest resetPasswordRequest) {
+        PasswordResponse resp = userService.resetPassword(resetPasswordRequest);
+        return Mono.just(ApiResponse.of(resp));
     }
 
 }

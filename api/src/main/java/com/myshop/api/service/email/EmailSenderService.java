@@ -3,6 +3,7 @@ package com.myshop.api.service.email;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
+import com.myshop.repositories.user.entities.Account;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.ResourceLoader;
@@ -23,9 +24,9 @@ public class EmailSenderService {
     private JavaMailSender mailSender;
     private SpringTemplateEngine springTemplateEngine;
 
-    public void sendEmail()  {
+    public void sendEmail(Account account,String verifyCode)  {
         String from = "anhle180101@gmail.com";
-        String to = "n19dccn006@student.ptithcm.edu.vn";
+        String to = account.getEmail();
 
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message);
@@ -39,7 +40,8 @@ public class EmailSenderService {
             MustacheFactory mf = new DefaultMustacheFactory(loader.getResource("classpath:/templates/").getFile());
             Mustache mustache = mf.compile( "register.html");
             StringWriter htmlContent = new StringWriter();
-            mustache.execute(htmlContent, Map.of("link", "https://abc.com","name","Anh Jun"));
+            String link = "http://localhost:8081/api/auth/user/verify-code/"+verifyCode;
+            mustache.execute(htmlContent, Map.of("link", link,"name",account.getUsername()));
 
             helper.setText(htmlContent.toString(), true);
             mailSender.send(message);
