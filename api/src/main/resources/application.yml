@@ -5,20 +5,20 @@ spring:
       max-file-size: 1000MB
       max-request-size: 1000MB
 
-
   jpa:
     hibernate:
       ddl-auto: update
     properties:
       hibernate:
         enable_lazy_load_no_trans: true
+        check_nullability: true
 
   datasource:
-    url: "jdbc:sqlserver://anhjun18.database.windows.net:1433;database=MyShop"
+    url: "jdbc:sqlserver://localhost:1433;database=MyShop"
     useUnicode: yes
     sqlScriptEncoding: UTF-8
-    username: pa
-    password: 123456qQ
+    username: sa
+    password: 18
     hikari:
       max-lifetime: 30
 
@@ -44,6 +44,10 @@ jwkFile: classpath:jwt.json
 logging:
   level:
     ROOT: INFO
+server:
+  error:
+    include-message: always
+    include-binding-errors: always
 
 firebase:
   bucket-name: fir-myshop-lpa.appspot.com

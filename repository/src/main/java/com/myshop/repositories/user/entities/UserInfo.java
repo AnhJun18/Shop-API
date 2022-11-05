@@ -7,11 +7,11 @@ import javax.persistence.*;
 @EqualsAndHashCode(callSuper = true)
 @Builder
 @Data
-@Table(name = "auth_user")
+@Table(name = "userInfo")
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-public class User extends Auditing {
+public class UserInfo extends Auditing {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -25,9 +25,6 @@ public class User extends Auditing {
     private String phone;
 
     private String address;
-
-    @OneToOne(fetch = FetchType.EAGER)
-    private Role role;
 
     @OneToOne(fetch = FetchType.EAGER)
     private Account account;

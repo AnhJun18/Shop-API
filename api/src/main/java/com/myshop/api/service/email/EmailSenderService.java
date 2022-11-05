@@ -33,7 +33,7 @@ public class EmailSenderService {
         try {
             helper.setFrom(from);
             helper.setTo(to);
-            helper.setSubject("This is an HTML email");
+            helper.setSubject("Quên Mật Khẩu");
 
             ResourceLoader loader = new DefaultResourceLoader();
             MustacheFactory mf = new DefaultMustacheFactory(loader.getResource("classpath:/templates/").getFile());

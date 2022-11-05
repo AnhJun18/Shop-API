@@ -1,6 +1,6 @@
 package com.myshop.api.payload.response.user;
 
-import com.myshop.repositories.user.entities.User;
+import com.myshop.repositories.user.entities.UserInfo;
 import lombok.Builder;
 import lombok.Data;
 
@@ -18,7 +18,7 @@ public class LoginResponse {
 
     private String refreshToken;
 
-    private User user;
+    private UserInfo userInfo;
 
 
 

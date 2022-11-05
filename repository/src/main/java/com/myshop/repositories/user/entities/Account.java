@@ -25,5 +25,9 @@ public class Account extends Auditing {
 
     private String email;
 
+
+    @OneToOne(fetch = FetchType.EAGER)
+    private Role role;
+
     private  boolean deleteFlag;
 }

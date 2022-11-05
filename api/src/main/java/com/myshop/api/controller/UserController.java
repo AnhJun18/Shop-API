@@ -5,7 +5,6 @@ import com.myshop.api.payload.response.user.UserResponse;
 import com.myshop.api.service.user.UserService;
 import com.myshop.common.http.ApiResponse;
 import com.myshop.repositories.user.entities.Account;
-import com.myshop.repositories.user.entities.User;
 import com.myshop.security.jwt.CustomAuthUser;
 import com.myshop.security.jwt.JWTAuthenticationToken;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;

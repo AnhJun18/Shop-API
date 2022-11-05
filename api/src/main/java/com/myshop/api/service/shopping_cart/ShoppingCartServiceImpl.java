@@ -8,7 +8,7 @@ import com.myshop.repositories.product.repos.ProductDetailRepository;
 import com.myshop.repositories.shopping_cart.entities.ShoppingCart;
 import com.myshop.repositories.shopping_cart.repos.ShoppingCartRepository;
 import com.myshop.repositories.user.entities.Account;
-import com.myshop.repositories.user.entities.User;
+import com.myshop.repositories.user.entities.UserInfo;
 import com.myshop.repositories.user.repos.AccountRepository;
 import com.myshop.repositories.user.repos.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +45,7 @@ public class ShoppingCartServiceImpl extends CRUDBaseServiceImpl<ShoppingCart, S
         if (!account.isPresent()) {
             return ApiResponse.builder().message("Account is not exists").status(0).build();
         }
-        Optional<User> user = Optional.ofNullable(userRepository.findUserByAccount(account.get()));
+        Optional<UserInfo> user = Optional.ofNullable(userRepository.findUserByAccount(account.get()));
         if (!user.isPresent()) {
             return ApiResponse.builder().message("User is not exists").status(0).build();
         }
@@ -56,7 +56,7 @@ public class ShoppingCartServiceImpl extends CRUDBaseServiceImpl<ShoppingCart, S
         if (item.getAmount() < 1 || productDetail.get().getCurrent_number() < item.getAmount()) {
             return ApiResponse.builder().message("Invalid product quantity or insufficient product quantity").status(0).build();
         }
-        ShoppingCart newProduct = ShoppingCart.builder().user(user.get())
+        ShoppingCart newProduct = ShoppingCart.builder().userInfo(user.get())
                 .product(productDetail.get()).amount(item.getAmount()).build();
         shoppingCartRepository.save(newProduct);
 

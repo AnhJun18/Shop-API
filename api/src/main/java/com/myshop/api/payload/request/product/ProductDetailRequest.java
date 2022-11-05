@@ -7,7 +7,7 @@ import lombok.Data;
 @Builder
 public class ProductDetailRequest {
     private Long product_id;
-    private int size;
+    private String size;
     private String color;
     private Long current_number;
 }

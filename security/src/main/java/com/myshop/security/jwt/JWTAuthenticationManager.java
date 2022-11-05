@@ -52,11 +52,9 @@ public class JWTAuthenticationManager implements ReactiveAuthenticationManager {
         }
 
         String jti = jwtToken.getClaimAsString(JwtClaimNames.JTI);
-        log.info("jwt: "+jti);
 
         List<GrantedAuthority> authorities = AuthorityUtils.NO_AUTHORITIES;
         List<String> authoritiesString = jwtToken.getClaimAsStringList(AUTHORITIES);
-        log.info(authoritiesString.toString());
         if (authoritiesString != null) {
             authorities = AuthorityUtils.createAuthorityList(authoritiesString.toArray(new String[authoritiesString.size()]));
         }

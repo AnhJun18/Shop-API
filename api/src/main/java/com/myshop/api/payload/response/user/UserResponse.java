@@ -1,7 +1,7 @@
 package com.myshop.api.payload.response.user;
 
 import com.myshop.repositories.user.entities.Role;
-import com.myshop.repositories.user.entities.User;
+import com.myshop.repositories.user.entities.UserInfo;
 import lombok.Builder;
 import lombok.Data;
 
@@ -10,6 +10,6 @@ import lombok.Data;
 public class UserResponse {
     private boolean status;
     private String message;
-    private User user;
+    private UserInfo userInfo;
     private Role role;
 }

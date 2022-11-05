@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 /**
  * @author Anh Jun
@@ -46,8 +47,8 @@ public class AuthController {
 
     @Autowired
     private EmailSenderService emailSenderService;
-    @GetMapping("/email")
-    public String refToken() {
+    @GetMapping("/forgot-pass")
+    public String refToken(@Email @RequestParam String email) {
         emailSenderService.sendEmail();
         return "OKE";
     }
