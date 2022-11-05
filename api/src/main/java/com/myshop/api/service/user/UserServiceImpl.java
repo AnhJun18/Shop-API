@@ -2,23 +2,22 @@ package com.myshop.api.service.user;
 
 import com.google.api.client.util.DateTime;
 import com.myshop.api.base.CRUDBaseServiceImpl;
+import com.myshop.api.payload.request.user.ForgotPasswordRequest;
 import com.myshop.api.payload.request.user.LoginRequest;
+import com.myshop.api.payload.request.user.ResetPasswordRequest;
 import com.myshop.api.payload.request.user.UserRequest;
 import com.myshop.api.payload.response.user.LoginResponse;
+import com.myshop.api.payload.response.user.PasswordResponse;
 import com.myshop.api.payload.response.user.UserResponse;
+import com.myshop.api.service.email.EmailSenderService;
 import com.myshop.common.Constants;
 import com.myshop.common.http.ApiResponse;
 import com.myshop.common.http.CodeStatus;
 import com.myshop.common.http.ServiceException;
+import com.myshop.common.utils.RandomUtils;
 import com.myshop.common.utils.Utils;
-import com.myshop.repositories.user.entities.Account;
-import com.myshop.repositories.user.entities.Role;
-import com.myshop.repositories.user.entities.Token;
-import com.myshop.repositories.user.entities.User;
-import com.myshop.repositories.user.repos.AccountRepository;
-import com.myshop.repositories.user.repos.RoleRepository;
-import com.myshop.repositories.user.repos.TokenRepository;
-import com.myshop.repositories.user.repos.UserRepository;
+import com.myshop.repositories.user.entities.*;
+import com.myshop.repositories.user.repos.*;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.JWSSigner;
@@ -43,7 +42,7 @@ import java.util.UUID;
 @Slf4j
 @Transactional
 @Service
-public class UserServiceImpl extends CRUDBaseServiceImpl<User, UserRequest, User, Long> implements UserService {
+public class UserServiceImpl extends CRUDBaseServiceImpl<UserInfo, UserRequest, UserInfo, Long> implements UserService {
 
     private final long expireIn = Duration.ofMinutes(1).toSeconds();
     private final long expireInRefresh = Duration.ofHours(10).toMillis();
@@ -59,11 +58,16 @@ public class UserServiceImpl extends CRUDBaseServiceImpl<User, UserRequest, User
     @Autowired
     private AccountRepository accountRepository;
 
+    @Autowired
+    private EmailSenderService emailSenderService;
+    @Autowired
+    private ForgotPasswordRepository forgotPasswordRepository;
+
     @Value("${jwkFile}")
     private Resource jwkFile;
 
     public UserServiceImpl(UserRepository userRepository) {
-        super(User.class, UserRequest.class, User.class, userRepository);
+        super(UserInfo.class, UserRequest.class, UserInfo.class, userRepository);
         this.userRepository = userRepository;
     }
 
@@ -85,12 +89,12 @@ public class UserServiceImpl extends CRUDBaseServiceImpl<User, UserRequest, User
     }
 
 
-    private LoginResponse buildTokenResponse(User user) {
+    private LoginResponse buildTokenResponse(UserInfo userInfo) {
         String jti = UUID.randomUUID().toString();
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
-                .subject(user.getId().toString())
+                .subject(userInfo.getId().toString())
                 .jwtID(jti)
-                .claim("authorities",user.getRole().getName())
+                .claim("authorities", userInfo.getAccount().getRole().getName())
                 .expirationTime(new Date(Instant.now().plusSeconds(expireIn).toEpochMilli()))
                 .build();
         String accessToken;
@@ -105,8 +109,8 @@ public class UserServiceImpl extends CRUDBaseServiceImpl<User, UserRequest, User
         } catch (Exception e) {
             throw new ServiceException(CodeStatus.INTERNAL_ERROR);
         }
-        tokenRepository.save(Token.builder().userId(user.getId()).tokenId(jti).expiredTime(System.currentTimeMillis() + expireInRefresh).build());
-        return LoginResponse.builder().user(user).accessToken(accessToken).expiresIn(System.currentTimeMillis() +expireInRefresh).refreshToken(jti).status(true).build();
+        tokenRepository.save(Token.builder().userId(userInfo.getId()).tokenId(jti).expiredTime(System.currentTimeMillis() + expireInRefresh).build());
+        return LoginResponse.builder().userInfo(userInfo).accessToken(accessToken).expiresIn(System.currentTimeMillis() +expireInRefresh).refreshToken(jti).status(true).build();
     }
 
     @Transactional
@@ -126,28 +130,27 @@ public class UserServiceImpl extends CRUDBaseServiceImpl<User, UserRequest, User
         if (role == null) {
             return UserResponse.builder().status(false).message("Role is not exists, please check again").build();
         }
-        account = Account.builder().username(userRequest.getUserName()).deleteFlag(false)
+        account = Account.builder().username(userRequest.getUserName()).deleteFlag(false).role(role).email(userRequest.getEmail())
                 .password(passwordEncoder.encode(userRequest.getPassword() + Constants.SALT_DEFAULT)).build();
-        User user = User.builder().firstName(userRequest.getFirstName())
+        UserInfo userInfo = UserInfo.builder().firstName(userRequest.getFirstName())
                 .lastName(userRequest.getLastName())
                 .gender(userRequest.getGender())
                 .phone(Utils.normalPhone(userRequest.getPhone()))
                 .address(userRequest.getAddress())
-                .role(role)
                 .account(account)
                 .build();
         accountRepository.save(account);
-        userRepository.save(user);
+        userRepository.save(userInfo);
         return UserResponse.builder().status(true).message("New account registration is successful").build();
     }
 
 
     @Override
     public UserResponse getUserProfile(long userId) {
-        User user = userRepository.findById(userId).orElseThrow();
+        UserInfo userInfo = userRepository.findById(userId).orElseThrow();
         return UserResponse.builder().status(true)
-                .user(user)
-                .role(user.getRole())
+                .userInfo(userInfo)
+                .role(userInfo.getAccount().getRole())
                 .build();
     }
 
@@ -161,11 +164,11 @@ public class UserServiceImpl extends CRUDBaseServiceImpl<User, UserRequest, User
             if(System.currentTimeMillis() > token.getExpiredTime()){
                 return LoginResponse.builder().message("Jwt refresh token expired at "+new DateTime(token.getExpiredTime())).status(false).build();
             }
-            User user = userRepository.findById(token.getUserId()).orElseThrow();
-            if (user.getAccount().isDeleteFlag()) {
+            UserInfo userInfo = userRepository.findById(token.getUserId()).orElseThrow();
+            if (userInfo.getAccount().isDeleteFlag()) {
                 return LoginResponse.builder().message("Your account has been temporarily locked, please contact us again").status(false).build();
             } else{
-                return buildTokenResponse(user);
+                return buildTokenResponse(userInfo);
             }
         }
     }
@@ -177,6 +180,82 @@ public class UserServiceImpl extends CRUDBaseServiceImpl<User, UserRequest, User
         accountRepository.save(account);
         return ApiResponse.builder().status(200).message("Account is blocked").data(Mono.just(account)).build();
     }
+
+
+    @Override
+    public PasswordResponse forgotPassword(ForgotPasswordRequest forgotPasswordRequest) {
+        boolean result = false;
+        String message = "";
+        int errorCode = 0;
+        Account account = accountRepository.findAccountByEmail(forgotPasswordRequest.getEmail());
+        if (account != null && account.getId() > 0) {
+            result = true;
+            String verifyCode= RandomUtils.getAlphaNumericString(20);
+            ForgotPassword forgotPassword = forgotPasswordRepository.findForgotPasswordByAccount(account);
+            if (forgotPassword == null || forgotPassword.getId() == null) {
+                forgotPasswordRepository.save(
+                        ForgotPassword.builder().
+                                account(account).
+                                verifyCode(verifyCode).
+                                useCode(true).
+                                expiryDate(System.currentTimeMillis()+Duration.ofHours(8).toMillis()).
+                                build());
+            }else{
+                forgotPassword.setVerifyCode(verifyCode);
+                forgotPassword.setUseCode(true);
+                forgotPassword.setExpiryDate(System.currentTimeMillis()+Duration.ofHours(8).toMillis());
+                forgotPasswordRepository.save(forgotPassword);
+            }
+            emailSenderService.sendEmail(account,verifyCode);
+            message = "Please check your email to change password!";
+        } else {
+            errorCode = 21;
+            message = "Not find an account with your email, please check again!";
+        }
+        return PasswordResponse.builder().status(result).message(message).errorCode(errorCode).build();
+    }
+
+    @Override
+    public PasswordResponse verifyCode(String codeRequest) {
+        ForgotPassword forgotPassword = forgotPasswordRepository.findByVerifyCode(codeRequest);
+        if (forgotPassword == null || forgotPassword.getId() == null) {
+           return PasswordResponse.builder().message("Verify code does not exist").status(false).build();
+        }
+        else if(!forgotPassword.isUseCode() || forgotPassword.getExpiryDate()<System.currentTimeMillis()){
+            return PasswordResponse.builder().message("Verify code has been used or has expired").status(false).build();
+        }
+        return PasswordResponse.builder().message("Valid verify code").status(true).build();
+    }
+
+    @Override
+    public PasswordResponse resetPassword(ResetPasswordRequest resetPasswordRequest) {
+        boolean result = false;
+        String message = "";
+        int errorCode = 0;
+        ForgotPassword forgotPassword = forgotPasswordRepository.findByVerifyCode(resetPasswordRequest.getVerifyCode());
+        if (forgotPassword != null && forgotPassword.getId() >= 0) {
+            if (!forgotPassword.isUseCode()) {
+                return PasswordResponse.builder().status(false).message("Please resubmit a new request, the link has been activated successfully!").build();
+            }
+            Account account = forgotPassword.getAccount();
+            if (account != null && account.getId() > 0) {
+                account.setPassword(passwordEncoder.encode(resetPasswordRequest.getPassword()+ Constants.SALT_DEFAULT));
+                accountRepository.save(account);
+                forgotPassword.setUseCode(false);
+                forgotPasswordRepository.save(forgotPassword);
+                result = true;
+                message = "You can now use your password to login to Shop!";
+            } else {
+                message = "Not find an account with your email, please check again!";
+                errorCode = 31;
+            }
+        } else {
+            message = "Reset code not valid, please check the reset password link";
+            errorCode = 32;
+        }
+        return PasswordResponse.builder().status(result).message(message).errorCode(errorCode).build();
+    }
+
 
     @Override
     public Iterable<Account> getAll() {

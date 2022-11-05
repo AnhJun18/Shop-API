@@ -14,5 +14,7 @@ public interface AccountRepository extends CrudRepository<Account, Long>, JpaSpe
 
     Iterable<Account> findAllByDeleteFlag(boolean deleteFlag);
 
+    Account findAccountByEmail(String email);
+
     boolean existsByEmail( String email);
 }

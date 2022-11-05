@@ -1,7 +1,6 @@
-package com.myshop.repositories.shopping_cart.entities;
+package com.myshop.repositories.order.entities;
 
 import com.myshop.repositories.product.entities.ProductDetail;
-import com.myshop.repositories.user.entities.UserInfo;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,25 +10,24 @@ import javax.persistence.*;
 
 @Builder
 @Entity
-@Table(name = "shopping_cart", uniqueConstraints =@UniqueConstraint(columnNames = {"user_id", "product_id"}))
+@Table(name = "order_detail", uniqueConstraints =@UniqueConstraint(columnNames = {"order_id", "product_id"}))
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ShoppingCart {
+public class OrderDetail {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
-    private UserInfo userInfo;
+    @JoinColumn(name = "order_id")
+    private Order  order;
 
     @ManyToOne
     @JoinColumn(name = "product_id")
-    private  ProductDetail product;
+    private ProductDetail productDetail;
 
-    private Long amount;
-
+    private Double prices;
 
 }

@@ -9,7 +9,8 @@ import javax.persistence.*;
 
 @Builder
 @Entity
-@Table(name = "product_detail")
+@Table(name = "product_detail",
+        uniqueConstraints =@UniqueConstraint(columnNames = {"product", "size","color"}))
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -19,11 +20,15 @@ public class ProductDetail {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product")
     private Product product;
 
-    private int size;
+    @Column(nullable = false)
+    private String size;
 
+    @Column(nullable = false)
     private String color;
 
     private Long current_number;
