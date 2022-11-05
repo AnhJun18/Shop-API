@@ -38,7 +38,7 @@ public class EmailSenderService {
 
             ResourceLoader loader = new DefaultResourceLoader();
             MustacheFactory mf = new DefaultMustacheFactory(loader.getResource("classpath:/templates/").getFile());
-            Mustache mustache = mf.compile( "register.html");
+            Mustache mustache = mf.compile( "forgot-password.html");
             StringWriter htmlContent = new StringWriter();
             String link = "http://localhost:8081/api/auth/user/verify-code/"+verifyCode;
             mustache.execute(htmlContent, Map.of("link", link,"name",account.getUsername()));
