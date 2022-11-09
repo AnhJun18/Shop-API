@@ -44,7 +44,7 @@ import java.util.UUID;
 @Service
 public class UserServiceImpl extends CRUDBaseServiceImpl<UserInfo, UserRequest, UserInfo, Long> implements UserService {
 
-    private final long expireIn = Duration.ofMinutes(1).toSeconds();
+    private final long expireIn = Duration.ofHours(1).toSeconds();
     private final long expireInRefresh = Duration.ofHours(10).toMillis();
 
     private final UserRepository userRepository;

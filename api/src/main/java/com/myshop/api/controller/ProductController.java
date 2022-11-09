@@ -43,6 +43,11 @@ public class ProductController {
         return Mono.just(categoryService.createCategory(categoryRequest));
     }
 
+    @GetMapping("/category/all")
+    public Mono<Iterable<Category>> getAllCategory() {
+        return Mono.just(categoryService.getAllCategory());
+    }
+
     @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Mono<ProductResponse> upload(@RequestParam("name") String name,
                                         @RequestParam("category") Long category,

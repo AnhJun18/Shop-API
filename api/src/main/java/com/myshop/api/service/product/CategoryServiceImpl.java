@@ -31,4 +31,9 @@ public class CategoryServiceImpl extends CRUDBaseServiceImpl<Category, CategoryR
         categoryRepository.save(newCategory);
          return newCategory;
     }
+
+    @Override
+    public Iterable<Category> getAllCategory() {
+        return  categoryRepository.findAll();
+    }
 }

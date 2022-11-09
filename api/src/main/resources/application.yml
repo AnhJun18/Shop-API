@@ -33,9 +33,9 @@ spring.mail:
   username: anhle180101@gmail.com
   password: ftzipjplmsdeycid
   properties.mail.smtp:
-        auth: true
-        starttls:
-            enable: true
+    auth: true
+    starttls:
+      enable: true
 
 jwkPublicFile: classpath:jwt-public.json
 jwkFile: classpath:jwt.json
