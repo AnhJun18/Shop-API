@@ -70,7 +70,7 @@ public class ProductController {
         return Mono.just(productService.getAllProduct());
     }
 
-    @GetMapping("/get_paging")
+    @GetMapping("/getpaging")
     public Mono<Page<Product>> getPaging(
             @RequestParam(name = "page", defaultValue = "1", required = false) Integer page,
             @RequestParam(name = "size", defaultValue = "10", required = false) Integer size) {
