@@ -9,7 +9,7 @@ import com.myshop.api.payload.response.user.LoginResponse;
 import com.myshop.api.payload.response.user.PasswordResponse;
 import com.myshop.api.payload.response.user.UserResponse;
 import com.myshop.common.http.ApiResponse;
-import com.myshop.repositories.user.entities.Account;
+import com.myshop.repositories.user.entities.UserInfo;
 
 public interface UserService {
 
@@ -29,6 +29,6 @@ public interface UserService {
 
     PasswordResponse resetPassword(ResetPasswordRequest resetPasswordRequest);
     
-    Iterable<Account> getAll();
+    Iterable<UserInfo> getAll();
 
 }

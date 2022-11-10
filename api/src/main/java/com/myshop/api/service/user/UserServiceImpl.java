@@ -258,7 +258,7 @@ public class UserServiceImpl extends CRUDBaseServiceImpl<UserInfo, UserRequest, 
 
 
     @Override
-    public Iterable<Account> getAll() {
-        return accountRepository.findAllByDeleteFlag(false);
+    public Iterable<UserInfo> getAll() {
+        return userRepository.findAllByAccount_DeleteFlag(false);
     }
 }

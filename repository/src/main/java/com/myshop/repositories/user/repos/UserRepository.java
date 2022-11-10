@@ -13,5 +13,7 @@ public interface UserRepository extends CrudRepository<UserInfo, Long>, JpaSpeci
     @Query("SELECT u FROM UserInfo u WHERE u.account=:account")
     UserInfo findUserByAccount(@Param("account") Account account);
 
+    Iterable<UserInfo> findAllByAccount_DeleteFlag(boolean deleteFlag);
+
     boolean existsByPhone( String phone);
 }

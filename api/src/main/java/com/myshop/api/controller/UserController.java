@@ -5,6 +5,7 @@ import com.myshop.api.payload.response.user.UserResponse;
 import com.myshop.api.service.user.UserService;
 import com.myshop.common.http.ApiResponse;
 import com.myshop.repositories.user.entities.Account;
+import com.myshop.repositories.user.entities.UserInfo;
 import com.myshop.security.jwt.CustomAuthUser;
 import com.myshop.security.jwt.JWTAuthenticationToken;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -45,7 +46,7 @@ public class UserController {
     }
 
     @GetMapping("/all")
-    public Iterable<Account> getUsers(){
+    public Iterable<UserInfo> getUsers(){
         return userService.getAll();
     }
 
