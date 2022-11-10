@@ -21,7 +21,7 @@ public class ProductDetail {
     private Long id;
 
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "product")
     private Product product;
 

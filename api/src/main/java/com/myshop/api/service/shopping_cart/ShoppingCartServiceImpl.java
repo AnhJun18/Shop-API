@@ -57,9 +57,15 @@ public class ShoppingCartServiceImpl extends CRUDBaseServiceImpl<ShoppingCart, S
             return ApiResponse.builder().message("Invalid product quantity or insufficient product quantity").status(0).build();
         }
         ShoppingCart newProduct = ShoppingCart.builder().userInfo(user.get())
-                .product(productDetail.get()).amount(item.getAmount()).build();
+                .productDetail(productDetail.get()).amount(item.getAmount()).build();
         shoppingCartRepository.save(newProduct);
 
         return  ApiResponse.builder().status(200).message("Add to cart successful").data(Mono.just(newProduct)).build();
+    }
+
+    @Override
+    public Iterable<Object> getShoppingCart(Long userID) {
+
+        return shoppingCartRepository.findAllByUserInfo_Id(userID);
     }
 }

@@ -14,10 +14,10 @@ spring:
         check_nullability: true
 
   datasource:
-    url: "jdbc:sqlserver://anhjun18.database.windows.net:1433;database=MyShop"
+    url: "jdbc:sqlserver://localhost:1433;database=MyShop"
     sqlScriptEncoding: UTF-8
-    username: pa
-    password: 123456qQ
+    username: sa
+    password: 18
     hikari:
       max-lifetime: 30
 
@@ -33,9 +33,9 @@ spring.mail:
   username: anhle180101@gmail.com
   password: ftzipjplmsdeycid
   properties.mail.smtp:
-    auth: true
-    starttls:
-      enable: true
+        auth: true
+        starttls:
+            enable: true
 
 jwkPublicFile: classpath:jwt-public.json
 jwkFile: classpath:jwt.json

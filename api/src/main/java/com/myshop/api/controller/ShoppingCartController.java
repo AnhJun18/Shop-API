@@ -9,10 +9,7 @@ import com.myshop.security.jwt.JWTAuthenticationToken;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 import java.security.Principal;
@@ -37,5 +34,14 @@ public class ShoppingCartController {
         String userID = ((CustomAuthUser) jwtTokenObject.getPrincipal()).getUserId();
         return Mono.just(shoppingCartService.addToCart(Long.parseLong(userID),item));
     }
+
+    @GetMapping()
+    public Mono<Iterable<Object>> getShoppingCart(Principal principal) {
+        JWTAuthenticationToken jwtTokenObject = (JWTAuthenticationToken) principal;
+        String userID = ((CustomAuthUser) jwtTokenObject.getPrincipal()).getUserId();
+        return Mono.just(shoppingCartService.getShoppingCart(Long.parseLong(userID)));
+    }
+
+
 }
 

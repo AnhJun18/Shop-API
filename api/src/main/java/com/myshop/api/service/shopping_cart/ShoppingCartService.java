@@ -7,4 +7,6 @@ public interface ShoppingCartService {
 
 
    ApiResponse<Object> addToCart(Long userId, ShoppingCartRequest item);
+
+   Iterable<Object> getShoppingCart(Long userID);
 }
