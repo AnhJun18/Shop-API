@@ -12,12 +12,18 @@ spring:
       hibernate:
         enable_lazy_load_no_trans: true
         check_nullability: true
-
+#datasource:
+#  url: "jdbc:sqlserver://anhjun18.database.windows.net:1433;database=MyShop"
+#  sqlScriptEncoding: UTF-8
+#  username: pa
+#  password: 123456qQ
+#  hikari:
+#    max-lifetime: 30
   datasource:
-    url: "jdbc:sqlserver://anhjun18.database.windows.net:1433;database=MyShop"
+    url: "jdbc:sqlserver://localhost:1433;database=MyShop"
     sqlScriptEncoding: UTF-8
-    username: pa
-    password: 123456qQ
+    username: sa
+    password: 18
     hikari:
       max-lifetime: 30
 

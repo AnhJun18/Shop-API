@@ -1,5 +1,6 @@
 package com.myshop.repositories.order.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.myshop.repositories.product.entities.ProductDetail;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,11 +23,14 @@ public class OrderDetail {
 
     @ManyToOne
     @JoinColumn(name = "order_id")
-    private Order  order;
+    @JsonBackReference
+    private Order order;
 
     @ManyToOne
     @JoinColumn(name = "product_id")
     private ProductDetail productDetail;
+
+    private Long amount;
 
     private Double prices;
 

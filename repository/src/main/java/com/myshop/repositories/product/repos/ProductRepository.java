@@ -13,4 +13,6 @@ public interface ProductRepository extends CrudRepository<Product, Long> , JpaSp
     Category findByName(String name);
 
     Page<Product> findAll( Pageable pageable);
+
+    Iterable<Product> findAllByCategory_Name(String name);
 }
