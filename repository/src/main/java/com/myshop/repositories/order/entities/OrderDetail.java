@@ -28,6 +28,8 @@ public class OrderDetail {
     @JoinColumn(name = "product_id")
     private ProductDetail productDetail;
 
+    private Long amount;
+
     private Double prices;
 
 }

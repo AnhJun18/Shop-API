@@ -20,5 +20,7 @@ public interface ProductService {
     Iterable<Product> getAllProduct();
 
     Page<Product> getPagingProduct(Integer page, Integer size);
+
+    Iterable<Product> getProductByCategory( String nameCategory);
 }
 

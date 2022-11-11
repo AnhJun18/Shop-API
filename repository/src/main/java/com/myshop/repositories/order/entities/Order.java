@@ -22,7 +22,6 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-
     @ManyToOne(fetch = FetchType.EAGER)
     private UserInfo userInfo;
 
@@ -30,9 +29,11 @@ public class Order {
 
     private String note;
 
-    private Double totalMoney;
+    private Double feeShip;
+
+    @OneToOne
+    private Status status;
 
     @CreatedDate
     protected Instant createdDate;
-
 }

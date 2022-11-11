@@ -91,5 +91,10 @@ public class ProductServiceImpl extends CRUDBaseServiceImpl<Product, ProductRequ
         return productRepository.findAll(pageable);
     }
 
+    @Override
+    public Iterable<Product> getProductByCategory(String nameCategory) {
+        return productRepository.findAllByCategory_Name(nameCategory);
+    }
+
 
 }
