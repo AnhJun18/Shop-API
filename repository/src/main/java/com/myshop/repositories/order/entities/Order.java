@@ -1,14 +1,15 @@
 package com.myshop.repositories.order.entities;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.myshop.repositories.Auditing;
 import com.myshop.repositories.user.entities.UserInfo;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
-import java.time.Instant;
+import java.util.List;
 
 @Builder
 @Entity
@@ -16,7 +17,7 @@ import java.time.Instant;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Order {
+public class Order extends Auditing {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,6 +35,19 @@ public class Order {
     @OneToOne
     private Status status;
 
-    @CreatedDate
-    protected Instant createdDate;
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "order")
+    @JsonManagedReference
+    private List<OrderDetail> orderDetails;
+
+    public Order copy() {
+        Order newOrder = new Order();
+        newOrder.userInfo = null;
+        newOrder.setAddress(this.address);
+        newOrder.setNote(this.note);
+        newOrder.setFeeShip(this.feeShip);
+        newOrder.setStatus(this.status);
+        newOrder.setOrderDetails(this.orderDetails);
+        return  newOrder;
+    }
+
 }
