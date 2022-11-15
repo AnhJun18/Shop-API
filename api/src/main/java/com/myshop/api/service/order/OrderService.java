@@ -11,5 +11,11 @@ public interface OrderService {
 
     List<Order> getTheOrder(Long UserID);
 
+    Iterable<Order> getAllOrderByAdmin();
+
     List<Order> getTheOrderByStatus(Long UserID, String status);
+
+    Iterable<Order> getOrderByStatusByAdmin( String status);
+
+    OrderResponse confirmOrder(Long userID,Long idOrder, String status);
 }

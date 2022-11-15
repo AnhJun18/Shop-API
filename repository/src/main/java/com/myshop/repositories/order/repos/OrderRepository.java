@@ -9,6 +9,8 @@ import org.springframework.stereotype.Repository;
 public interface OrderRepository extends CrudRepository<Order, Long> , JpaSpecificationExecutor<Order> {
    Iterable<Order> findAllByUserInfo_Id(Long id);
 
+   Iterable<Order> findAllByStatus_Name(String name);
+
    Iterable<Order> findAllByUserInfo_IdAndStatus_Name(Long id,String statusName);
 
    Order findOrderById( Long id);

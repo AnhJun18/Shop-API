@@ -10,4 +10,6 @@ import java.util.Optional;
 @Repository
 public interface StatusRepository extends CrudRepository<Status, Long> , JpaSpecificationExecutor<Status> {
     Optional<Status> findById(Long id);
+
+    Status findByName( String name);
 }

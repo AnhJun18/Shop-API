@@ -50,6 +50,4 @@ public class OrderController {
         return Mono.just(orderService.getTheOrderByStatus(Long.parseLong(((CustomAuthUser) jwtTokenObject.getPrincipal()).getUserId()),status));
     }
 
-
-
 }

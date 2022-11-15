@@ -5,6 +5,7 @@ import com.myshop.api.payload.request.order.OrderRequest;
 import com.myshop.api.payload.response.order.OrderResponse;
 import com.myshop.repositories.order.entities.Order;
 import com.myshop.repositories.order.entities.OrderDetail;
+import com.myshop.repositories.order.entities.Status;
 import com.myshop.repositories.order.repos.OrderDetailRepository;
 import com.myshop.repositories.order.repos.OrderRepository;
 import com.myshop.repositories.order.repos.StatusRepository;
@@ -88,6 +89,11 @@ public class OrderServiceImpl extends CRUDBaseServiceImpl<Order, OrderRequest, O
     }
 
     @Override
+    public Iterable<Order> getAllOrderByAdmin() {
+        return  orderRepository.findAll();
+    }
+
+    @Override
     public List<Order> getTheOrderByStatus(Long userID, String status) {
         Iterator<Order> source = orderRepository.findAllByUserInfo_IdAndStatus_Name(userID,status).iterator();
         List<Order> target = new ArrayList<>();
@@ -95,5 +101,20 @@ public class OrderServiceImpl extends CRUDBaseServiceImpl<Order, OrderRequest, O
             target.add(item.copy());
         });
         return  target;
+    }
+
+    @Override
+    public Iterable<Order> getOrderByStatusByAdmin(String status) {
+        return orderRepository.findAllByStatus_Name(status);
+    }
+
+    @Override
+    public OrderResponse confirmOrder(Long userID, Long idOrder, String status) {
+        Order order= orderRepository.findOrderById(idOrder);
+        Long statusCurrent= statusRepository.findByName(status).getId();
+        Optional<Status> nextStatus = statusRepository.findById(statusCurrent+1);
+        order.setStatus(nextStatus.get());
+        orderRepository.save(order);
+        return OrderResponse.builder().status(true).message(nextStatus.get().getName()).order(order).build();
     }
 }
