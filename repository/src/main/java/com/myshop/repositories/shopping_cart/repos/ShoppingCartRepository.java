@@ -12,4 +12,7 @@ public interface ShoppingCartRepository extends CrudRepository<ShoppingCart, Lon
 
     @Query("SELECT u.id, u.productDetail, u.amount FROM ShoppingCart u WHERE u.userInfo.id=:userId")
     Iterable<Object> findAllByUserInfo_Id(@Param("userId") Long id);
+
+
+    ShoppingCart findShoppingCartByUserInfo_IdAndProductDetail_Id(Long userID, Long product);
 }

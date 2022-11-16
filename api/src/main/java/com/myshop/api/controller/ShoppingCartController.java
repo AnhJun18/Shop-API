@@ -22,17 +22,26 @@ import java.security.Principal;
 @Slf4j
 @RestController
 @SecurityRequirement(name = "bearerAuth")
-@RequestMapping("/api/shopping_cart")
+@RequestMapping("/api/cart")
 public class ShoppingCartController {
     @Autowired
     private ShoppingCartService shoppingCartService;
 
-    @PostMapping()
+    @PostMapping("/AddToCart")
     public Mono<ApiResponse<Object>> addToCart(Principal principal,
                                                @RequestBody ShoppingCartRequest item) {
         JWTAuthenticationToken jwtTokenObject = (JWTAuthenticationToken) principal;
         String userID = ((CustomAuthUser) jwtTokenObject.getPrincipal()).getUserId();
         return Mono.just(shoppingCartService.addToCart(Long.parseLong(userID),item));
+    }
+
+
+    @PutMapping("/update")
+    public Mono<ApiResponse<Object>> updateCart(Principal principal,
+                                               @RequestBody ShoppingCartRequest item) {
+        JWTAuthenticationToken jwtTokenObject = (JWTAuthenticationToken) principal;
+        String userID = ((CustomAuthUser) jwtTokenObject.getPrincipal()).getUserId();
+        return Mono.just(shoppingCartService.updateCart(Long.parseLong(userID),item));
     }
 
     @GetMapping()
