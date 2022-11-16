@@ -50,18 +50,38 @@ public class ProductServiceImpl extends CRUDBaseServiceImpl<Product, ProductRequ
     @Transactional
     @Override
     public ProductResponse createProduct(ProductRequest productRequest, FilePart fileImage) throws IOException {
-        Optional<Category> category = categoryRepository.findById(productRequest.getCategory());
-        if (!category.isPresent()) {
+       Category category = categoryRepository.findByName(productRequest.getCategory());
+        if (category== null) {
             return ProductResponse.builder().message("Category is not exists").status(false).build();
         }
         Product product = Product.builder()
                 .name(productRequest.getName())
-                .category(category.get())
+                .category(category)
                 .linkImg(imageService.save(fileImage))
                 .describe(productRequest.getDescribe())
                 .price(productRequest.getPrice()).sold(0L).build();
         productRepository.save(product);
         return ProductResponse.builder().message("Create Product Successful").status(true).product(product).build();
+    }
+
+    @Override
+    public ProductResponse updateProduct(Long productID, ProductRequest productRequest, FilePart filePart) throws IOException {
+        Optional<Product> product = productRepository.findById(productID);
+        if(!product.isPresent())
+              return ProductResponse.builder().status(false).message("Cannot find product").build();
+        if(productRequest.getDescribe()!= null)
+            product.get().setDescribe(productRequest.getDescribe());
+
+        if(productRequest.getPrice()!= null)
+            product.get().setPrice(productRequest.getPrice());
+
+        if(productRequest.getName()!= null)
+            product.get().setName(productRequest.getName());
+
+        if(productRequest.getCategory()!= null)
+            product.get().setCategory(categoryRepository.findByName(productRequest.getCategory()));
+        productRepository.save(product.get());
+        return ProductResponse.builder().status(true).message("Update product successful").product(product.get()).build();
     }
 
     @Override

@@ -55,7 +55,7 @@ public class ProductController {
 
     @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Mono<ProductResponse> upload(@RequestParam("name") String name,
-                                        @RequestParam("category") Long category,
+                                        @RequestParam("category") String category,
                                         @RequestParam("describe") String describe,
                                         @RequestParam("price") Double price,
                                         @RequestPart("image") FilePart filePart) throws IOException {
@@ -64,6 +64,20 @@ public class ProductController {
                 .describe(describe).price(price).build();
         return Mono.just(productService.createProduct(product, filePart));
     }
+
+    @PutMapping(value = "/edit/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public Mono<ProductResponse> updateProduct(@RequestParam(value = "name",required = false) String name,
+                                               @RequestParam(value = "category",required = false) String category,
+                                               @RequestParam(value = "describe",required = false) String describe,
+                                               @RequestParam(value = "price",required = false) Double price,
+                                               @RequestPart(value = "image",required = false) FilePart filePart,
+                                               @PathVariable String id) throws IOException {
+        ProductRequest product = ProductRequest.builder().name(name)
+                .category(category).image(filePart)
+                .describe(describe).price(price).build();
+        return Mono.just(productService.updateProduct(Long.valueOf(id),product, filePart));
+    }
+
 
     @PostMapping(value = "/detail")
     public Mono<ProductDetailResponse> createDetailProduct(@RequestBody ProductDetailRequest detailRequest) throws IOException {

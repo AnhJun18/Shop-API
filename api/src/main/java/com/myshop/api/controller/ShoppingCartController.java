@@ -44,6 +44,13 @@ public class ShoppingCartController {
         return Mono.just(shoppingCartService.updateCart(Long.parseLong(userID),item));
     }
 
+    @DeleteMapping("{id}")
+    public Mono<ApiResponse<Object>> updateCart(Principal principal, @PathVariable("id") String idProduct) {
+        JWTAuthenticationToken jwtTokenObject = (JWTAuthenticationToken) principal;
+        String userID = ((CustomAuthUser) jwtTokenObject.getPrincipal()).getUserId();
+        return Mono.just(shoppingCartService.deleteItem(Long.parseLong(userID), Long.valueOf(idProduct)));
+    }
+
     @GetMapping()
     public Mono<Iterable<Object>> getShoppingCart(Principal principal) {
         JWTAuthenticationToken jwtTokenObject = (JWTAuthenticationToken) principal;

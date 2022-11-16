@@ -15,6 +15,8 @@ public interface ProductService {
 
     ProductResponse createProduct(ProductRequest productRequest, FilePart filePart) throws IOException;
 
+    ProductResponse updateProduct(Long productID, ProductRequest productRequest, FilePart filePart) throws IOException;
+
     ProductDetailResponse createProductDetail(ProductDetailRequest detailRequest);
 
     Iterable<Product> getAllProduct();

@@ -9,7 +9,7 @@ import org.springframework.http.codec.multipart.FilePart;
 public class ProductRequest {
     private String name;
     private FilePart image;
-    private Long category;
+    private String category;
     private String describe;
     private Double price;
 }

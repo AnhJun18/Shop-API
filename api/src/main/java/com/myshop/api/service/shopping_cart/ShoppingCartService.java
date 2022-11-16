@@ -10,5 +10,7 @@ public interface ShoppingCartService {
 
    ApiResponse<Object> updateCart(Long userId, ShoppingCartRequest item);
 
+   ApiResponse<Object> deleteItem(Long userId, Long productID);
+
    Iterable<Object> getShoppingCart(Long userID);
 }
