@@ -2,10 +2,8 @@ package com.myshop.api.service.user;
 
 import com.google.api.client.util.DateTime;
 import com.myshop.api.base.CRUDBaseServiceImpl;
-import com.myshop.api.payload.request.user.ForgotPasswordRequest;
-import com.myshop.api.payload.request.user.LoginRequest;
-import com.myshop.api.payload.request.user.ResetPasswordRequest;
-import com.myshop.api.payload.request.user.UserRequest;
+import com.myshop.api.config.NullAwareBeanUtilsBean;
+import com.myshop.api.payload.request.user.*;
 import com.myshop.api.payload.response.user.LoginResponse;
 import com.myshop.api.payload.response.user.PasswordResponse;
 import com.myshop.api.payload.response.user.UserResponse;
@@ -26,6 +24,7 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.beanutils.BeanUtilsBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -34,9 +33,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 
+import java.lang.reflect.InvocationTargetException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -179,6 +180,24 @@ public class UserServiceImpl extends CRUDBaseServiceImpl<UserInfo, UserRequest, 
         account.setDeleteFlag(true);
         accountRepository.save(account);
         return ApiResponse.builder().status(200).message("Account is blocked").data(Mono.just(account)).build();
+    }
+
+    @Override
+    public ApiResponse<Object> updateProfile(Long userID, UpdateProfileRequest updateRequest){
+        Optional<UserInfo> userInfo = userRepository.findById(userID);
+        if(userInfo.isPresent()){
+            BeanUtilsBean notNull=new NullAwareBeanUtilsBean();
+            try {
+                notNull.copyProperties(userInfo.get(),updateRequest);
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            }
+
+            userRepository.save(userInfo.get());
+        }
+        return ApiResponse.builder().status(200).data(userInfo).build();
     }
 
 

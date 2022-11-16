@@ -12,6 +12,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
     implementation 'com.nimbusds:nimbus-jose-jwt:8.19'
     implementation 'org.bouncycastle:bcprov-jdk15on:1.66'
+    implementation 'commons-beanutils:commons-beanutils:1.9.4'
 
     implementation 'org.springdoc:springdoc-openapi-webflux-ui:1.4.3'
     implementation 'org.modelmapper:modelmapper:2.3.0'

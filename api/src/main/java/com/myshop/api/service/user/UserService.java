@@ -1,10 +1,7 @@
 package com.myshop.api.service.user;
 
 
-import com.myshop.api.payload.request.user.ForgotPasswordRequest;
-import com.myshop.api.payload.request.user.LoginRequest;
-import com.myshop.api.payload.request.user.ResetPasswordRequest;
-import com.myshop.api.payload.request.user.UserRequest;
+import com.myshop.api.payload.request.user.*;
 import com.myshop.api.payload.response.user.LoginResponse;
 import com.myshop.api.payload.response.user.PasswordResponse;
 import com.myshop.api.payload.response.user.UserResponse;
@@ -22,6 +19,8 @@ public interface UserService {
     LoginResponse refreshToken(String refreshToken);
 
     ApiResponse<Object> deleteAccountUser(long userID);
+
+    ApiResponse<Object>  updateProfile(Long userID, UpdateProfileRequest profileRequest) ;
 
     PasswordResponse forgotPassword(ForgotPasswordRequest forgotPasswordRequest);
 
