@@ -66,6 +66,8 @@ public class ShoppingCartServiceImpl extends CRUDBaseServiceImpl<ShoppingCart, S
     @Override
     public ApiResponse<Object> updateCart(Long userId, ShoppingCartRequest item) {
         ShoppingCart shoppingCart= shoppingCartRepository.findShoppingCartByUserInfo_IdAndProductDetail_Id(userId,item.getProductID());
+        if(shoppingCart == null || shoppingCart.getId()<=0)
+            return ApiResponse.builder().status(101).message("update cart fail").data(null).build();
         if(item.getAmount()==0)
              shoppingCartRepository.delete(shoppingCart);
         else{
@@ -77,7 +79,6 @@ public class ShoppingCartServiceImpl extends CRUDBaseServiceImpl<ShoppingCart, S
 
     @Override
     public Iterable<Object> getShoppingCart(Long userID) {
-
         return shoppingCartRepository.findAllByUserInfo_Id(userID);
     }
 }

@@ -72,7 +72,7 @@ public class ProductServiceImpl extends CRUDBaseServiceImpl<Product, ProductRequ
             return ProductDetailResponse.builder().message("Product is not exists").status(false).build();
         }
         ProductDetail newDetail = ProductDetail.builder()
-                .product(product.get()).size(productDetailRq.getSize())
+                .infoProduct(product.get()).size(productDetailRq.getSize())
                 .color(productDetailRq.getColor()).current_number(productDetailRq.getCurrent_number()).build();
         productDetailRepository.save(newDetail);
         return ProductDetailResponse.builder().status(true).message("Create Product Detail Successful")

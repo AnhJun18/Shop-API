@@ -9,10 +9,7 @@ import com.myshop.security.jwt.JWTAuthenticationToken;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 import java.security.Principal;
@@ -42,7 +39,7 @@ public class AdminOrderController {
         return Mono.just(orderService.getOrderByStatusByAdmin(status));
     }
 
-    @GetMapping("/confirm/id={idOrder}&status={statusName}")
+    @PutMapping("/confirm/id={idOrder}&status={statusName}")
     public Mono<OrderResponse> confirmOrder(Principal principal, @PathVariable("statusName") String status, @PathVariable("idOrder") Long id) {
         JWTAuthenticationToken jwtTokenObject = (JWTAuthenticationToken) principal;
         return Mono.just(orderService.confirmOrder(Long.parseLong(((CustomAuthUser) jwtTokenObject.getPrincipal()).getUserId()),id,status));

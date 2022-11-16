@@ -1,5 +1,6 @@
 package com.myshop.repositories.product.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,8 +23,9 @@ public class ProductDetail {
 
 
     @ManyToOne(fetch = FetchType.EAGER)
+    @JsonBackReference
     @JoinColumn(name = "product")
-    private Product product;
+    private Product infoProduct;
 
     @Column(nullable = false)
     private String size;
