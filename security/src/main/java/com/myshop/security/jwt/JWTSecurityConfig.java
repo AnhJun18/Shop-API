@@ -81,7 +81,7 @@ public class JWTSecurityConfig {
                 .and()
                 .authorizeExchange()
                 .pathMatchers(HttpMethod.OPTIONS).permitAll()
-                .pathMatchers("/api/auth/**", "/api/address/**", "/api/common/**", "/swagger-ui.html", "/webjars/**", "/api-docs/**", "/uploads/**", "/api/upload/**").permitAll()
+                .pathMatchers("/api/auth/**","/api/report/**", "/api/address/**", "/api/common/**", "/swagger-ui.html", "/webjars/**", "/api-docs/**", "/uploads/**", "/api/upload/**").permitAll()
                 .pathMatchers("/api/product/**").hasAuthority("ROLE_ADMIN")
                 .anyExchange().authenticated()
                 .and().build();

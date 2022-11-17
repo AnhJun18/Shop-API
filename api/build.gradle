@@ -13,6 +13,8 @@ dependencies {
     implementation 'com.nimbusds:nimbus-jose-jwt:8.19'
     implementation 'org.bouncycastle:bcprov-jdk15on:1.66'
     implementation 'commons-beanutils:commons-beanutils:1.9.4'
+    implementation 'net.sf.jasperreports:jasperreports:6.16.0'
+    implementation 'net.sf.jasperreports:jasperreports-fonts:6.0.0'
 
     implementation 'org.springdoc:springdoc-openapi-webflux-ui:1.4.3'
     implementation 'org.modelmapper:modelmapper:2.3.0'
@@ -44,4 +46,8 @@ configurations {
     implementation {
         exclude group: 'org.springframework', module: 'spring-webmvc'
     }
+}
+repositories {
+    maven{url "http://jasperreports.sourceforge.net/maven2/"}
+    maven{url "http://jaspersoft.artifactoryonline.com/jaspersoft/third-party-ce-artifacts/"}
 }
