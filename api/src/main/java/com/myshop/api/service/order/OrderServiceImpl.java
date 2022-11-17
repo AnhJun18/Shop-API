@@ -68,7 +68,7 @@ public class OrderServiceImpl extends CRUDBaseServiceImpl<Order, OrderRequest, O
                       .productDetail(productDetail.get())
                       .order(finalNewOrder)
                       .amount(item.getAmount())
-                      .prices(item.getPrices())
+                      .prices(productDetail.get().getInfoProduct().getPrice())
                       .build());
           });
             result = true;
