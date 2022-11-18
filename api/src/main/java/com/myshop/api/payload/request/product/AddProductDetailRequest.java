@@ -5,9 +5,9 @@ import lombok.Data;
 
 @Data
 @Builder
-public class ProductDetailRequest {
+public class AddProductDetailRequest {
     private Long product_id;
     private String size;
     private String color;
-    private Long current_number;
+    private Long number;
 }
