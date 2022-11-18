@@ -20,7 +20,7 @@ public class ReportController {
     @GetMapping(value = "demo-report", produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<byte[]> getReport() {
         try {
-            return new ResponseEntity<byte[]>(service.getReport(), HttpStatus.OK);
+            return new ResponseEntity<byte[]>(service.reportAllOrder(), HttpStatus.OK);
         }
         catch(Exception e) {
             e.printStackTrace();

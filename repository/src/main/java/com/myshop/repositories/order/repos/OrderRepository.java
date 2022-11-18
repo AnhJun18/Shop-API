@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Map;
 
 @Repository
-public interface OrderRepository extends CrudRepository<Order, Long> , JpaSpecificationExecutor<Order> {
+public interface OrderRepository extends CrudRepository<Order,Long>, JpaSpecificationExecutor<Order> {
    Iterable<Order> findAllByUserInfo_Id(Long id);
 
    Iterable<Order> findAllByStatus_Name(String name);
@@ -18,8 +18,11 @@ public interface OrderRepository extends CrudRepository<Order, Long> , JpaSpecif
 
    Order findOrderById( Long id);
 
-   @Query("SELECT u.id as id, u.address as address, " +
-           "u.feeShip as feeShip,u.orderDetails as tongtien FROM Order u")
+   @Query("SELECT u.id as id,u.phoneReceiver as phone, " +
+           "u.feeShip as feeShip,u.userInfo.firstName as firstName , u.userInfo.lastName as lastName, sum(k.prices)as summaryMoney " +
+           "FROM Order  u join u.orderDetails k " +
+           "group by  u.id,u.address,u.feeShip,u.userInfo.firstName,u.userInfo.lastName,u.phoneReceiver"
+           )
    Iterable<Map<String,Object>> findAllOrderToReport();
 
 }

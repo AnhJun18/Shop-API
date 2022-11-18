@@ -28,6 +28,8 @@ public class Order extends Auditing {
 
     private String address;
 
+    private String phoneReceiver;
+
     private String note;
 
     private Double feeShip;

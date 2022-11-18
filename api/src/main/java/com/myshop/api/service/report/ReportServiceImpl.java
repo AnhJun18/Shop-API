@@ -14,10 +14,12 @@ import java.util.Map;
 
 
 @Service
-public class ReportService {
+public class ReportServiceImpl implements ReportService {
     @Autowired
     OrderRepository orderRepository;
-    public byte[] getReport() throws IOException, JRException {
+
+    @Override
+    public byte[] reportAllOrder() throws IOException, JRException {
         JasperReport jasperReport = JasperCompileManager.compileReport(new ClassPathResource("templates/report.jrxml").getInputStream());
         List<Map<String,Object>> orders= (List<Map<String,Object>>) orderRepository.findAllOrderToReport();
         JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(orders);

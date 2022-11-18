@@ -6,8 +6,11 @@
 		<![CDATA[]]>
 	</queryString>
 	<field name="id" class="java.lang.Long"/>
-	<field name="address" class="java.lang.String"/>
+	<field name="phone" class="java.lang.String"/>
 	<field name="feeShip" class="java.lang.Double"/>
+	<field name="summaryMoney" class="java.lang.Double"/>
+	<field name="firstName" class="java.lang.String"/>
+	<field name="lastName" class="java.lang.String"/>
 	<background>
 		<band splitType="Stretch"/>
 	</background>
@@ -53,7 +56,7 @@
 				<textElement textAlignment="Center">
 					<font fontName="DejaVu Sans" size="16" isBold="true"/>
 				</textElement>
-				<text><![CDATA[Phiếu Mượn Quá Hạn]]></text>
+				<text><![CDATA[Đơn Đặt Hàng]]></text>
 			</staticText>
 		</band>
 	</pageHeader>
@@ -87,7 +90,7 @@
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font fontName="DejaVu Sans" isBold="true"/>
 				</textElement>
-				<text><![CDATA[Phòng]]></text>
+				<text><![CDATA[Mã đơn]]></text>
 			</staticText>
 			<staticText>
 				<reportElement x="140" y="30" width="200" height="30" uuid="f56a471e-13a4-4377-84fc-0e12bbbf5898">
@@ -102,7 +105,7 @@
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font fontName="DejaVu Sans" isBold="true"/>
 				</textElement>
-				<text><![CDATA[Lớp]]></text>
+				<text><![CDATA[Tên Khách Hàng]]></text>
 			</staticText>
 			<staticText>
 				<reportElement x="340" y="30" width="100" height="30" uuid="60c053be-6c18-4bb5-8d36-cf976a226484">
@@ -117,7 +120,7 @@
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font fontName="DejaVu Sans" isBold="true"/>
 				</textElement>
-				<text><![CDATA[Thời Gian Mượn]]></text>
+				<text><![CDATA[Số Điện Thoại]]></text>
 			</staticText>
 			<staticText>
 				<reportElement x="440" y="30" width="100" height="30" uuid="a9a2937b-16aa-4584-a915-80e82d378e9f">
@@ -132,12 +135,12 @@
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font fontName="DejaVu Sans" isBold="true"/>
 				</textElement>
-				<text><![CDATA[Hạn Trả]]></text>
+				<text><![CDATA[Tổng Tiền]]></text>
 			</staticText>
 		</band>
 	</columnHeader>
 	<detail>
-		<band height="28" splitType="Stretch">
+		<band height="33" splitType="Stretch">
 			<textField>
 				<reportElement x="10" y="-2" width="60" height="30" uuid="d610a99b-89e0-487e-a1a6-cbc7dc55f12c">
 					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="d84d7752-344a-42c8-aa5b-d3cb85d4b4e2"/>
@@ -184,7 +187,7 @@
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font fontName="DejaVu Sans"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{address}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{firstName}+$F{lastName}]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement x="340" y="-2" width="100" height="30" uuid="e1ba3fcf-222e-4c0f-b43d-d7eb4a850f5f">
@@ -200,7 +203,23 @@
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font fontName="DejaVu Sans"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{feeShip}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{phone}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="440" y="-2" width="100" height="30" uuid="fce717a7-6ebc-41d2-b69f-271916b1595f">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="f192a657-3af5-4f43-a0ce-785cfab2563e"/>
+				</reportElement>
+				<box>
+					<pen lineColor="#D9D9D9"/>
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#FFFFFF"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#050505"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="DejaVu Sans"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{summaryMoney}+$F{feeShip}]]></textFieldExpression>
 			</textField>
 		</band>
 	</detail>
