@@ -114,10 +114,7 @@ public class OrderServiceImpl extends CRUDBaseServiceImpl<Order, OrderRequest, O
     @Override
     public OrderResponse confirmOrder(Long userID, Long idOrder) {
         Order order= orderRepository.findOrderById(idOrder);
-        System.out.println(order == null );
-        System.out.println(order.getId() <= 0 );
-        System.out.println(order.getStatus().getName() != "Chờ Xác Nhận");
-       if(order == null || order.getId() <= 0 || order.getStatus().getName() != "Chờ Xác Nhận"){
+       if(order == null || order.getId() <= 0 || !order.getStatus().getName().equals("Chờ Xác Nhận")){
            return OrderResponse.builder().status(false).message("Đơn hàng không tồn tại hoặc đã được xác nhận").order(order).build();
        }
         Status nextStatus = statusRepository.findByName("Đang Chuẩn Bị Hàng");
