@@ -1,7 +1,7 @@
 package com.myshop.api.service.product;
 
 
-import com.myshop.api.payload.request.product.ProductDetailRequest;
+import com.myshop.api.payload.request.product.AddProductDetailRequest;
 import com.myshop.api.payload.request.product.ProductRequest;
 import com.myshop.api.payload.response.product.ProductDetailResponse;
 import com.myshop.api.payload.response.product.ProductResponse;
@@ -17,7 +17,7 @@ public interface ProductService {
 
     ProductResponse updateProduct(Long productID, ProductRequest productRequest, FilePart filePart) throws IOException;
 
-    ProductDetailResponse createProductDetail(ProductDetailRequest detailRequest);
+    ProductDetailResponse createProductDetail(AddProductDetailRequest detailRequest);
 
     Iterable<Product> getAllProduct();
 

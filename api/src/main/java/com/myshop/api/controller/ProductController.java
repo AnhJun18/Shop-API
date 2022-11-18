@@ -1,8 +1,8 @@
 package com.myshop.api.controller;
 
 
+import com.myshop.api.payload.request.product.AddProductDetailRequest;
 import com.myshop.api.payload.request.product.CategoryRequest;
-import com.myshop.api.payload.request.product.ProductDetailRequest;
 import com.myshop.api.payload.request.product.ProductRequest;
 import com.myshop.api.payload.response.product.ProductDetailResponse;
 import com.myshop.api.payload.response.product.ProductResponse;
@@ -80,7 +80,7 @@ public class ProductController {
 
 
     @PostMapping(value = "/detail")
-    public Mono<ProductDetailResponse> createDetailProduct(@RequestBody ProductDetailRequest detailRequest) throws IOException {
+    public Mono<ProductDetailResponse> createDetailProduct(@RequestBody AddProductDetailRequest detailRequest) throws IOException {
         return Mono.just(productService.createProductDetail(detailRequest));
     }
 

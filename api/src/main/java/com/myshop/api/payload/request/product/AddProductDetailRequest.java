@@ -9,5 +9,5 @@ public class AddProductDetailRequest {
     private Long product_id;
     private String size;
     private String color;
-    private Long number;
+    private Long numberAdd;
 }

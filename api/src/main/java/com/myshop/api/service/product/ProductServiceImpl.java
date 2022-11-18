@@ -1,7 +1,7 @@
 package com.myshop.api.service.product;
 
 import com.myshop.api.base.CRUDBaseServiceImpl;
-import com.myshop.api.payload.request.product.ProductDetailRequest;
+import com.myshop.api.payload.request.product.AddProductDetailRequest;
 import com.myshop.api.payload.request.product.ProductRequest;
 import com.myshop.api.payload.response.product.ProductDetailResponse;
 import com.myshop.api.payload.response.product.ProductResponse;
@@ -85,18 +85,28 @@ public class ProductServiceImpl extends CRUDBaseServiceImpl<Product, ProductRequ
     }
 
     @Override
-    public ProductDetailResponse createProductDetail(ProductDetailRequest productDetailRq) {
+    public ProductDetailResponse createProductDetail(AddProductDetailRequest productAddRq) {
 
-        Optional<Product> product = productRepository.findById(productDetailRq.getProduct_id());
+        Optional<Product> product = productRepository.findById(productAddRq.getProduct_id());
         if (!product.isPresent()) {
             return ProductDetailResponse.builder().message("Product is not exists").status(false).build();
         }
-        ProductDetail newDetail = ProductDetail.builder()
-                .infoProduct(product.get()).size(productDetailRq.getSize())
-                .color(productDetailRq.getColor()).current_number(productDetailRq.getCurrent_number()).build();
-        productDetailRepository.save(newDetail);
-        return ProductDetailResponse.builder().status(true).message("Create Product Detail Successful")
-                .productDetail(newDetail).build();
+        Optional<ProductDetail> productDetail = productDetailRepository.findProductDetailByInfoProduct_IdAndSizeAndAndColor(productAddRq.getProduct_id(),productAddRq.getSize(), productAddRq.getColor());
+        if (productDetail.isPresent()) {
+            /*Nếu sản phẩm đã tồn tại size và color thì chỉ thêm số lượng*/
+            productDetail.get().setCurrent_number(productDetail.get().getCurrent_number()+productAddRq.getNumberAdd());
+            productDetailRepository.save(productDetail.get());
+            return ProductDetailResponse.builder().message("The product has been added quantity").status(true).productDetail(productDetail.get()).build();
+        }else {
+            /*Nếu sản phẩm chưa có size và color thì tạo chi tiết sản phẩm*/
+            ProductDetail newDetail = ProductDetail.builder()
+                    .infoProduct(product.get()).size(productAddRq.getSize())
+                    .color(productAddRq.getColor()).current_number(productAddRq.getNumberAdd()).build();
+            productDetailRepository.save(newDetail);
+            return ProductDetailResponse.builder().status(true).message("Create Product Detail Successful")
+                    .productDetail(newDetail).build();
+        }
+
     }
 
     @Override
