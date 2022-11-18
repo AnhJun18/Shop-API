@@ -18,6 +18,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -111,13 +112,12 @@ public class ProductServiceImpl extends CRUDBaseServiceImpl<Product, ProductRequ
 
     @Override
     public Iterable<Product> getAllProduct() {
-
-        return productRepository.findAll();
+        return productRepository.findAllSortCategory();
     }
 
     @Override
     public Page<Product> getPagingProduct(Integer page, Integer size) {
-        Pageable pageable = PageRequest.of(page - 1, size);
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("category.id").ascending());
         return productRepository.findAll(pageable);
     }
 

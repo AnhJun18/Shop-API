@@ -12,7 +12,7 @@
 	<field name="firstName" class="java.lang.String"/>
 	<field name="lastName" class="java.lang.String"/>
 	<variable name="total" class="java.lang.Double" calculation="Sum">
-		<variableExpression><![CDATA[$F{summaryMoney}]]></variableExpression>
+		<variableExpression><![CDATA[$F{summaryMoney}+$F{feeShip}]]></variableExpression>
 	</variable>
 	<background>
 		<band splitType="Stretch"/>

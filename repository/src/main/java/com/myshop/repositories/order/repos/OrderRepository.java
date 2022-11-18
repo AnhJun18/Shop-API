@@ -22,7 +22,7 @@ public interface OrderRepository extends CrudRepository<Order,Long>, JpaSpecific
    Order findOrderById( Long id);
 
    @Query("SELECT u.id as id,u.phoneReceiver as phone, " +
-           "u.feeShip as feeShip,u.userInfo.firstName as firstName , u.userInfo.lastName as lastName, sum(k.prices)as summaryMoney " +
+           "u.feeShip as feeShip,u.userInfo.firstName as firstName , u.userInfo.lastName as lastName, sum(k.prices * k.amount)as summaryMoney " +
            "FROM Order  u join u.orderDetails k " +
            "where (?1 is NULL  OR u.createdDate >= ?1) " +
            "and (?2 is NULL  OR u.createdDate <= ?2)" +
