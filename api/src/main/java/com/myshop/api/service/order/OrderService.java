@@ -20,7 +20,7 @@ public interface OrderService {
 
     Iterable<Order> getOrderByStatusByAdmin(String status);
 
-    OrderResponse confirmOrder(Long userID, Long idOrder, String status);
+    OrderResponse confirmOrder(Long userID, Long idOrder);
 
     Page<Map<String, Object>> searchOrder(Date from, Date to, String name, Integer page, Integer size) ;
 }

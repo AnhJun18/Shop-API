@@ -44,10 +44,10 @@ public class AdminOrderController {
         return Mono.just(orderService.getOrderByStatusByAdmin(status));
     }
 
-    @PutMapping("/confirm/id={idOrder}&status={statusName}")
-    public Mono<OrderResponse> confirmOrder(Principal principal, @PathVariable("statusName") String status, @PathVariable("idOrder") Long id) {
+    @PutMapping("/confirm/id={idOrder}")
+    public Mono<OrderResponse> confirmOrder(Principal principal, @PathVariable("idOrder") Long id) {
         JWTAuthenticationToken jwtTokenObject = (JWTAuthenticationToken) principal;
-        return Mono.just(orderService.confirmOrder(Long.parseLong(((CustomAuthUser) jwtTokenObject.getPrincipal()).getUserId()),id,status));
+        return Mono.just(orderService.confirmOrder(Long.parseLong(((CustomAuthUser) jwtTokenObject.getPrincipal()).getUserId()),id));
     }
 
     @GetMapping("/search")

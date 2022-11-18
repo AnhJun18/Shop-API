@@ -60,7 +60,8 @@ public class OrderServiceImpl extends CRUDBaseServiceImpl<Order, OrderRequest, O
             newOrder = Order.builder().address(orderRequest.getAddress())
                     .note(orderRequest.getNote())
                     .feeShip(orderRequest.getFeeShip()).status(statusRepository.findById(1L).get())
-                    .userInfo(userInfo.get())
+                    .userInfo(userInfo.get()).nameReceiver(orderRequest.getNameReceiver())
+                    .phoneReceiver(orderRequest.getPhoneReceiver())
                     .build();
             orderRepository.save(newOrder);
             Order finalNewOrder = newOrder;
@@ -111,13 +112,22 @@ public class OrderServiceImpl extends CRUDBaseServiceImpl<Order, OrderRequest, O
     }
 
     @Override
-    public OrderResponse confirmOrder(Long userID, Long idOrder, String status) {
+    public OrderResponse confirmOrder(Long userID, Long idOrder) {
         Order order= orderRepository.findOrderById(idOrder);
-        Long statusCurrent= statusRepository.findByName(status).getId();
-        Optional<Status> nextStatus = statusRepository.findById(statusCurrent+1);
-        order.setStatus(nextStatus.get());
+        System.out.println(order == null );
+        System.out.println(order.getId() <= 0 );
+        System.out.println(order.getStatus().getName() != "Chờ Xác Nhận");
+       if(order == null || order.getId() <= 0 || order.getStatus().getName() != "Chờ Xác Nhận"){
+           return OrderResponse.builder().status(false).message("Đơn hàng không tồn tại hoặc đã được xác nhận").order(order).build();
+       }
+        Status nextStatus = statusRepository.findByName("Đang Chuẩn Bị Hàng");
+        order.setStatus(nextStatus);
         orderRepository.save(order);
-        return OrderResponse.builder().status(true).message(nextStatus.get().getName()).order(order).build();
+        order.getOrderDetails().forEach(item -> {
+            item.getProductDetail().setCurrent_number(item.getProductDetail().getCurrent_number()-item.getAmount());
+            item.getProductDetail().getInfoProduct().setSold(item.getProductDetail().getInfoProduct().getSold()+item.getAmount());
+        });
+        return OrderResponse.builder().status(true).message("Đơn hàng đã được xác nhận").order(order).build();
     }
 
     @Override
