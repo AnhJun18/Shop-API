@@ -19,6 +19,7 @@ public class Category {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(columnDefinition = "nvarchar(255)")
     private String name;
 
 }

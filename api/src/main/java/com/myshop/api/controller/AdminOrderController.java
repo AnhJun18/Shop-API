@@ -9,10 +9,15 @@ import com.myshop.security.jwt.JWTAuthenticationToken;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 import java.security.Principal;
+import java.text.ParseException;
+import java.util.Date;
+import java.util.Map;
 
 /**
  * @author Anh Jun
@@ -44,6 +49,17 @@ public class AdminOrderController {
         JWTAuthenticationToken jwtTokenObject = (JWTAuthenticationToken) principal;
         return Mono.just(orderService.confirmOrder(Long.parseLong(((CustomAuthUser) jwtTokenObject.getPrincipal()).getUserId()),id,status));
     }
+
+    @GetMapping("/search")
+    public Mono<Page<Map<String,Object>>> getTheOrderByStatus(@RequestParam(name = "from",required = false,defaultValue = "2022-01-01")@DateTimeFormat(pattern="yyyy-MM-dd") Date fromDate,
+                                                              @RequestParam(name = "to",required = false )@DateTimeFormat(pattern="yyyy-MM-dd") Date toDate,
+                                                              @RequestParam(name = "status",required = false) String status,
+                                                              @RequestParam(name = "page", defaultValue = "1", required = false) Integer page,
+                                                              @RequestParam(name = "size", defaultValue = "10", required = false) Integer size) throws ParseException {
+
+        return Mono.just(orderService.searchOrder(fromDate,toDate==null?new Date(): toDate ,status,page,size));
+    }
+
 
 
 }

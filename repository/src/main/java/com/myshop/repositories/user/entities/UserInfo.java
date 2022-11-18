@@ -16,14 +16,17 @@ public class UserInfo extends Auditing {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(columnDefinition = "nvarchar(255)")
     private String firstName;
 
+    @Column(columnDefinition = "nvarchar(255)")
     private String lastName;
 
     private String gender;
 
     private String phone;
 
+    @Column(columnDefinition = "nvarchar(255)")
     private String address;
 
     @OneToOne(fetch = FetchType.EAGER)

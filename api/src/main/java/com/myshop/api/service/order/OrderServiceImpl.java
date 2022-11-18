@@ -13,16 +13,18 @@ import com.myshop.repositories.product.entities.ProductDetail;
 import com.myshop.repositories.product.repos.ProductDetailRepository;
 import com.myshop.repositories.user.entities.UserInfo;
 import com.myshop.repositories.user.repos.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
-
+@Slf4j
 @Transactional
 @Service
 public class OrderServiceImpl extends CRUDBaseServiceImpl<Order, OrderRequest, OrderResponse, Long> implements OrderService {
@@ -116,5 +118,11 @@ public class OrderServiceImpl extends CRUDBaseServiceImpl<Order, OrderRequest, O
         order.setStatus(nextStatus.get());
         orderRepository.save(order);
         return OrderResponse.builder().status(true).message(nextStatus.get().getName()).order(order).build();
+    }
+
+    @Override
+    public Page<Map<String, Object>> searchOrder(Date from, Date to, String status, Integer page, Integer size)  {
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdDate").descending());
+        return  orderRepository.searchOrder(from,to,status,pageable);
     }
 }

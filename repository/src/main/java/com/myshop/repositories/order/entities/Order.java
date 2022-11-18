@@ -26,10 +26,15 @@ public class Order extends Auditing {
     @ManyToOne(fetch = FetchType.EAGER)
     private UserInfo userInfo;
 
+    @Column(columnDefinition = "nvarchar(255)")
+    private String nameReceiver;
+
+    @Column(columnDefinition = "nvarchar(255)")
     private String address;
 
     private String phoneReceiver;
 
+    @Column(columnDefinition = "nvarchar(255)")
     private String note;
 
     private Double feeShip;
