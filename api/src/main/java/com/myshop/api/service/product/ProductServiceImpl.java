@@ -118,7 +118,7 @@ public class ProductServiceImpl extends CRUDBaseServiceImpl<Product, ProductRequ
 
     @Override
     public Page<Map<String,Object>> getPagingProduct(Integer page, Integer size) {
-        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("category.id").ascending());
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("category.name").ascending());
         return productRepository.getListProductPaging(pageable);
     }
 
