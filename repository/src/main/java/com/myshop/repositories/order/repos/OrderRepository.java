@@ -6,8 +6,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.Map;
 
@@ -31,14 +33,12 @@ public interface OrderRepository extends CrudRepository<Order,Long>, JpaSpecific
            )
    Iterable<Map<String,Object>> findAllOrderToReport(Date from, Date to, String status);
 
-   @Query("SELECT u.id as id,u.phoneReceiver as phone, " +
-           "u.feeShip as feeShip,u.userInfo.firstName as firstName , u.userInfo.lastName as lastName, sum(k.prices)as summaryMoney " +
-           "FROM Order  u join u.orderDetails k " +
-           "where (?1 is NULL  OR u.createdDate >= ?1) " +
-           "and (?2 is NULL  OR u.createdDate <= ?2)" +
-           "and (?3 is NULL  OR u.status.name = ?3)" +
-           "group by  u.id,u.address,u.feeShip,u.userInfo.firstName,u.userInfo.lastName,u.phoneReceiver,u.createdDate"
+   @Query(" SELECT  u as orderInfo FROM Order  u " +
+           "where (:from is NULL  OR :to is NULL  OR u.createdDate BETWEEN :from AND :to)" +
+           "and (:status is NULL  OR u.status.name = :status)" +
+           "and (u.createdDate is not null ) " +
+           "and (:info is null OR u.phoneReceiver like %:info% OR u.nameReceiver like %:info% )"
    )
-   Page<Map<String,Object>> searchOrder(Date from, Date to, String status, Pageable pageable);
+   Page<Order> searchOrder(@Param("from") Instant from, @Param("to") Instant to, @Param("info") String info, @Param("status") String status, Pageable pageable);
 
 }

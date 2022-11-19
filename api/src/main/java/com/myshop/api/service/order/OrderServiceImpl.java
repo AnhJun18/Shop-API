@@ -128,8 +128,8 @@ public class OrderServiceImpl extends CRUDBaseServiceImpl<Order, OrderRequest, O
     }
 
     @Override
-    public Page<Map<String, Object>> searchOrder(Date from, Date to, String status, Integer page, Integer size)  {
+    public Page<Order> searchOrder(Date from,Date  to, String query, String status, Integer page, Integer size)  {
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdDate").descending());
-        return  orderRepository.searchOrder(from,to,status,pageable);
+        return  orderRepository.searchOrder(from.toInstant(),to.toInstant(),query==""?null:query,status,pageable);
     }
 }

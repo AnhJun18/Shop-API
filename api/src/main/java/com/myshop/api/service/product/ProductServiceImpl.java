@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.Optional;
 
 
@@ -116,14 +117,20 @@ public class ProductServiceImpl extends CRUDBaseServiceImpl<Product, ProductRequ
     }
 
     @Override
-    public Page<Product> getPagingProduct(Integer page, Integer size) {
+    public Page<Map<String,Object>> getPagingProduct(Integer page, Integer size) {
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("category.id").ascending());
-        return productRepository.findAll(pageable);
+        return productRepository.getListProductPaging(pageable);
     }
 
     @Override
     public Iterable<Product> getProductByCategory(String nameCategory) {
         return productRepository.findAllByCategory_Name(nameCategory);
+    }
+
+    @Override
+    public Iterable<ProductDetail> getDetailProductById(Long id_product) {
+
+        return productDetailRepository.findAllByInfoProduct_Id(id_product);
     }
 
 

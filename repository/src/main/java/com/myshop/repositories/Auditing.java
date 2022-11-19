@@ -22,5 +22,5 @@ public class Auditing {
 
     @CreatedDate
     protected Instant createdDate;
-    
+
 }

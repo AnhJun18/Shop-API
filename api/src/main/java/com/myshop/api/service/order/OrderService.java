@@ -7,7 +7,6 @@ import org.springframework.data.domain.Page;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 public interface OrderService {
     OrderResponse order(Long userID, OrderRequest orderRequest);
@@ -22,5 +21,5 @@ public interface OrderService {
 
     OrderResponse confirmOrder(Long userID, Long idOrder);
 
-    Page<Map<String, Object>> searchOrder(Date from, Date to, String name, Integer page, Integer size) ;
+    Page<Order> searchOrder(Date from, Date to, String query, String name, Integer page, Integer size) ;
 }

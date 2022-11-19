@@ -10,6 +10,7 @@ import com.myshop.api.service.product.CategoryService;
 import com.myshop.api.service.product.ProductService;
 import com.myshop.repositories.product.entities.Category;
 import com.myshop.repositories.product.entities.Product;
+import com.myshop.repositories.product.entities.ProductDetail;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * @author Anh Jun
@@ -84,13 +86,18 @@ public class ProductController {
         return Mono.just(productService.createProductDetail(detailRequest));
     }
 
+    @GetMapping(value = "/detail/{id_product}")
+    public Mono<Iterable<ProductDetail>> getDetailProductById(@PathVariable Long id_product) throws IOException {
+        return Mono.just(productService.getDetailProductById(id_product));
+    }
+
     @GetMapping("/all")
     public Mono<Iterable<Product>> getAllProduct(){
         return Mono.just(productService.getAllProduct());
     }
 
     @GetMapping("/getpaging")
-    public Mono<Page<Product>> getPaging(
+    public Mono<Page<Map<String,Object>>> getPaging(
             @RequestParam(name = "page", defaultValue = "1", required = false) Integer page,
             @RequestParam(name = "size", defaultValue = "10", required = false) Integer size) {
         return Mono.just(productService.getPagingProduct(page, size));

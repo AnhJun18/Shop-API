@@ -8,13 +8,15 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Map;
+
 @Repository
 public interface ProductRepository extends CrudRepository<Product, Long> , JpaSpecificationExecutor<Product> {
 
     @Query("FROM Product u order by u.category.id ASC ")
     Iterable<Product> findAllSortCategory();
 
-    Page<Product> findAll( Pageable pageable);
+    Page<Map<String,Object>> getListProductPaging(Pageable pageable);
 
     Iterable<Product> findAllByCategory_Name(String nameCategory);
 }

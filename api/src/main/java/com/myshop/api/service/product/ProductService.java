@@ -6,10 +6,12 @@ import com.myshop.api.payload.request.product.ProductRequest;
 import com.myshop.api.payload.response.product.ProductDetailResponse;
 import com.myshop.api.payload.response.product.ProductResponse;
 import com.myshop.repositories.product.entities.Product;
+import com.myshop.repositories.product.entities.ProductDetail;
 import org.springframework.data.domain.Page;
 import org.springframework.http.codec.multipart.FilePart;
 
 import java.io.IOException;
+import java.util.Map;
 
 public interface ProductService {
 
@@ -21,8 +23,10 @@ public interface ProductService {
 
     Iterable<Product> getAllProduct();
 
-    Page<Product> getPagingProduct(Integer page, Integer size);
+    Page<Map<String,Object>> getPagingProduct(Integer page, Integer size);
 
     Iterable<Product> getProductByCategory( String nameCategory);
+
+    Iterable<ProductDetail> getDetailProductById(Long id_product);
 }
 
