@@ -128,8 +128,47 @@ public class OrderServiceImpl extends CRUDBaseServiceImpl<Order, OrderRequest, O
     }
 
     @Override
+    public OrderResponse deliveryOrder(Long idOrder) {
+        Order order= orderRepository.findOrderById(idOrder);
+        if(order == null || order.getId() <= 0 || !order.getStatus().getName().equals("Đang Chuẩn Bị Hàng")){
+            return OrderResponse.builder().status(false).message("Có lỗi! Vui lòng thử lại").order(order).build();
+        }
+        Status nextStatus = statusRepository.findByName("Đang Vận Chuyển");
+        order.setStatus(nextStatus);
+        orderRepository.save(order);
+
+        return  OrderResponse.builder().status(true).message("Đơn hàng đã được vận chuyển").order(order).build();
+    }
+
+    @Override
+    public OrderResponse confirmPaidOrder(Long idOrder) {
+        Order order= orderRepository.findOrderById(idOrder);
+        if(order == null || order.getId() <= 0 || !order.getStatus().getName().equals("Đang Vận Chuyển")){
+            return OrderResponse.builder().status(false).message("Có lỗi! Vui lòng thử lại").order(order).build();
+        }
+        Status nextStatus = statusRepository.findByName("Đã Thanh Toán");
+        order.setStatus(nextStatus);
+        orderRepository.save(order);
+
+        return  OrderResponse.builder().status(true).message("Đơn hàng đã thanh toán thành công!").order(order).build();
+    }
+
+    @Override
+    public OrderResponse confirmCancelOrder(Long idOrder) {
+        Order order= orderRepository.findOrderById(idOrder);
+        if(order == null || order.getId() <= 0 || order.getStatus().getName().equals("Đã Thanh Toán")){
+            return OrderResponse.builder().status(false).message("Đơn hàng không tồn tại hoặc đã được thanh toán!").order(order).build();
+        }
+        Status nextStatus = statusRepository.findByName("Đã Hủy");
+        order.setStatus(nextStatus);
+        orderRepository.save(order);
+
+        return  OrderResponse.builder().status(true).message("Đơn hàng đã bị hủy").order(order).build();
+    }
+
+    @Override
     public Page<Order> searchOrder(Date from,Date  to, String query, String status, Integer page, Integer size)  {
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdDate").descending());
-        return  orderRepository.searchOrder(from.toInstant(),to.toInstant(),query==""?null:query,status,pageable);
+        return  orderRepository.searchOrder(from.toInstant(),to.toInstant(),query==""?null:query,status==""?null:status,pageable);
     }
 }

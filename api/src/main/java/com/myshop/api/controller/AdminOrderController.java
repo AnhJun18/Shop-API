@@ -49,6 +49,21 @@ public class AdminOrderController {
         return Mono.just(orderService.confirmOrder(Long.parseLong(((CustomAuthUser) jwtTokenObject.getPrincipal()).getUserId()), id));
     }
 
+    @PutMapping("/delivery/id={idOrder}")
+    public Mono<OrderResponse> deliveryOrder( @PathVariable("idOrder") Long id) {
+        return Mono.just(orderService.deliveryOrder(id));
+    }
+
+    @PutMapping("/paid_order/id={idOrder}")
+    public Mono<OrderResponse> confirmPaidOrder( @PathVariable("idOrder") Long id) {
+        return Mono.just(orderService.confirmPaidOrder(id));
+    }
+
+    @DeleteMapping("/cancel_order/id={idOrder}")
+    public Mono<OrderResponse> confirmCancelOrder( @PathVariable("idOrder") Long id) {
+        return Mono.just(orderService.confirmCancelOrder(id));
+    }
+
     @GetMapping("/search")
     public Mono<Page<Order>> getTheOrderByStatus(@RequestParam(name = "from", required = false, defaultValue = "2022-01-01") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fromDate,
                                                  @RequestParam(name = "to", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date toDate,

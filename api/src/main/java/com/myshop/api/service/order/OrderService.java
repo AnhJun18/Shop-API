@@ -21,5 +21,11 @@ public interface OrderService {
 
     OrderResponse confirmOrder(Long userID, Long idOrder);
 
+    OrderResponse deliveryOrder( Long idOrder);
+
+    OrderResponse confirmPaidOrder( Long idOrder);
+
+    OrderResponse confirmCancelOrder( Long idOrder);
+
     Page<Order> searchOrder(Date from, Date to, String query, String name, Integer page, Integer size) ;
 }
