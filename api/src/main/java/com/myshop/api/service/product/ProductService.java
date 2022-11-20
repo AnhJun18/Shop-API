@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.codec.multipart.FilePart;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 public interface ProductService {
@@ -19,7 +20,7 @@ public interface ProductService {
 
     ProductResponse updateProduct(Long productID, ProductRequest productRequest, FilePart filePart) throws IOException;
 
-    ProductDetailResponse createProductDetail(AddProductDetailRequest detailRequest);
+    ProductDetailResponse createProductDetail(List<AddProductDetailRequest> detailRequest);
 
     Iterable<Product> getAllProduct();
 

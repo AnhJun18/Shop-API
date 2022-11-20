@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -82,7 +83,7 @@ public class ProductController {
 
 
     @PostMapping(value = "/detail")
-    public Mono<ProductDetailResponse> createDetailProduct(@RequestBody AddProductDetailRequest detailRequest) throws IOException {
+    public Mono<ProductDetailResponse> createDetailProduct(@RequestBody List<AddProductDetailRequest> detailRequest) throws IOException {
         return Mono.just(productService.createProductDetail(detailRequest));
     }
 
