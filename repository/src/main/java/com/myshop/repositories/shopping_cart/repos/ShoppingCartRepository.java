@@ -7,11 +7,13 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Map;
+
 @Repository
 public interface ShoppingCartRepository extends CrudRepository<ShoppingCart, Long> , JpaSpecificationExecutor<ShoppingCart> {
 
-    @Query("SELECT u.id, u.productDetail, u.amount FROM ShoppingCart u WHERE u.userInfo.id=:userId")
-    Iterable<Object> findAllByUserInfo_Id(@Param("userId") Long id);
+    @Query("SELECT u.id as idCart, u.productDetail as product, u.amount as amount FROM ShoppingCart u WHERE u.userInfo.id=:userId")
+    Iterable<Map<String,Object>> findAllByUserInfo_Id(@Param("userId") Long id);
 
 
     ShoppingCart findShoppingCartByUserInfo_IdAndProductDetail_Id(Long userID, Long product);

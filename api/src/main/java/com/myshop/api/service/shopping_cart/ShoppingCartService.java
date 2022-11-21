@@ -3,6 +3,8 @@ package com.myshop.api.service.shopping_cart;
 import com.myshop.api.payload.request.shopping_cart.ShoppingCartRequest;
 import com.myshop.common.http.ApiResponse;
 
+import java.util.Map;
+
 public interface ShoppingCartService {
 
 
@@ -12,5 +14,5 @@ public interface ShoppingCartService {
 
    ApiResponse<Object> deleteItem(Long userId, Long productID);
 
-   Iterable<Object> getShoppingCart(Long userID);
+   Iterable<Map<String,Object>> getShoppingCart(Long userID);
 }

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 import java.security.Principal;
+import java.util.Map;
 
 /**
  * @author Anh Jun
@@ -51,8 +52,8 @@ public class ShoppingCartController {
         return Mono.just(shoppingCartService.deleteItem(Long.parseLong(userID), Long.valueOf(idProduct)));
     }
 
-    @GetMapping()
-    public Mono<Iterable<Object>> getShoppingCart(Principal principal) {
+    @GetMapping("/all")
+    public Mono<Iterable<Map<String,Object>>> getShoppingCart(Principal principal) {
         JWTAuthenticationToken jwtTokenObject = (JWTAuthenticationToken) principal;
         String userID = ((CustomAuthUser) jwtTokenObject.getPrincipal()).getUserId();
         return Mono.just(shoppingCartService.getShoppingCart(Long.parseLong(userID)));

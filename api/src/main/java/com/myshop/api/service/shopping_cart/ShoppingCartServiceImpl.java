@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 
+import java.util.Map;
 import java.util.Optional;
 
 
@@ -80,14 +81,14 @@ public class ShoppingCartServiceImpl extends CRUDBaseServiceImpl<ShoppingCart, S
     @Override
     public ApiResponse<Object> deleteItem(Long userId, Long productID) {
         ShoppingCart shoppingCart= shoppingCartRepository.findShoppingCartByUserInfo_IdAndProductDetail_Id(userId,productID);
-        if(shoppingCart != null || shoppingCart.getId()<=0)
+        if(shoppingCart == null || shoppingCart.getId()<=0)
             return ApiResponse.builder().status(101).message("cannot find this item in your cart").data(null).build();
         shoppingCartRepository.delete(shoppingCart);
         return ApiResponse.builder().status(200).message("update cart successful").data(Mono.just(shoppingCart)).build();
     }
 
     @Override
-    public Iterable<Object> getShoppingCart(Long userID) {
+    public Iterable<Map<String,Object>> getShoppingCart(Long userID) {
         return shoppingCartRepository.findAllByUserInfo_Id(userID);
     }
 }
