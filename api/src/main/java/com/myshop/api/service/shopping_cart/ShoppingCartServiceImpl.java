@@ -57,38 +57,43 @@ public class ShoppingCartServiceImpl extends CRUDBaseServiceImpl<ShoppingCart, S
         if (item.getAmount() < 1 || productDetail.get().getCurrent_number() < item.getAmount()) {
             return ApiResponse.builder().message("Invalid product quantity or insufficient product quantity").status(0).build();
         }
-        ShoppingCart newProduct = ShoppingCart.builder().userInfo(user.get())
-                .productDetail(productDetail.get()).amount(item.getAmount()).build();
-        shoppingCartRepository.save(newProduct);
-
-        return  ApiResponse.builder().status(200).message("Add to cart successful").data(Mono.just(newProduct)).build();
+        ShoppingCart shoppingCart = shoppingCartRepository.findShoppingCartByUserInfo_IdAndProductDetail_Id(userId, item.getProductID());
+        if (shoppingCart == null || shoppingCart.getId() < 1) {
+            ShoppingCart newProduct = ShoppingCart.builder().userInfo(user.get())
+                    .productDetail(productDetail.get()).amount(item.getAmount()).build();
+            shoppingCartRepository.save(newProduct);
+            return ApiResponse.builder().status(200).message("Add to cart successful").data(Mono.just(newProduct)).build();
+        } else {
+            shoppingCart.setAmount(shoppingCart.getAmount()+item.getAmount());
+            return ApiResponse.builder().message("Your cart is updated").status(200).build();
+        }
     }
 
     @Override
     public ApiResponse<Object> updateCart(Long userId, ShoppingCartRequest item) {
-        ShoppingCart shoppingCart= shoppingCartRepository.findShoppingCartByUserInfo_IdAndProductDetail_Id(userId,item.getProductID());
-        if(shoppingCart == null || shoppingCart.getId()<=0)
+        ShoppingCart shoppingCart = shoppingCartRepository.findShoppingCartByUserInfo_IdAndProductDetail_Id(userId, item.getProductID());
+        if (shoppingCart == null || shoppingCart.getId() <= 0)
             return ApiResponse.builder().status(101).message("update cart fail").data(null).build();
-        if(item.getAmount()==0)
-             shoppingCartRepository.delete(shoppingCart);
-        else{
+        if (item.getAmount() == 0)
+            shoppingCartRepository.delete(shoppingCart);
+        else {
             shoppingCart.setAmount(item.getAmount());
             shoppingCartRepository.save(shoppingCart);
-}
+        }
         return ApiResponse.builder().status(200).message("update cart successful").data(Mono.just(shoppingCart)).build();
     }
 
     @Override
     public ApiResponse<Object> deleteItem(Long userId, Long productID) {
-        ShoppingCart shoppingCart= shoppingCartRepository.findShoppingCartByUserInfo_IdAndProductDetail_Id(userId,productID);
-        if(shoppingCart == null || shoppingCart.getId()<=0)
+        ShoppingCart shoppingCart = shoppingCartRepository.findShoppingCartByUserInfo_IdAndProductDetail_Id(userId, productID);
+        if (shoppingCart == null || shoppingCart.getId() <= 0)
             return ApiResponse.builder().status(101).message("cannot find this item in your cart").data(null).build();
         shoppingCartRepository.delete(shoppingCart);
         return ApiResponse.builder().status(200).message("update cart successful").data(Mono.just(shoppingCart)).build();
     }
 
     @Override
-    public Iterable<Map<String,Object>> getShoppingCart(Long userID) {
+    public Iterable<Map<String, Object>> getShoppingCart(Long userID) {
         return shoppingCartRepository.findAllByUserInfo_Id(userID);
     }
 }
