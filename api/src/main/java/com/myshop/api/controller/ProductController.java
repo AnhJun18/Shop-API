@@ -2,13 +2,11 @@ package com.myshop.api.controller;
 
 
 import com.myshop.api.payload.request.product.AddProductDetailRequest;
-import com.myshop.api.payload.request.product.CategoryRequest;
 import com.myshop.api.payload.request.product.ProductRequest;
 import com.myshop.api.payload.response.product.ProductDetailResponse;
 import com.myshop.api.payload.response.product.ProductResponse;
 import com.myshop.api.service.product.CategoryService;
 import com.myshop.api.service.product.ProductService;
-import com.myshop.repositories.product.entities.Category;
 import com.myshop.repositories.product.entities.Product;
 import com.myshop.repositories.product.entities.ProductDetail;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -41,20 +39,6 @@ public class ProductController {
     @Autowired
     ProductService productService;
 
-    @PostMapping("/category")
-    public Mono<Category> createCategory(@RequestBody CategoryRequest categoryRequest) {
-        return Mono.just(categoryService.createCategory(categoryRequest));
-    }
-
-    @GetMapping("/category/all")
-    public Mono<Iterable<Category>> getAllCategory() {
-        return Mono.just(categoryService.getAllCategory());
-    }
-
-    @GetMapping("/category/{nameCategory}")
-    public Mono<Iterable<Product>> getProductByCategory(@PathVariable String nameCategory) {
-        return Mono.just(productService.getProductByCategory(nameCategory));
-    }
 
     @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Mono<ProductResponse> upload(@RequestParam("name") String name,
@@ -97,10 +81,15 @@ public class ProductController {
         return Mono.just(productService.getAllProduct());
     }
 
-    @GetMapping("/getpaging")
+    @GetMapping("/get_paging")
     public Mono<Page<Map<String,Object>>> getPaging(
             @RequestParam(name = "page", defaultValue = "1", required = false) Integer page,
             @RequestParam(name = "size", defaultValue = "10", required = false) Integer size) {
         return Mono.just(productService.getPagingProduct(page, size));
+    }
+
+    @GetMapping("/category={nameCategory}")
+    public Mono<Iterable<Product>> getProductByCategory(@PathVariable String nameCategory) {
+        return Mono.just(productService.getProductByCategory(nameCategory));
     }
 }
