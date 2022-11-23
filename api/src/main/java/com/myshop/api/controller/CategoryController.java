@@ -27,7 +27,7 @@ public class CategoryController {
 
 
     @PostMapping("")
-    public Mono<Category> createCategory(@RequestBody CategoryRequest categoryRequest) {
+    public Mono<ApiResponse<?>> createCategory(@RequestBody CategoryRequest categoryRequest) {
         return Mono.just(categoryService.createCategory(categoryRequest));
     }
 

@@ -7,7 +7,7 @@ import com.myshop.repositories.product.entities.Category;
 
 public interface CategoryService {
 
-    Category createCategory(CategoryRequest categoryRequest);
+    ApiResponse<?> createCategory(CategoryRequest categoryRequest);
 
     Iterable<Category> getAllCategory();
 

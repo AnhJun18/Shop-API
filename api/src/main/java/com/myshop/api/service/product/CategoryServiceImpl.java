@@ -32,11 +32,11 @@ public class CategoryServiceImpl extends CRUDBaseServiceImpl<Category, CategoryR
     }
 
     @Override
-    public Category createCategory(CategoryRequest categoryRequest) {
+    public ApiResponse<?> createCategory(CategoryRequest categoryRequest) {
 
         Category newCategory = Category.builder().name(categoryRequest.getName()).build();
         categoryRepository.save(newCategory);
-        return newCategory;
+        return ApiResponse.builder().status(200).data(newCategory).message("Danh mục đã được thêm").build();
     }
 
     @Override

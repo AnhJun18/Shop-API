@@ -18,7 +18,7 @@ public interface ProductRepository extends CrudRepository<Product, Long> , JpaSp
 
     @Query(" SELECT  u.id as id, u.name as name,u.describe as describe,u.category.name as category," +
             " u.linkImg as linkImg, u.price as price, u.sold as sold, sum(k.current_number) as quantityInStock" +
-            " FROM Product  u join ProductDetail k on u.id = k.infoProduct.id" +
+            " FROM Product  u left join ProductDetail k on u.id = k.infoProduct.id" +
             " group by u.id,  u.name, u.describe,u.category.name, " +
             " u.linkImg ,u.price, u.sold "
     )
