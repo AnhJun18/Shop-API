@@ -13,6 +13,8 @@ import com.myshop.repositories.product.entities.ProductDetail;
 import com.myshop.repositories.product.repos.CategoryRepository;
 import com.myshop.repositories.product.repos.ProductDetailRepository;
 import com.myshop.repositories.product.repos.ProductRepository;
+import com.myshop.repositories.warehouse.entity.WarehouseReceiptDetail;
+import com.myshop.repositories.warehouse.repos.WarehouseReceiptDetailRepository;
 import com.myshop.repositories.warehouse.repos.WarehouseReceiptRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,6 +48,8 @@ public class ProductServiceImpl extends CRUDBaseServiceImpl<Product, ProductRequ
     CategoryRepository categoryRepository;
     @Autowired
     WarehouseReceiptRepository warehouseReceiptRepository;
+    @Autowired
+    WarehouseReceiptDetailRepository warehouseReceiptDetailRepository;
 
     @Value("${jwkFile}")
     private Resource jwkFile;
@@ -100,15 +104,18 @@ public class ProductServiceImpl extends CRUDBaseServiceImpl<Product, ProductRequ
         boolean result = false;
 
         try {
+            WarehouseReceipt newReceipt=WarehouseReceipt.builder().build();
+            warehouseReceiptRepository.save(newReceipt);
             for (AddProductDetailRequest productAddRq : listRq) {
                 Optional<Product> product = productRepository.findById(productAddRq.getProduct_id());
                 if (!product.isPresent()) {
                     throw new Exception("Không tìm thấy sản phẩm cần thêm");
                 }
                 Optional<ProductDetail> productDetail = productDetailRepository.findProductDetailByInfoProduct_IdAndSizeAndAndColor(productAddRq.getProduct_id(), productAddRq.getSize(), productAddRq.getColor());
-                warehouseReceiptRepository.save(WarehouseReceipt.builder().product(product.get())
-                        .color(productAddRq.getColor()).size(productAddRq.getSize())
-                        .amount(productAddRq.getNumberAdd()).costPrice(productAddRq.getPrices()).build());
+                WarehouseReceiptDetail newReceiptDetail=WarehouseReceiptDetail.builder().warehouseReceipt(newReceipt)
+                        .productDetail(productDetail.get()).amount(productAddRq.getNumberAdd())
+                        .costPrices(productAddRq.getPrices()).build();
+                warehouseReceiptDetailRepository.save(newReceiptDetail);
                 if (productDetail.isPresent()) {
                     /*Nếu sản phẩm đã tồn tại size và color thì chỉ thêm số lượng*/
                     productDetail.get().setCurrent_number(productDetail.get().getCurrent_number() + productAddRq.getNumberAdd());

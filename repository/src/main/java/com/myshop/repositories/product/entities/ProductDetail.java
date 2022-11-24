@@ -29,7 +29,7 @@ public class ProductDetail {
     @Column(nullable = false)
     private String size;
 
-    @Column(nullable = false)
+    @Column(columnDefinition = "nvarchar(255)",nullable = false)
     private String color;
 
     private Long current_number;

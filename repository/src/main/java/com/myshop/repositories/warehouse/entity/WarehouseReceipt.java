@@ -1,7 +1,6 @@
 package com.myshop.repositories.order.entities;
 
 import com.myshop.repositories.Auditing;
-import com.myshop.repositories.product.entities.Product;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,18 +19,5 @@ public class WarehouseReceipt extends Auditing {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @ManyToOne()
-    private Product product;
-
-    private String color;
-
-    private String size;
-
-    private Long amount;
-
-    private Double costPrice;
-
-
 
 }
