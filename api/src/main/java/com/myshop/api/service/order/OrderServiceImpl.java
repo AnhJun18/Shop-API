@@ -1,6 +1,7 @@
 package com.myshop.api.service.order;
 
 import com.myshop.api.base.CRUDBaseServiceImpl;
+import com.myshop.api.payload.request.order.OrderDetailRequest;
 import com.myshop.api.payload.request.order.OrderRequest;
 import com.myshop.api.payload.response.order.OrderResponse;
 import com.myshop.repositories.order.entities.Order;
@@ -11,6 +12,8 @@ import com.myshop.repositories.order.repos.OrderRepository;
 import com.myshop.repositories.order.repos.StatusRepository;
 import com.myshop.repositories.product.entities.ProductDetail;
 import com.myshop.repositories.product.repos.ProductDetailRepository;
+import com.myshop.repositories.shopping_cart.entities.ShoppingCart;
+import com.myshop.repositories.shopping_cart.repos.ShoppingCartRepository;
 import com.myshop.repositories.user.entities.UserInfo;
 import com.myshop.repositories.user.repos.UserRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +40,8 @@ public class OrderServiceImpl extends CRUDBaseServiceImpl<Order, OrderRequest, O
     @Autowired
     private UserRepository userRepository;
     @Autowired
+    private ShoppingCartRepository shoppingCartRepository;
+    @Autowired
     private OrderDetailRepository orderDetailRepository;
 
 
@@ -57,53 +62,64 @@ public class OrderServiceImpl extends CRUDBaseServiceImpl<Order, OrderRequest, O
             result = false;
             message = "Tài khoản không hoạt động";
         } else {
-            newOrder = Order.builder().address(orderRequest.getAddress())
-                    .note(orderRequest.getNote())
-                    .feeShip(orderRequest.getFeeShip()).status(statusRepository.findById(1L).get())
-                    .userInfo(userInfo.get()).nameReceiver(orderRequest.getNameReceiver())
-                    .phoneReceiver(orderRequest.getPhoneReceiver())
-                    .build();
-            orderRepository.save(newOrder);
-            Order finalNewOrder = newOrder;
-            orderRequest.getListProduct().forEach((item)->{
-             Optional<ProductDetail> productDetail = productDetailRepository.findById(item.getProduct_id());
-              orderDetailRepository.save(OrderDetail.builder()
-                      .productDetail(productDetail.get())
-                      .order(finalNewOrder)
-                      .amount(item.getAmount())
-                      .prices(productDetail.get().getInfoProduct().getPrice())
-                      .build());
-          });
-            result = true;
-            message = "Đơn hàng đã được tạo thành công";
+            try {
+                newOrder = Order.builder().address(orderRequest.getAddress())
+                        .note(orderRequest.getNote())
+                        .feeShip(orderRequest.getFeeShip()).status(statusRepository.findById(1L).get())
+                        .userInfo(userInfo.get()).nameReceiver(orderRequest.getNameReceiver())
+                        .phoneReceiver(orderRequest.getPhoneReceiver())
+                        .build();
+                orderRepository.save(newOrder);
+                Order finalNewOrder = newOrder;
+                for (OrderDetailRequest item:orderRequest.getListProduct()) {
+                    Optional<ProductDetail> productDetail = productDetailRepository.findById(item.getProduct_id());
+                    if(productDetail.get().getCurrent_number() < item.getAmount())
+                        throw new Exception("Vấn đề tồn kho số lượng sản phẩm của chúng tôi không đủ!");
+                    ShoppingCart checkCart= shoppingCartRepository.findShoppingCartByUserInfo_IdAndProductDetail_Id(userID,item.getProduct_id());
+                    if(checkCart != null && checkCart.getId()>0)
+                        shoppingCartRepository.delete(checkCart);
+                    orderDetailRepository.save(OrderDetail.builder()
+                            .productDetail(productDetail.get())
+                            .order(finalNewOrder)
+                            .amount(item.getAmount())
+                            .prices(productDetail.get().getInfoProduct().getPrice())
+                            .build());
+                }
+                result = true;
+                message = "Đơn hàng đã được tạo thành công";
+            } catch (Exception e) {
+                result = false;
+                message = "Lỗi tạo đợn hàng "+e.getMessage();
+            }
+
         }
         return OrderResponse.builder().message(message).order(newOrder).status(result).build();
     }
 
     @Override
-    public List<Order> getTheOrder(Long userID){
+    public List<Order> getTheOrder(Long userID) {
 
-        Iterator<Order> source = orderRepository.findAllByUserInfo_Id(userID).iterator();;
+        Iterator<Order> source = orderRepository.findAllByUserInfo_Id(userID).iterator();
         List<Order> target = new ArrayList<>();
-        source.forEachRemaining( (item)->{
+        source.forEachRemaining((item) -> {
             target.add(item.copy());
         });
-        return  target;
+        return target;
     }
 
     @Override
     public Iterable<Order> getAllOrderByAdmin() {
-        return  orderRepository.findAll();
+        return orderRepository.findAll();
     }
 
     @Override
     public List<Order> getTheOrderByStatus(Long userID, String status) {
-        Iterator<Order> source = orderRepository.findAllByUserInfo_IdAndStatus_Name(userID,status).iterator();
+        Iterator<Order> source = orderRepository.findAllByUserInfo_IdAndStatus_Name(userID, status).iterator();
         List<Order> target = new ArrayList<>();
-        source.forEachRemaining( (item)->{
+        source.forEachRemaining((item) -> {
             target.add(item.copy());
         });
-        return  target;
+        return target;
     }
 
     @Override
@@ -113,62 +129,62 @@ public class OrderServiceImpl extends CRUDBaseServiceImpl<Order, OrderRequest, O
 
     @Override
     public OrderResponse confirmOrder(Long userID, Long idOrder) {
-        Order order= orderRepository.findOrderById(idOrder);
-       if(order == null || order.getId() <= 0 || !order.getStatus().getName().equals("Chờ Xác Nhận")){
-           return OrderResponse.builder().status(false).message("Đơn hàng không tồn tại hoặc đã được xác nhận").order(order).build();
-       }
+        Order order = orderRepository.findOrderById(idOrder);
+        if (order == null || order.getId() <= 0 || !order.getStatus().getName().equals("Chờ Xác Nhận")) {
+            return OrderResponse.builder().status(false).message("Đơn hàng không tồn tại hoặc đã được xác nhận").order(order).build();
+        }
         Status nextStatus = statusRepository.findByName("Đang Chuẩn Bị Hàng");
         order.setStatus(nextStatus);
         orderRepository.save(order);
         order.getOrderDetails().forEach(item -> {
-            item.getProductDetail().setCurrent_number(item.getProductDetail().getCurrent_number()-item.getAmount());
-            item.getProductDetail().getInfoProduct().setSold(item.getProductDetail().getInfoProduct().getSold()+item.getAmount());
+            item.getProductDetail().setCurrent_number(item.getProductDetail().getCurrent_number() - item.getAmount());
+            item.getProductDetail().getInfoProduct().setSold(item.getProductDetail().getInfoProduct().getSold() + item.getAmount());
         });
         return OrderResponse.builder().status(true).message("Đơn hàng đã được xác nhận").order(order).build();
     }
 
     @Override
     public OrderResponse deliveryOrder(Long idOrder) {
-        Order order= orderRepository.findOrderById(idOrder);
-        if(order == null || order.getId() <= 0 || !order.getStatus().getName().equals("Đang Chuẩn Bị Hàng")){
+        Order order = orderRepository.findOrderById(idOrder);
+        if (order == null || order.getId() <= 0 || !order.getStatus().getName().equals("Đang Chuẩn Bị Hàng")) {
             return OrderResponse.builder().status(false).message("Có lỗi! Vui lòng thử lại").order(order).build();
         }
         Status nextStatus = statusRepository.findByName("Đang Vận Chuyển");
         order.setStatus(nextStatus);
         orderRepository.save(order);
 
-        return  OrderResponse.builder().status(true).message("Đơn hàng đã được vận chuyển").order(order).build();
+        return OrderResponse.builder().status(true).message("Đơn hàng đã được vận chuyển").order(order).build();
     }
 
     @Override
     public OrderResponse confirmPaidOrder(Long idOrder) {
-        Order order= orderRepository.findOrderById(idOrder);
-        if(order == null || order.getId() <= 0 || !order.getStatus().getName().equals("Đang Vận Chuyển")){
+        Order order = orderRepository.findOrderById(idOrder);
+        if (order == null || order.getId() <= 0 || !order.getStatus().getName().equals("Đang Vận Chuyển")) {
             return OrderResponse.builder().status(false).message("Có lỗi! Vui lòng thử lại").order(order).build();
         }
         Status nextStatus = statusRepository.findByName("Đã Thanh Toán");
         order.setStatus(nextStatus);
         orderRepository.save(order);
 
-        return  OrderResponse.builder().status(true).message("Đơn hàng đã thanh toán thành công!").order(order).build();
+        return OrderResponse.builder().status(true).message("Đơn hàng đã thanh toán thành công!").order(order).build();
     }
 
     @Override
     public OrderResponse confirmCancelOrder(Long idOrder) {
-        Order order= orderRepository.findOrderById(idOrder);
-        if(order == null || order.getId() <= 0 || order.getStatus().getName().equals("Đã Thanh Toán")){
+        Order order = orderRepository.findOrderById(idOrder);
+        if (order == null || order.getId() <= 0 || order.getStatus().getName().equals("Đã Thanh Toán")) {
             return OrderResponse.builder().status(false).message("Đơn hàng không tồn tại hoặc đã được thanh toán!").order(order).build();
         }
         Status nextStatus = statusRepository.findByName("Đã Hủy");
         order.setStatus(nextStatus);
         orderRepository.save(order);
 
-        return  OrderResponse.builder().status(true).message("Đơn hàng đã bị hủy").order(order).build();
+        return OrderResponse.builder().status(true).message("Đơn hàng đã bị hủy").order(order).build();
     }
 
     @Override
-    public Page<Order> searchOrder(Date from,Date  to, String query, String status, Integer page, Integer size)  {
+    public Page<Order> searchOrder(Date from, Date to, String query, String status, Integer page, Integer size) {
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdDate").descending());
-        return  orderRepository.searchOrder(from.toInstant(),to.toInstant(),query==""?null:query,status==""?null:status,pageable);
+        return orderRepository.searchOrder(from.toInstant(), to.toInstant(), query == "" ? null : query, status == "" ? null : status, pageable);
     }
 }
