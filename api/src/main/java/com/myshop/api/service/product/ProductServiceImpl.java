@@ -24,6 +24,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.io.IOException;
 import java.util.List;
@@ -124,8 +125,8 @@ public class ProductServiceImpl extends CRUDBaseServiceImpl<Product, ProductRequ
             message = "Nhập hàng thành công";
         } catch (Exception e) {
             message = "Lỗi nhập hàng! " + e.getMessage();
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         }
-
 
         return ProductDetailResponse.builder().status(result).message(message).build();
     }

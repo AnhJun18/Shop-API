@@ -24,6 +24,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.util.*;
 
@@ -74,7 +75,7 @@ public class OrderServiceImpl extends CRUDBaseServiceImpl<Order, OrderRequest, O
                 for (OrderDetailRequest item:orderRequest.getListProduct()) {
                     Optional<ProductDetail> productDetail = productDetailRepository.findById(item.getProduct_id());
                     if(productDetail.get().getCurrent_number() < item.getAmount())
-                        throw new Exception("Vấn đề tồn kho số lượng sản phẩm của chúng tôi không đủ!");
+                        throw new Exception("Vấn đề tồn kho số lượng sản phẩm "+productDetail.get().getInfoProduct().getName() +" của chúng tôi không đủ!");
                     ShoppingCart checkCart= shoppingCartRepository.findShoppingCartByUserInfo_IdAndProductDetail_Id(userID,item.getProduct_id());
                     if(checkCart != null && checkCart.getId()>0)
                         shoppingCartRepository.delete(checkCart);
@@ -90,6 +91,7 @@ public class OrderServiceImpl extends CRUDBaseServiceImpl<Order, OrderRequest, O
             } catch (Exception e) {
                 result = false;
                 message = "Lỗi tạo đợn hàng "+e.getMessage();
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             }
 
         }
