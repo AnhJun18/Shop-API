@@ -6,12 +6,14 @@ import com.myshop.api.payload.request.product.ProductRequest;
 import com.myshop.api.payload.response.product.ProductDetailResponse;
 import com.myshop.api.payload.response.product.ProductResponse;
 import com.myshop.api.service.firebase.IImageService;
+import com.myshop.repositories.order.entities.WarehouseReceipt;
 import com.myshop.repositories.product.entities.Category;
 import com.myshop.repositories.product.entities.Product;
 import com.myshop.repositories.product.entities.ProductDetail;
 import com.myshop.repositories.product.repos.CategoryRepository;
 import com.myshop.repositories.product.repos.ProductDetailRepository;
 import com.myshop.repositories.product.repos.ProductRepository;
+import com.myshop.repositories.warehouse.repos.WarehouseReceiptRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -27,7 +29,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 
 @Transactional
@@ -42,6 +43,8 @@ public class ProductServiceImpl extends CRUDBaseServiceImpl<Product, ProductRequ
     IImageService imageService;
     @Autowired
     CategoryRepository categoryRepository;
+    @Autowired
+    WarehouseReceiptRepository warehouseReceiptRepository;
 
     @Value("${jwkFile}")
     private Resource jwkFile;
@@ -92,35 +95,39 @@ public class ProductServiceImpl extends CRUDBaseServiceImpl<Product, ProductRequ
     @Transactional
     @Override
     public ProductDetailResponse createProductDetail(List<AddProductDetailRequest> listRq) {
-        AtomicBoolean result = new AtomicBoolean(true);
-        listRq.forEach((productAddRq) -> {
-                    Optional<Product> product = productRepository.findById(productAddRq.getProduct_id());
-                    if (!product.isPresent()) {
-                        result.set(false);
-                        return;
-                    }
-                    Optional<ProductDetail> productDetail = productDetailRepository.findProductDetailByInfoProduct_IdAndSizeAndAndColor(productAddRq.getProduct_id(), productAddRq.getSize(), productAddRq.getColor());
-                    if (productDetail.isPresent()) {
-                        /*Nếu sản phẩm đã tồn tại size và color thì chỉ thêm số lượng*/
-                        productDetail.get().setCurrent_number(productDetail.get().getCurrent_number() + productAddRq.getNumberAdd());
-                        productDetailRepository.save(productDetail.get());
-                    } else {
-                        /*Nếu sản phẩm chưa có size và color thì tạo chi tiết sản phẩm*/
-                        ProductDetail newDetail = ProductDetail.builder()
-                                .infoProduct(product.get()).size(productAddRq.getSize())
-                                .color(productAddRq.getColor()).current_number(productAddRq.getNumberAdd()).build();
-                        productDetailRepository.save(newDetail);
-                    }
+        String message = "";
+        boolean result = false;
+
+        try {
+            for (AddProductDetailRequest productAddRq : listRq) {
+                Optional<Product> product = productRepository.findById(productAddRq.getProduct_id());
+                if (!product.isPresent()) {
+                    throw new Exception("Không tìm thấy sản phẩm cần thêm");
                 }
-        );
-        if (result.get() == true)
-            return ProductDetailResponse.builder().status(true).message("Create Product Detail Successful")
-                    .productDetail(null).build();
-        else
-            return ProductDetailResponse.builder().status(false).message("Import product fail")
-                    .productDetail(null).build();
+                Optional<ProductDetail> productDetail = productDetailRepository.findProductDetailByInfoProduct_IdAndSizeAndAndColor(productAddRq.getProduct_id(), productAddRq.getSize(), productAddRq.getColor());
+                warehouseReceiptRepository.save(WarehouseReceipt.builder().product(product.get())
+                        .color(productAddRq.getColor()).size(productAddRq.getSize())
+                        .amount(productAddRq.getNumberAdd()).costPrice(productAddRq.getPrices()).build());
+                if (productDetail.isPresent()) {
+                    /*Nếu sản phẩm đã tồn tại size và color thì chỉ thêm số lượng*/
+                    productDetail.get().setCurrent_number(productDetail.get().getCurrent_number() + productAddRq.getNumberAdd());
+                    productDetailRepository.save(productDetail.get());
+                } else {
+                    /*Nếu sản phẩm chưa có size và color thì tạo chi tiết sản phẩm*/
+                    ProductDetail newDetail = ProductDetail.builder()
+                            .infoProduct(product.get()).size(productAddRq.getSize())
+                            .color(productAddRq.getColor()).current_number(productAddRq.getNumberAdd()).build();
+                    productDetailRepository.save(newDetail);
+                }
+            }
+            result = true;
+            message = "Nhập hàng thành công";
+        } catch (Exception e) {
+            message = "Lỗi nhập hàng! " + e.getMessage();
+        }
 
 
+        return ProductDetailResponse.builder().status(result).message(message).build();
     }
 
     @Override
