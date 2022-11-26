@@ -22,6 +22,7 @@ public class WarehouseReceiptDetail {
     private Long id;
 
     @ManyToOne
+    @JoinColumn(name = "warehouse_receipt_id")
     private WarehouseReceipt warehouseReceipt;
 
     @ManyToOne

@@ -21,7 +21,7 @@ public class ReportController {
     @Autowired
     ReportService service;
 
-    @GetMapping(value = "demo-report", produces = MediaType.APPLICATION_PDF_VALUE)
+    @GetMapping(value = "/list-order", produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<byte[]> getReport(@RequestParam(name = "from",required = false,defaultValue = "2022-01-01") @DateTimeFormat(pattern="yyyy-MM-dd") Date fromDate,
                                             @RequestParam(name = "to",required = false )@DateTimeFormat(pattern="yyyy-MM-dd") Date toDate,
                                             @RequestParam(name = "status",required = false ) String status) {

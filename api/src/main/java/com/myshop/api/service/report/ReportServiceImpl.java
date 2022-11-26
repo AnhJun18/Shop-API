@@ -26,7 +26,6 @@ public class ReportServiceImpl implements ReportService {
         List<Map<String,Object>> orders= (List<Map<String, Object>>) orderRepository.findAllOrderToReport(from,to,status);
         JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(orders);
         Map<String, Object> parameters = new HashMap<>();
-//        parameters.put("createdBy", "TuanLM");
         return JasperExportManager.exportReportToPdf(JasperFillManager.fillReport(jasperReport, parameters, dataSource));
     }
 }
