@@ -23,14 +23,16 @@ allprojects {
     repositories {
         mavenLocal()
         mavenCentral()
-        jcenter()
+
         maven {
             url = uri('http://repo.maven.apache.org/maven2')
         }
         maven { url "https://repo.spring.io/libs-milestone" }
         maven { url "https://repo.spring.io/libs-snapshot" }
         maven { url "https://repo.spring.io/libs-release" }
+        jcenter()
     }
+
 
     configurations {
         compileOnly {
@@ -40,8 +42,6 @@ allprojects {
 
     dependencies {
         implementation 'org.projectlombok:lombok'
-
-
         testImplementation ('org.springframework.boot:spring-boot-starter-test') {
             exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
         }
