@@ -1,9 +1,9 @@
 spring:
   servlet:
     multipart:
-      max-file-size: 10MB
-      max-request-size: 10MB
-
+      enabled: true
+      max-file-size: 1000MB
+      max-request-size: 1000MB
 
   jpa:
     hibernate:
@@ -11,7 +11,7 @@ spring:
     properties:
       hibernate:
         enable_lazy_load_no_trans: true
-
+        check_nullability: true
   datasource:
     url: "jdbc:sqlserver://anhjun18.database.windows.net:1433;database=MyShop"
     sqlScriptEncoding: UTF-8
@@ -19,6 +19,13 @@ spring:
     password: 123456qQ
     hikari:
       max-lifetime: 30
+#  datasource:
+#    url: "jdbc:sqlserver://localhost:1433;database=MyShop"
+#    sqlScriptEncoding: UTF-8
+#    username: sa
+#    password: 18
+#    hikari:
+#      max-lifetime: 30
 
 springdoc:
   swagger-ui:
@@ -26,10 +33,29 @@ springdoc:
   api-docs:
     path: "/api-docs"
 
+spring.mail:
+  host: smtp.gmail.com
+  port: 587
+  username: anhle180101@gmail.com
+  password: ftzipjplmsdeycid
+  properties.mail.smtp:
+        auth: true
+        starttls:
+            enable: true
+
 jwkPublicFile: classpath:jwt-public.json
 jwkFile: classpath:jwt.json
 
 logging:
   level:
     ROOT: INFO
+server:
+  error:
+    include-message: always
+    include-binding-errors: always
 
+firebase:
+  bucket-name: fir-myshop-lpa.appspot.com
+  image-url: https://storage.googleapis.com/${firebase.bucket-name}/%s
+  prefix-image-url: https://firebasestorage.googleapis.com/v0/b/${firebase.bucket-name}/o/
+  suffix-image-url: ?alt=media

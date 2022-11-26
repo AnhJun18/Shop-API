@@ -1,7 +1,6 @@
 package com.myshop.repositories.user.repos;
-import com.myshop.repositories.user.entities.User;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import com.myshop.repositories.user.entities.Account;
+import com.myshop.repositories.user.entities.UserInfo;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -9,13 +8,12 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface UserRepository extends CrudRepository<User, Long>, JpaSpecificationExecutor<User> {
+public interface UserRepository extends CrudRepository<UserInfo, Long>, JpaSpecificationExecutor<UserInfo> {
 
-    @Query("SELECT u FROM User u WHERE u.username=:userName")
-    User findUserByUsername(@Param("userName") String userName);
+    @Query("SELECT u FROM UserInfo u WHERE u.account=:account")
+    UserInfo findUserByAccount(@Param("account") Account account);
 
-    Iterable<User> findAllByDeleteFlag(int deleteFlag);
+    Iterable<UserInfo> findAllByAccount_DeleteFlag(boolean deleteFlag);
 
-    Page<User> findAllByDeleteFlag(int deleteFlag, Pageable pageable);
-
+    boolean existsByPhone( String phone);
 }

@@ -2,7 +2,6 @@ package com.myshop.security.jwt;
 
 import com.myshop.common.http.CodeStatus;
 import com.myshop.common.http.ServiceException;
-import com.myshop.security.jwt.service.TokenService;
 import com.nimbusds.jose.jwk.RSAKey;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
@@ -23,17 +22,17 @@ import java.util.List;
 @Slf4j
 public class JWTAuthenticationManager implements ReactiveAuthenticationManager {
 
-    private final String AUTHORITIES = "authoriti";
+    private final String AUTHORITIES = "authorities";
 
     private final Resource jwkPublicJson;
     private final ReactiveJwtDecoder decoder;
-    private final TokenService tokenService;
 
-    public JWTAuthenticationManager(Resource jwkPublicJson, TokenService tokenService) throws Exception {
+
+    public JWTAuthenticationManager(Resource jwkPublicJson ) throws Exception {
         this.jwkPublicJson = jwkPublicJson;
         RSAPublicKey rsaPublicKey = loadPublicKey();
         decoder = new NimbusReactiveJwtDecoder(rsaPublicKey);
-        this.tokenService = tokenService;
+
     }
 
     @Override
@@ -51,15 +50,13 @@ public class JWTAuthenticationManager implements ReactiveAuthenticationManager {
         if (jwtToken.containsClaim("ati")) {
             throw new ServiceException(CodeStatus.UNAUTHORIZED);
         }
+
         String jti = jwtToken.getClaimAsString(JwtClaimNames.JTI);
-        if (!tokenService.isValidToken(jti)) {
-            throw new ServiceException(CodeStatus.UNAUTHORIZED);
-        }
 
         List<GrantedAuthority> authorities = AuthorityUtils.NO_AUTHORITIES;
         List<String> authoritiesString = jwtToken.getClaimAsStringList(AUTHORITIES);
         if (authoritiesString != null) {
-            authorities = AuthorityUtils.createAuthorityList((String[])authoritiesString.toArray());
+            authorities = AuthorityUtils.createAuthorityList(authoritiesString.toArray(new String[authoritiesString.size()]));
         }
         CustomAuthUser oauth2User = new CustomAuthUser(jwtToken.getSubject(), authorities);
         SecurityContextHolder.getContext().setAuthentication(new JWTAuthenticationToken(oauth2User, oauth2User.getAuthorities(), jti));

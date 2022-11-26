@@ -12,6 +12,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
     implementation 'com.nimbusds:nimbus-jose-jwt:8.19'
     implementation 'org.bouncycastle:bcprov-jdk15on:1.66'
+    implementation 'commons-beanutils:commons-beanutils:1.9.4'
+    implementation 'net.sf.jasperreports:jasperreports:6.16.0'
+    implementation 'net.sf.jasperreports:jasperreports-fonts:6.0.0'
 
     implementation 'org.springdoc:springdoc-openapi-webflux-ui:1.4.3'
     implementation 'org.modelmapper:modelmapper:2.3.0'
@@ -20,9 +23,15 @@ dependencies {
     implementation 'com.github.spullara.mustache.java:compiler:0.9.6'
     implementation 'javax.servlet:javax.servlet-api:4.0.1'
     implementation 'com.google.code.gson:gson:2.8.6'
+    implementation 'com.google.cloud:google-cloud-storage:1.66.0'
+    implementation 'org.springframework.boot:spring-boot-starter-mail:2.7.1'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.springframework.boot:spring-boot-starter-validation:2.5.2'
+
 
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'com.microsoft.sqlserver:mssql-jdbc'
+    implementation 'com.google.firebase:firebase-admin:6.4.0'
 
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
@@ -32,4 +41,13 @@ dependencies {
 
     compile group: 'org.thymeleaf', name: 'thymeleaf', version: '3.0.11.RELEASE'
     compile group: 'org.xhtmlrenderer', name: 'flying-saucer-pdf', version: '9.1.20'
+}
+configurations {
+    implementation {
+        exclude group: 'org.springframework', module: 'spring-webmvc'
+    }
+}
+repositories {
+    maven{url "http://jasperreports.sourceforge.net/maven2/"}
+    maven{url "http://jaspersoft.artifactoryonline.com/jaspersoft/third-party-ce-artifacts/"}
 }
