@@ -28,11 +28,9 @@ public class UserController {
     private UserService userService;
 
     @GetMapping("/profile")
-    public Mono<ApiResponse<UserResponse>> getUserCurrent(final Mono<Principal> principal) {
-        return principal.map(jwtToken -> {
-            JWTAuthenticationToken jwtTokenObject = (JWTAuthenticationToken) jwtToken;
-            return userService.getUserProfile(Long.parseLong(((CustomAuthUser) jwtTokenObject.getPrincipal()).getUserId()));
-        }).map(ApiResponse::new);
+    public Mono<UserResponse> getUserCurrent(Principal principal) {
+        JWTAuthenticationToken jwtTokenObject = (JWTAuthenticationToken) principal;
+            return Mono.just(userService.getUserProfile(Long.parseLong(((CustomAuthUser) jwtTokenObject.getPrincipal()).getUserId())));
     }
 
     @PutMapping("/profile")

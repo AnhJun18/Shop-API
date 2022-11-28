@@ -1,6 +1,7 @@
 package com.myshop.api.controller;
 
 import com.myshop.api.service.report.ReportService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -16,6 +17,7 @@ import java.util.Date;
 
 @Slf4j
 @RestController
+@SecurityRequirement(name = "bearerAuth")
 @RequestMapping("api/report")
 public class ReportController {
     @Autowired

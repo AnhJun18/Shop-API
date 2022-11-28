@@ -77,14 +77,14 @@
                 <textElement>
                     <font fontName="DejaVu Sans"/>
                 </textElement>
-                <textFieldExpression><![CDATA[ new SimpleDateFormat("dd/MM/YYYY").format($P{to})]]></textFieldExpression>
+                <textFieldExpression><![CDATA[new SimpleDateFormat("dd/MM/YYYY").format($P{to})]]></textFieldExpression>
             </textField>
             <textField>
                 <reportElement x="200" y="36" width="65" height="30" uuid="e570a489-fd1c-4d3d-b56d-6ef65b05a4b2"/>
                 <textElement>
                     <font fontName="DejaVu Sans"/>
                 </textElement>
-                <textFieldExpression><![CDATA[ new SimpleDateFormat("dd/MM/YYYY").format($P{from})]]></textFieldExpression>
+                <textFieldExpression><![CDATA[new SimpleDateFormat("dd/MM/YYYY").format($P{from})]]></textFieldExpression>
             </textField>
             <staticText>
                 <reportElement x="170" y="36" width="30" height="30" uuid="a0305937-7284-4947-8671-098f740e7fc6"/>
@@ -177,7 +177,7 @@
                 <textElement textAlignment="Center" verticalAlignment="Middle">
                     <font fontName="DejaVu Sans" isBold="true"/>
                 </textElement>
-                <text><![CDATA[Thanh Toán]]></text>
+                <text><![CDATA[Thành tiền]]></text>
             </staticText>
         </band>
     </columnHeader>
@@ -261,7 +261,7 @@
                 <textElement textAlignment="Center" verticalAlignment="Middle">
                     <font fontName="DejaVu Sans"/>
                 </textElement>
-                <textFieldExpression><![CDATA[$F{totalMoney}==null?$F{totalMoney}:0]]></textFieldExpression>
+                <textFieldExpression><![CDATA[$F{totalMoney}==null?0:$F{totalMoney}]]></textFieldExpression>
             </textField>
         </band>
     </detail>
