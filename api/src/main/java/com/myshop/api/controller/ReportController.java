@@ -33,4 +33,27 @@ public class ReportController {
             return new ResponseEntity<byte[]>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @GetMapping(value = "/monthly_revenue", produces = MediaType.APPLICATION_PDF_VALUE)
+    public ResponseEntity<byte[]> reportMonthlyRevenue(@RequestParam(name = "month",required = true) @DateTimeFormat(pattern="yyyy-MM") Date month) {
+        try {
+            return new ResponseEntity<byte[]>(service.reportMonthlyRevenue(month), HttpStatus.OK);
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<byte[]>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping(value = "/product_revenue", produces = MediaType.APPLICATION_PDF_VALUE)
+    public ResponseEntity<byte[]> reportProductRevenue(@RequestParam(name = "from", required = false, defaultValue = "2022-01-01") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fromDate,
+                                                       @RequestParam(name = "to", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date toDate) {
+        try {
+            return new ResponseEntity<byte[]>(service.reportProductRevenue(fromDate, toDate == null ? new Date():toDate), HttpStatus.OK);
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<byte[]>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

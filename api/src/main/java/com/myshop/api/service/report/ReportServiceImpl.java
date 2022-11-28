@@ -22,10 +22,31 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public byte[] reportAllOrder(Date from, Date to, String status) throws IOException, JRException {
-        JasperReport jasperReport = JasperCompileManager.compileReport(new ClassPathResource("templates/report.jrxml").getInputStream());
+        JasperReport jasperReport = JasperCompileManager.compileReport(new ClassPathResource("templates/report_order.jrxml").getInputStream());
         List<Map<String,Object>> orders= (List<Map<String, Object>>) orderRepository.findAllOrderToReport(from,to,status);
         JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(orders);
         Map<String, Object> parameters = new HashMap<>();
+        return JasperExportManager.exportReportToPdf(JasperFillManager.fillReport(jasperReport, parameters, dataSource));
+    }
+
+    @Override
+    public byte[] reportMonthlyRevenue(Date month) throws IOException, JRException {
+        JasperReport jasperReport = JasperCompileManager.compileReport(new ClassPathResource("templates/report_monthly.jrxml").getInputStream());
+        List<Map<String,Object>> list= (List<Map<String, Object>>) orderRepository.reportMonthlyRevenue(month.getMonth()+1,month.getYear()+1900);
+        JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(list);
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("month", month);
+        return JasperExportManager.exportReportToPdf(JasperFillManager.fillReport(jasperReport, parameters, dataSource));
+    }
+
+    @Override
+    public byte[] reportProductRevenue(Date from, Date to) throws IOException, JRException {
+        JasperReport jasperReport = JasperCompileManager.compileReport(new ClassPathResource("templates/report_product.jrxml").getInputStream());
+        List<Map<String,Object>> list= (List<Map<String, Object>>) orderRepository.reportProductRevenue(from.toInstant(),to.toInstant());
+        JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(list);
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("from", from);
+        parameters.put("to", to);
         return JasperExportManager.exportReportToPdf(JasperFillManager.fillReport(jasperReport, parameters, dataSource));
     }
 }
