@@ -40,7 +40,7 @@ public class EmailSenderService {
             MustacheFactory mf = new DefaultMustacheFactory(loader.getResource("classpath:/templates/").getFile());
             Mustache mustache = mf.compile( "forgot-password.html");
             StringWriter htmlContent = new StringWriter();
-            String link = "http://localhost:8081/api/auth/user/verify-code/"+verifyCode;
+            String link = "http://localhost:3000/change-pass/verify-code="+verifyCode;
             mustache.execute(htmlContent, Map.of("link", link,"name",account.getUsername()));
 
             helper.setText(htmlContent.toString(), true);

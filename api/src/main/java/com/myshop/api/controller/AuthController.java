@@ -54,7 +54,7 @@ public class AuthController {
         return Mono.just(ApiResponse.of(resp));
     }
 
-    @PostMapping("/verify-code/{code}")
+    @GetMapping("/verify-code/{code}")
     public Mono<PasswordResponse> verifyCode(@PathVariable("code") String codeRequest) {
         PasswordResponse resp = userService.verifyCode(codeRequest);
         return Mono.just(resp);

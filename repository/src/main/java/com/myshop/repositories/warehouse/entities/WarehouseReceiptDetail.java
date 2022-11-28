@@ -1,6 +1,5 @@
-package com.myshop.repositories.warehouse.entity;
+package com.myshop.repositories.warehouse.entities;
 
-import com.myshop.repositories.order.entities.WarehouseReceipt;
 import com.myshop.repositories.product.entities.ProductDetail;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

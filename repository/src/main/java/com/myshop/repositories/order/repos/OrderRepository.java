@@ -14,31 +14,57 @@ import java.util.Date;
 import java.util.Map;
 
 @Repository
-public interface OrderRepository extends CrudRepository<Order,Long>, JpaSpecificationExecutor<Order> {
-   Iterable<Order> findAllByUserInfo_Id(Long id);
+public interface OrderRepository extends CrudRepository<Order, Long>, JpaSpecificationExecutor<Order> {
+    Iterable<Order> findAllByUserInfo_Id(Long id);
 
-   Iterable<Order> findAllByStatus_Name(String name);
+    Iterable<Order> findAllByStatus_Name(String name);
 
-   Iterable<Order> findAllByUserInfo_IdAndStatus_Name(Long id,String statusName);
+    Iterable<Order> findAllByUserInfo_IdAndStatus_Name(Long id, String statusName);
 
-   Order findOrderById( Long id);
+    Order findOrderById(Long id);
 
-   @Query("SELECT u.id as id,u.phoneReceiver as phone, " +
-           "u.feeShip as feeShip,u.userInfo.firstName as firstName , u.userInfo.lastName as lastName, sum(k.prices * k.amount)as summaryMoney " +
-           "FROM Order  u join u.orderDetails k " +
-           "where (?1 is NULL  OR u.createdDate >= ?1) " +
-           "and (?2 is NULL  OR u.createdDate <= ?2)" +
-           "and (?3 is NULL  OR u.status.name = ?3)" +
-           "group by  u.id,u.address,u.feeShip,u.userInfo.firstName,u.userInfo.lastName,u.phoneReceiver"
-           )
-   Iterable<Map<String,Object>> findAllOrderToReport(Date from, Date to, String status);
+    @Query("SELECT u.id as id,u.phoneReceiver as phone, " +
+            "u.feeShip as feeShip,u.userInfo.firstName as firstName , u.userInfo.lastName as lastName, sum(k.prices * k.amount)as summaryMoney " +
+            "FROM Order  u join u.orderDetails k " +
+            "where (?1 is NULL  OR u.createdDate >= ?1) " +
+            "and (?2 is NULL  OR u.createdDate <= ?2)" +
+            "and (?3 is NULL  OR u.status.name = ?3)" +
+            "group by  u.id,u.address,u.feeShip,u.userInfo.firstName,u.userInfo.lastName,u.phoneReceiver"
+    )
+    Iterable<Map<String, Object>> findAllOrderToReport(Date from, Date to, String status);
 
-   @Query(" SELECT  u as orderInfo FROM Order  u " +
-           "where (:from is NULL  OR :to is NULL  OR u.createdDate BETWEEN :from AND :to)" +
-           "and (:status is NULL  OR u.status.name = :status)" +
-           "and (u.createdDate is not null ) " +
-           "and (:info is null OR u.phoneReceiver like %:info% OR u.nameReceiver like %:info% )"
-   )
-   Page<Order> searchOrder(@Param("from") Instant from, @Param("to") Instant to, @Param("info") String info, @Param("status") String status, Pageable pageable);
+    @Query(" SELECT  u as orderInfo FROM Order  u " +
+            "where (:from is NULL  OR :to is NULL  OR u.createdDate BETWEEN :from AND :to)" +
+            "and (:status is NULL  OR u.status.name = :status)" +
+            "and (u.createdDate is not null ) " +
+            "and (:info is null OR u.phoneReceiver like %:info% OR u.nameReceiver like %:info% )"
+    )
+    Page<Order> searchOrder(@Param("from") Instant from, @Param("to") Instant to, @Param("info") String info, @Param("status") String status, Pageable pageable);
 
+    @Query(value = "SELECT Day(u.created_date) as ngay, sum(od.amount) as total, " +
+            "sum(od.amount*od.prices) as totalMoney " +
+            "FROM the_order  u left join order_detail od " +
+            "on u.id = od.order_id " +
+            " where u.status_id = 4 " +
+            "and MONTH(u.created_date)=:month " +
+            "and Year(u.created_date)=:year " +
+            "group by Day(u.created_date)", nativeQuery = true
+    )
+    Iterable<Map<String, Object>> reportMonthlyRevenue(@Param("month") int month, @Param("year") int year);
+
+    @Query(value = "select p.id  as id, p.name  as name," +
+            "sum(od.amount) as quantity," +
+            "sum(od.prices * od.amount) as totalMoney "  +
+            "from product p " +
+            "left join product_detail pd " +
+            "   on p.id = pd.product " +
+            "   left join order_detail od " +
+            "       on pd.id = od.product_id " +
+            "       left join the_order o " +
+            "           on od.order_id = o.id " +
+            "where o.created_date is null " +
+            "      or o.created_date between :from and  :to " +
+            "group by p.id, p.name", nativeQuery = true
+    )
+    Iterable<Map<String, Object>> reportProductRevenue(@Param("from") Instant from, @Param("to") Instant to);
 }

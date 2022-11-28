@@ -3,12 +3,12 @@ package com.myshop.api.service.warehouse;
 import com.myshop.api.base.CRUDBaseServiceImpl;
 import com.myshop.api.payload.request.product.AddProductDetailRequest;
 import com.myshop.api.payload.response.product.ProductDetailResponse;
-import com.myshop.repositories.order.entities.WarehouseReceipt;
+import com.myshop.repositories.warehouse.entities.WarehouseReceipt;
 import com.myshop.repositories.product.entities.Product;
 import com.myshop.repositories.product.entities.ProductDetail;
 import com.myshop.repositories.product.repos.ProductDetailRepository;
 import com.myshop.repositories.product.repos.ProductRepository;
-import com.myshop.repositories.warehouse.entity.WarehouseReceiptDetail;
+import com.myshop.repositories.warehouse.entities.WarehouseReceiptDetail;
 import com.myshop.repositories.warehouse.repos.WarehouseReceiptDetailRepository;
 import com.myshop.repositories.warehouse.repos.WarehouseReceiptRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +18,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 
@@ -89,9 +91,9 @@ public class WarehouseServiceImpl extends CRUDBaseServiceImpl<WarehouseReceipt, 
     }
 
     @Override
-    public List<WarehouseReceipt> getHistory() {
+    public Iterable<Map<String,Object>> getHistory(Date from, Date to) {
 
-        return (List<WarehouseReceipt>) warehouseReceiptRepository.findAll();
+        return warehouseReceiptRepository.getAllReceipt(from.toInstant(),to.toInstant());
     }
 
 

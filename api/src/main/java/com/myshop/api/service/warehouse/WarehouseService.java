@@ -2,14 +2,15 @@ package com.myshop.api.service.warehouse;
 
 import com.myshop.api.payload.request.product.AddProductDetailRequest;
 import com.myshop.api.payload.response.product.ProductDetailResponse;
-import com.myshop.repositories.order.entities.WarehouseReceipt;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public interface WarehouseService {
 
     ProductDetailResponse importWarehouse(List<AddProductDetailRequest> detailRequest);
 
-    List<WarehouseReceipt> getHistory();
+    Iterable<Map<String,Object>> getHistory(Date from, Date to);
 }
 

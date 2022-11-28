@@ -1,4 +1,4 @@
-package com.myshop.repositories.order.entities;
+package com.myshop.repositories.warehouse.entities;
 
 import com.myshop.repositories.Auditing;
 import lombok.AllArgsConstructor;

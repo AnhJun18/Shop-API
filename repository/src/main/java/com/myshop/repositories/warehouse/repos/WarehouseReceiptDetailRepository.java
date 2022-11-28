@@ -1,7 +1,7 @@
 
 package com.myshop.repositories.warehouse.repos;
 
-import com.myshop.repositories.warehouse.entity.WarehouseReceiptDetail;
+import com.myshop.repositories.warehouse.entities.WarehouseReceiptDetail;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
