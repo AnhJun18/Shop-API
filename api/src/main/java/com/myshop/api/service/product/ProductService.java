@@ -26,6 +26,8 @@ public interface ProductService {
 
     Page<Map<String,Object>> getPagingProduct(Integer page, Integer size);
 
+    Iterable<Product> searchByName( String name);
+
     Iterable<Product> getProductByCategory( String nameCategory);
 
     Iterable<ProductDetail> getDetailProductById(Long id_product);

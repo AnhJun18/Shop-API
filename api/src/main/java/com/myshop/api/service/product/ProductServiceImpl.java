@@ -150,6 +150,11 @@ public class ProductServiceImpl extends CRUDBaseServiceImpl<Product, ProductRequ
     }
 
     @Override
+    public Iterable<Product> searchByName(String name) {
+        return productRepository.searchProductByName(name);
+    }
+
+    @Override
     public Iterable<Product> getProductByCategory(String nameCategory) {
         return productRepository.findAllByCategory_Name(nameCategory);
     }

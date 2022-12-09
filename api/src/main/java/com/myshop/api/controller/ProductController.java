@@ -88,6 +88,11 @@ public class ProductController {
         return Mono.just(productService.getPagingProduct(page, size));
     }
 
+    @GetMapping("/search")
+    public Mono<Iterable<Product>> search(@RequestParam(required = false)String name) {
+        return Mono.just(productService.searchByName(name));
+    }
+
     @GetMapping("/category={nameCategory}")
     public Mono<Iterable<Product>> getProductByCategory(@PathVariable String nameCategory) {
         return Mono.just(productService.getProductByCategory(nameCategory));
