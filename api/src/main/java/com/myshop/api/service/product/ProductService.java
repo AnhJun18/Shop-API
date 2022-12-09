@@ -20,6 +20,10 @@ public interface ProductService {
 
     ProductResponse updateProduct(Long productID, ProductRequest productRequest, FilePart filePart) throws IOException;
 
+    ProductResponse lockProduct(Long id);
+
+    ProductResponse unLockProduct(Long id);
+
     ProductDetailResponse createProductDetail(List<AddProductDetailRequest> detailRequest);
 
     Iterable<Product> getAllProduct();

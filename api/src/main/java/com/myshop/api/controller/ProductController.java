@@ -65,6 +65,15 @@ public class ProductController {
         return Mono.just(productService.updateProduct(Long.valueOf(id),product, filePart));
     }
 
+    @DeleteMapping(value = "/block")
+    public Mono<ProductResponse> lockProduct(@RequestParam Long productID){
+        return Mono.just(productService.lockProduct(productID));
+    }
+
+    @DeleteMapping(value = "/un_block")
+    public Mono<ProductResponse> unLockProduct(@RequestParam Long productID){
+        return Mono.just(productService.unLockProduct(productID));
+    }
 
     @PostMapping(value = "/detail")
     public Mono<ProductDetailResponse> createDetailProduct(@RequestBody List<AddProductDetailRequest> detailRequest) throws IOException {
