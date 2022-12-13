@@ -38,4 +38,6 @@ public class Product {
 
     private Long sold;
 
+    private boolean deleteFlag;
+
 }

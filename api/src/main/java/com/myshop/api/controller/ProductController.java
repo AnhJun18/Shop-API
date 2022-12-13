@@ -65,6 +65,15 @@ public class ProductController {
         return Mono.just(productService.updateProduct(Long.valueOf(id),product, filePart));
     }
 
+    @DeleteMapping(value = "/block")
+    public Mono<ProductResponse> lockProduct(@RequestParam Long productID){
+        return Mono.just(productService.lockProduct(productID));
+    }
+
+    @DeleteMapping(value = "/un_block")
+    public Mono<ProductResponse> unLockProduct(@RequestParam Long productID){
+        return Mono.just(productService.unLockProduct(productID));
+    }
 
     @PostMapping(value = "/detail")
     public Mono<ProductDetailResponse> createDetailProduct(@RequestBody List<AddProductDetailRequest> detailRequest) throws IOException {
@@ -86,6 +95,11 @@ public class ProductController {
             @RequestParam(name = "page", defaultValue = "1", required = false) Integer page,
             @RequestParam(name = "size", defaultValue = "10", required = false) Integer size) {
         return Mono.just(productService.getPagingProduct(page, size));
+    }
+
+    @GetMapping("/search")
+    public Mono<Iterable<Product>> search(@RequestParam(required = false)String name) {
+        return Mono.just(productService.searchByName(name));
     }
 
     @GetMapping("/category={nameCategory}")

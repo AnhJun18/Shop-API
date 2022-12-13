@@ -15,7 +15,7 @@ public interface OrderService {
 
     Iterable<Order> getAllOrderByAdmin();
 
-    List<Order> getTheOrderByStatus(Long UserID, String status);
+    Iterable<Order> getTheOrderByStatus(Long UserID, String status);
 
     Iterable<Order> getOrderByStatusByAdmin(String status);
 
@@ -26,6 +26,8 @@ public interface OrderService {
     OrderResponse confirmPaidOrder( Long idOrder);
 
     OrderResponse confirmCancelOrder( Long idOrder);
+
+    OrderResponse cancelOrderByUser( Long idOrder);
 
     Page<Order> searchOrder(Date from, Date to, String query, String name, Integer page, Integer size) ;
 }

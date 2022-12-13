@@ -71,7 +71,8 @@ public class ProductServiceImpl extends CRUDBaseServiceImpl<Product, ProductRequ
                 .category(category)
                 .linkImg(imageService.save(fileImage))
                 .describe(productRequest.getDescribe())
-                .price(productRequest.getPrice()).sold(0L).build();
+                .price(productRequest.getPrice()).sold(0L)
+                .deleteFlag(false).build();
         productRepository.save(product);
         return ProductResponse.builder().message("Create Product Successful").status(true).product(product).build();
     }
@@ -94,6 +95,26 @@ public class ProductServiceImpl extends CRUDBaseServiceImpl<Product, ProductRequ
             product.get().setCategory(categoryRepository.findByName(productRequest.getCategory()));
         productRepository.save(product.get());
         return ProductResponse.builder().status(true).message("Update product successful").product(product.get()).build();
+    }
+
+    @Override
+    public ProductResponse lockProduct(Long id) {
+        Optional<Product> product = productRepository.findById(id);
+        if (!product.isPresent())
+            return ProductResponse.builder().status(false).message("Cannot find product").build();
+        product.get().setDeleteFlag(true);
+        productRepository.save(product.get());
+        return ProductResponse.builder().status(true).message("Block product successful").product(product.get()).build();
+    }
+
+    @Override
+    public ProductResponse unLockProduct(Long id) {
+        Optional<Product> product = productRepository.findById(id);
+        if (!product.isPresent())
+            return ProductResponse.builder().status(false).message("Cannot find product").build();
+        product.get().setDeleteFlag(false);
+        productRepository.save(product.get());
+        return ProductResponse.builder().status(true).message("Unblock product successful").product(product.get()).build();
     }
 
 
@@ -150,8 +171,13 @@ public class ProductServiceImpl extends CRUDBaseServiceImpl<Product, ProductRequ
     }
 
     @Override
+    public Iterable<Product> searchByName(String name) {
+        return productRepository.searchProductByName(name);
+    }
+
+    @Override
     public Iterable<Product> getProductByCategory(String nameCategory) {
-        return productRepository.findAllByCategory_Name(nameCategory);
+        return productRepository.findAllByCategory_NameAndDeleteFlag(nameCategory,false);
     }
 
     @Override

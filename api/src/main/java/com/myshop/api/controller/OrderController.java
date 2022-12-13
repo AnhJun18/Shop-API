@@ -45,9 +45,14 @@ public class OrderController {
     }
 
     @GetMapping("/status={statusName}")
-    public Mono<List<Order>> getTheOrderByStatus(Principal principal, @PathVariable("statusName") String status) {
+    public Mono<Iterable<Order>> getTheOrderByStatus(Principal principal, @PathVariable("statusName") String status) {
         JWTAuthenticationToken jwtTokenObject = (JWTAuthenticationToken) principal;
         return Mono.just(orderService.getTheOrderByStatus(Long.parseLong(((CustomAuthUser) jwtTokenObject.getPrincipal()).getUserId()),status));
+    }
+
+    @DeleteMapping("/cancel_order")
+    public Mono<OrderResponse> confirmCancelOrder(@RequestParam("order_id") Long id) {
+        return Mono.just(orderService.cancelOrderByUser(id));
     }
 
 }

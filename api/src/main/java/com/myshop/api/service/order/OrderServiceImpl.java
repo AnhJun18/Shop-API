@@ -115,13 +115,9 @@ public class OrderServiceImpl extends CRUDBaseServiceImpl<Order, OrderRequest, O
     }
 
     @Override
-    public List<Order> getTheOrderByStatus(Long userID, String status) {
-        Iterator<Order> source = orderRepository.findAllByUserInfo_IdAndStatus_Name(userID, status).iterator();
-        List<Order> target = new ArrayList<>();
-        source.forEachRemaining((item) -> {
-            target.add(item.copy());
-        });
-        return target;
+    public Iterable<Order> getTheOrderByStatus(Long userID, String status) {
+
+        return orderRepository.findAllByUserInfo_IdAndStatus_Name(userID, status);
     }
 
     @Override
@@ -176,6 +172,23 @@ public class OrderServiceImpl extends CRUDBaseServiceImpl<Order, OrderRequest, O
         Order order = orderRepository.findOrderById(idOrder);
         if (order == null || order.getId() <= 0 || order.getStatus().getName().equals("Đã Thanh Toán")) {
             return OrderResponse.builder().status(false).message("Đơn hàng không tồn tại hoặc đã được thanh toán!").order(order).build();
+        }
+        Status nextStatus = statusRepository.findByName("Đã Hủy");
+        order.setStatus(nextStatus);
+        orderRepository.save(order);
+
+        return OrderResponse.builder().status(true).message("Đơn hàng đã bị hủy").order(order).build();
+    }
+
+    @Override
+    public OrderResponse cancelOrderByUser(Long idOrder) {
+        Order order = orderRepository.findOrderById(idOrder);
+        if (order == null || order.getId() <= 0) {
+            return OrderResponse.builder().status(false).message("Đơn hàng không tồn tại").order(order).build();
+        }
+        if(!order.getStatus().getName().equals("Chờ Xác Nhận") && !order.getStatus().getName().equals("Đang Chuẩn Bị Hàng")){
+            // Khách hàng chỉ đuọc huy đơn khi đơn đang trạng thái chờ xác nhân hoặc đang chuẩn bị hàng
+            return OrderResponse.builder().status(false).message("Đơn hàng "+order.getStatus().getName()+" nên không thể hủy").order(order).build();
         }
         Status nextStatus = statusRepository.findByName("Đã Hủy");
         order.setStatus(nextStatus);
