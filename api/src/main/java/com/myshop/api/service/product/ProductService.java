@@ -36,6 +36,8 @@ public interface ProductService {
 
     Iterable<Product> getProductByTag( String tag);
 
+
+
     Iterable<ProductDetail> getDetailProductById(Long id_product);
 }
 

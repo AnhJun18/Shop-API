@@ -7,6 +7,7 @@ import com.myshop.api.payload.response.product.ProductDetailResponse;
 import com.myshop.api.payload.response.product.ProductResponse;
 import com.myshop.api.service.product.CategoryService;
 import com.myshop.api.service.product.ProductService;
+import com.myshop.common.http.ApiResponse;
 import com.myshop.repositories.product.entities.Product;
 import com.myshop.repositories.product.entities.ProductDetail;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -112,4 +113,6 @@ public class ProductController {
     public Mono<Iterable<Product>> getProductByTag(@RequestParam ("nameTag") String tag) {
         return Mono.just(productService.getProductByTag(tag));
     }
+
+
 }

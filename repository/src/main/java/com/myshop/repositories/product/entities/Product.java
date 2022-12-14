@@ -1,6 +1,6 @@
 package com.myshop.repositories.product.entities;
 
-import com.myshop.repositories.chatbox.entities.Tags;
+import com.myshop.repositories.chatbot.entities.Tags;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

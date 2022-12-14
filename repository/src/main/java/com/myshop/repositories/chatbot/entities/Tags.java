@@ -1,4 +1,4 @@
-package com.myshop.repositories.chatbox.entities;
+package com.myshop.repositories.chatbot.entities;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -6,7 +6,8 @@ import com.myshop.api.payload.request.product.ProductRequest;
 import com.myshop.api.payload.response.product.ProductDetailResponse;
 import com.myshop.api.payload.response.product.ProductResponse;
 import com.myshop.api.service.firebase.IImageService;
-import com.myshop.repositories.chatbox.repos.TagRepository;
+import com.myshop.repositories.chatbot.entities.Tags;
+import com.myshop.repositories.chatbot.repos.TagRepository;
 import com.myshop.repositories.product.entities.Category;
 import com.myshop.repositories.product.entities.Product;
 import com.myshop.repositories.product.entities.ProductDetail;
@@ -69,13 +70,19 @@ public class ProductServiceImpl extends CRUDBaseServiceImpl<Product, ProductRequ
         if (category == null) {
             return ProductResponse.builder().message("Category is not exists").status(false).build();
         }
+
         Product product = Product.builder()
                 .name(productRequest.getName())
-                .category(category).tag(tagRepository.findByName(productRequest.getTag()))
+                .category(category)
                 .linkImg(imageService.save(fileImage))
                 .describe(productRequest.getDescribe())
                 .price(productRequest.getPrice()).sold(0L)
                 .deleteFlag(false).build();
+        Optional<Tags> tag = tagRepository.findByName(productRequest.getTag());
+        if (tag.isPresent()) {
+           product.setTag(tag.get());
+        }
+        else product.setTag(null);
         productRepository.save(product);
         return ProductResponse.builder().message("Create Product Successful").status(true).product(product).build();
     }
