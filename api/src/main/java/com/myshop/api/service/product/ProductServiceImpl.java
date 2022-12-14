@@ -6,13 +6,14 @@ import com.myshop.api.payload.request.product.ProductRequest;
 import com.myshop.api.payload.response.product.ProductDetailResponse;
 import com.myshop.api.payload.response.product.ProductResponse;
 import com.myshop.api.service.firebase.IImageService;
-import com.myshop.repositories.warehouse.entities.WarehouseReceipt;
+import com.myshop.repositories.chatbox.repos.TagRepository;
 import com.myshop.repositories.product.entities.Category;
 import com.myshop.repositories.product.entities.Product;
 import com.myshop.repositories.product.entities.ProductDetail;
 import com.myshop.repositories.product.repos.CategoryRepository;
 import com.myshop.repositories.product.repos.ProductDetailRepository;
 import com.myshop.repositories.product.repos.ProductRepository;
+import com.myshop.repositories.warehouse.entities.WarehouseReceipt;
 import com.myshop.repositories.warehouse.entities.WarehouseReceiptDetail;
 import com.myshop.repositories.warehouse.repos.WarehouseReceiptDetailRepository;
 import com.myshop.repositories.warehouse.repos.WarehouseReceiptRepository;
@@ -47,6 +48,8 @@ public class ProductServiceImpl extends CRUDBaseServiceImpl<Product, ProductRequ
     @Autowired
     CategoryRepository categoryRepository;
     @Autowired
+    TagRepository tagRepository;
+    @Autowired
     WarehouseReceiptRepository warehouseReceiptRepository;
     @Autowired
     WarehouseReceiptDetailRepository warehouseReceiptDetailRepository;
@@ -68,7 +71,7 @@ public class ProductServiceImpl extends CRUDBaseServiceImpl<Product, ProductRequ
         }
         Product product = Product.builder()
                 .name(productRequest.getName())
-                .category(category)
+                .category(category).tag(tagRepository.findByName(productRequest.getTag()))
                 .linkImg(imageService.save(fileImage))
                 .describe(productRequest.getDescribe())
                 .price(productRequest.getPrice()).sold(0L)
@@ -178,6 +181,11 @@ public class ProductServiceImpl extends CRUDBaseServiceImpl<Product, ProductRequ
     @Override
     public Iterable<Product> getProductByCategory(String nameCategory) {
         return productRepository.findAllByCategory_NameAndDeleteFlag(nameCategory,false);
+    }
+
+    @Override
+    public Iterable<Product> getProductByTag(String tag) {
+        return productRepository.findAllByTag_Name(tag);
     }
 
     @Override

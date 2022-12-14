@@ -1,5 +1,6 @@
 package com.myshop.repositories.product.entities;
 
+import com.myshop.repositories.chatbox.entities.Tags;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,12 +28,12 @@ public class Product {
     @ManyToOne(fetch = FetchType.EAGER)
     private Category category;
 
-//    @OneToMany(fetch = FetchType.EAGER, mappedBy = "infoProduct")
-//    @JsonManagedReference
-//    private List<ProductDetail> productDetailList;
-
     @Column(columnDefinition = "nvarchar(255)")
     private String describe;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(nullable = true)
+    private Tags tag;
 
     private Double price;
 

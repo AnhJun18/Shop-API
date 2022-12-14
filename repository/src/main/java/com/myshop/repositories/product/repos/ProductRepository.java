@@ -31,6 +31,8 @@ public interface ProductRepository extends CrudRepository<Product, Long> , JpaSp
 
     Iterable<Product> findAllByCategory_NameAndDeleteFlag(String nameCategory,boolean deleteFlag);
 
+    Iterable<Product> findAllByTag_Name(String tag);
+
     @Query(" from Product p where p.name like %:name%" +
             " and p.deleteFlag =false " )
     Iterable<Product> searchProductByName(@Param("name") String name);
