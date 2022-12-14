@@ -7,6 +7,7 @@ import com.myshop.api.payload.response.product.ProductDetailResponse;
 import com.myshop.api.payload.response.product.ProductResponse;
 import com.myshop.api.service.product.CategoryService;
 import com.myshop.api.service.product.ProductService;
+import com.myshop.common.http.ApiResponse;
 import com.myshop.repositories.product.entities.Product;
 import com.myshop.repositories.product.entities.ProductDetail;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -43,11 +44,12 @@ public class ProductController {
     @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Mono<ProductResponse> upload(@RequestParam("name") String name,
                                         @RequestParam("category") String category,
-                                        @RequestParam("describe") String describe,
+                                        @RequestParam(value = "describe",required = false) String describe,
                                         @RequestParam("price") Double price,
+                                        @RequestPart(value = "tags",required = false) String tag,
                                         @RequestPart("image") FilePart filePart) throws IOException {
         ProductRequest product = ProductRequest.builder().name(name)
-                .category(category).image(filePart)
+                .category(category).image(filePart).tag(tag)
                 .describe(describe).price(price).build();
         return Mono.just(productService.createProduct(product, filePart));
     }
@@ -106,4 +108,11 @@ public class ProductController {
     public Mono<Iterable<Product>> getProductByCategory(@PathVariable String nameCategory) {
         return Mono.just(productService.getProductByCategory(nameCategory));
     }
+
+    @GetMapping("/tags")
+    public Mono<Iterable<Product>> getProductByTag(@RequestParam ("nameTag") String tag) {
+        return Mono.just(productService.getProductByTag(tag));
+    }
+
+
 }

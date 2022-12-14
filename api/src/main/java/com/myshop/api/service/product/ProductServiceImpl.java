@@ -6,13 +6,15 @@ import com.myshop.api.payload.request.product.ProductRequest;
 import com.myshop.api.payload.response.product.ProductDetailResponse;
 import com.myshop.api.payload.response.product.ProductResponse;
 import com.myshop.api.service.firebase.IImageService;
-import com.myshop.repositories.warehouse.entities.WarehouseReceipt;
+import com.myshop.repositories.chatbot.entities.Tags;
+import com.myshop.repositories.chatbot.repos.TagRepository;
 import com.myshop.repositories.product.entities.Category;
 import com.myshop.repositories.product.entities.Product;
 import com.myshop.repositories.product.entities.ProductDetail;
 import com.myshop.repositories.product.repos.CategoryRepository;
 import com.myshop.repositories.product.repos.ProductDetailRepository;
 import com.myshop.repositories.product.repos.ProductRepository;
+import com.myshop.repositories.warehouse.entities.WarehouseReceipt;
 import com.myshop.repositories.warehouse.entities.WarehouseReceiptDetail;
 import com.myshop.repositories.warehouse.repos.WarehouseReceiptDetailRepository;
 import com.myshop.repositories.warehouse.repos.WarehouseReceiptRepository;
@@ -47,6 +49,8 @@ public class ProductServiceImpl extends CRUDBaseServiceImpl<Product, ProductRequ
     @Autowired
     CategoryRepository categoryRepository;
     @Autowired
+    TagRepository tagRepository;
+    @Autowired
     WarehouseReceiptRepository warehouseReceiptRepository;
     @Autowired
     WarehouseReceiptDetailRepository warehouseReceiptDetailRepository;
@@ -66,6 +70,7 @@ public class ProductServiceImpl extends CRUDBaseServiceImpl<Product, ProductRequ
         if (category == null) {
             return ProductResponse.builder().message("Category is not exists").status(false).build();
         }
+
         Product product = Product.builder()
                 .name(productRequest.getName())
                 .category(category)
@@ -73,6 +78,11 @@ public class ProductServiceImpl extends CRUDBaseServiceImpl<Product, ProductRequ
                 .describe(productRequest.getDescribe())
                 .price(productRequest.getPrice()).sold(0L)
                 .deleteFlag(false).build();
+        Optional<Tags> tag = tagRepository.findByName(productRequest.getTag());
+        if (tag.isPresent()) {
+           product.setTag(tag.get());
+        }
+        else product.setTag(null);
         productRepository.save(product);
         return ProductResponse.builder().message("Create Product Successful").status(true).product(product).build();
     }
@@ -178,6 +188,11 @@ public class ProductServiceImpl extends CRUDBaseServiceImpl<Product, ProductRequ
     @Override
     public Iterable<Product> getProductByCategory(String nameCategory) {
         return productRepository.findAllByCategory_NameAndDeleteFlag(nameCategory,false);
+    }
+
+    @Override
+    public Iterable<Product> getProductByTag(String tag) {
+        return productRepository.findAllByTag_Name(tag);
     }
 
     @Override
