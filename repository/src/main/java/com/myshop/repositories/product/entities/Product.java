@@ -20,7 +20,7 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(columnDefinition = "nvarchar(255)")
+    @Column(columnDefinition = "nvarchar(255)",unique = true)
     private String name;
 
     private String linkImg;

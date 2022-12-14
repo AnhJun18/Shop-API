@@ -7,7 +7,6 @@ import com.myshop.api.payload.response.product.ProductDetailResponse;
 import com.myshop.api.payload.response.product.ProductResponse;
 import com.myshop.api.service.product.CategoryService;
 import com.myshop.api.service.product.ProductService;
-import com.myshop.common.http.ApiResponse;
 import com.myshop.repositories.product.entities.Product;
 import com.myshop.repositories.product.entities.ProductDetail;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -46,7 +45,7 @@ public class ProductController {
                                         @RequestParam("category") String category,
                                         @RequestParam(value = "describe",required = false) String describe,
                                         @RequestParam("price") Double price,
-                                        @RequestPart(value = "tags",required = false) String tag,
+                                        @RequestParam(value = "tag",required = false) String tag,
                                         @RequestPart("image") FilePart filePart) throws IOException {
         ProductRequest product = ProductRequest.builder().name(name)
                 .category(category).image(filePart).tag(tag)
@@ -59,10 +58,11 @@ public class ProductController {
                                                @RequestParam(value = "category",required = false) String category,
                                                @RequestParam(value = "describe",required = false) String describe,
                                                @RequestParam(value = "price",required = false) Double price,
+                                               @RequestParam(value = "tag",required = false) String tag,
                                                @RequestPart(value = "image",required = false) FilePart filePart,
                                                @PathVariable String id) throws IOException {
         ProductRequest product = ProductRequest.builder().name(name)
-                .category(category).image(filePart)
+                .category(category).image(filePart).tag(tag)
                 .describe(describe).price(price).build();
         return Mono.just(productService.updateProduct(Long.valueOf(id),product, filePart));
     }
