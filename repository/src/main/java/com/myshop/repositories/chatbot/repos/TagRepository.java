@@ -5,7 +5,9 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface TagRepository extends CrudRepository<Tags, Long>, JpaSpecificationExecutor<Tags> {
-    Tags findByName(String name);
+    Optional<Tags>  findByName(String name);
 }
