@@ -24,6 +24,7 @@ public class UserInfo extends Auditing {
 
     private String gender;
 
+    @Column(unique = true)
     private String phone;
 
     @Column(columnDefinition = "nvarchar(255)")
