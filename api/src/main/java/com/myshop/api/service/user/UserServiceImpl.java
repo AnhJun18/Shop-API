@@ -131,9 +131,9 @@ public class UserServiceImpl extends CRUDBaseServiceImpl<UserInfo, UserRequest, 
         if (role == null) {
             return UserResponse.builder().status(false).message("Role is not exists, please check again").build();
         }
-        if (role.getName() == "ROLE_ADMIN") {
+        /*if (role.getName() == "ROLE_ADMIN") {
             return UserResponse.builder().status(false).message("You do not have permission to create an admin account").build();
-        }
+        }*/
         account = Account.builder().username(userRequest.getUserName()).deleteFlag(false).role(role).email(userRequest.getEmail())
                 .password(passwordEncoder.encode(userRequest.getPassword() + Constants.SALT_DEFAULT)).build();
         UserInfo userInfo = UserInfo.builder().firstName(userRequest.getFirstName())
@@ -280,7 +280,7 @@ public class UserServiceImpl extends CRUDBaseServiceImpl<UserInfo, UserRequest, 
 
 
     @Override
-    public Iterable<UserInfo> getAll() {
-        return userRepository.findAllByAccount_DeleteFlag(false);
+    public Iterable<UserInfo> getAllUser() {
+        return userRepository.findAllByAccount_DeleteFlagAndAccount_Role_Name(false,"ROLE_USER");
     }
 }
