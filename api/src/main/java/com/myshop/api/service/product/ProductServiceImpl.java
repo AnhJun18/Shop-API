@@ -70,6 +70,9 @@ public class ProductServiceImpl extends CRUDBaseServiceImpl<Product, ProductRequ
         if (category == null) {
             return ProductResponse.builder().message("Category is not exists").status(false).build();
         }
+        if (productRepository.existsByName(productRequest.getName())) {
+            return ProductResponse.builder().message("Tên sản phẩm đã tồn tại!").status(false).build();
+        }
 
         Product product = Product.builder()
                 .name(productRequest.getName())
@@ -176,6 +179,11 @@ public class ProductServiceImpl extends CRUDBaseServiceImpl<Product, ProductRequ
     @Override
     public Iterable<Product> getAllProduct() {
         return productRepository.findAllSortCategory();
+    }
+
+    @Override
+    public Iterable<Product> getProductBestSeller() {
+        return productRepository.getProductBestSeller();
     }
 
     @Override

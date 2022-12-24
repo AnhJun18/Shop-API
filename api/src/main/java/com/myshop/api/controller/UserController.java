@@ -49,7 +49,7 @@ public class UserController {
 
     @GetMapping("/all")
     public Iterable<UserInfo> getUsers(){
-        return userService.getAll();
+        return userService.getAllUser();
     }
 
 
