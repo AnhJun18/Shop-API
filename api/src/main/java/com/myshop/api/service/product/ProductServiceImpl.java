@@ -101,6 +101,10 @@ public class ProductServiceImpl extends CRUDBaseServiceImpl<Product, ProductRequ
         if (productRequest.getName() != null)
             product.get().setName(productRequest.getName());
 
+        Optional<Tags> tg= tagRepository.findByName(productRequest.getTag());
+        if (productRequest.getTag() != null && tg.isPresent())
+            product.get().setTag(tg.get());
+
         if (productRequest.getCategory() != null)
             product.get().setCategory(categoryRepository.findByName(productRequest.getCategory()));
         productRepository.save(product.get());
