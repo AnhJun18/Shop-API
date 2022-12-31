@@ -131,6 +131,10 @@ public class OrderServiceImpl extends CRUDBaseServiceImpl<Order, OrderRequest, O
         if (order == null || order.getId() <= 0 || !order.getStatus().getName().equals("Chờ Xác Nhận")) {
             return OrderResponse.builder().status(false).message("Đơn hàng không tồn tại hoặc đã được xác nhận").order(order).build();
         }
+        for (OrderDetail item:order.getOrderDetails()) {
+            if(item.getAmount()> item.getProductDetail().getCurrent_number())
+                return OrderResponse.builder().status(false).message("Sản phẩm đã hết hàng").order(order).build();
+        }
         Status nextStatus = statusRepository.findByName("Đang Chuẩn Bị Hàng");
         order.setStatus(nextStatus);
         orderRepository.save(order);
@@ -190,8 +194,14 @@ public class OrderServiceImpl extends CRUDBaseServiceImpl<Order, OrderRequest, O
             // Khách hàng chỉ đuọc huy đơn khi đơn đang trạng thái chờ xác nhân hoặc đang chuẩn bị hàng
             return OrderResponse.builder().status(false).message("Đơn hàng "+order.getStatus().getName()+" nên không thể hủy").order(order).build();
         }
+
         Status nextStatus = statusRepository.findByName("Đã Hủy");
         order.setStatus(nextStatus);
+        if(!order.getStatus().getName().equals("Chờ Xác Nhận")){
+            order.getOrderDetails().forEach(item->{
+                item.getProductDetail().setCurrent_number(item.getProductDetail().getCurrent_number()+item.getAmount());
+            });
+        }
         orderRepository.save(order);
 
         return OrderResponse.builder().status(true).message("Đơn hàng đã bị hủy").order(order).build();

@@ -28,6 +28,6 @@ public interface UserService {
 
     PasswordResponse resetPassword(ResetPasswordRequest resetPasswordRequest);
     
-    Iterable<UserInfo> getAll();
+    Iterable<UserInfo> getAllUser();
 
 }

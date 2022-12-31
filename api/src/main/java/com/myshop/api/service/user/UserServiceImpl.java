@@ -119,18 +119,21 @@ public class UserServiceImpl extends CRUDBaseServiceImpl<UserInfo, UserRequest, 
     public UserResponse registerUser(UserRequest userRequest) {
         Account account = accountRepository.findAccountByUsername(userRequest.getUserName());
         if (account != null && account.getId() > 0) {
-            return UserResponse.builder().status(false).message("Your account already exists, please check again").build();
+            return UserResponse.builder().status(false).message("Tài khoản đã tồn tại! Vui lòng thử lại!").build();
         }
         if (accountRepository.existsByEmail(userRequest.getEmail())) {
-            return UserResponse.builder().status(false).message("Email already exists, please check again").build();
+            return UserResponse.builder().status(false).message("Email đã tồn tại! Vui lòng thử lại!").build();
         }
         if (userRepository.existsByPhone(userRequest.getPhone())) {
-            return UserResponse.builder().status(false).message("Phone already exists, please check again").build();
+            return UserResponse.builder().status(false).message("SĐT đã tồn tại! Vui lòng thử lại!").build();
         }
         Role role = roleRepository.findByName(userRequest.getRoleName());
         if (role == null) {
             return UserResponse.builder().status(false).message("Role is not exists, please check again").build();
         }
+        /*if (role.getName() == "ROLE_ADMIN") {
+            return UserResponse.builder().status(false).message("You do not have permission to create an admin account").build();
+        }*/
         account = Account.builder().username(userRequest.getUserName()).deleteFlag(false).role(role).email(userRequest.getEmail())
                 .password(passwordEncoder.encode(userRequest.getPassword() + Constants.SALT_DEFAULT)).build();
         UserInfo userInfo = UserInfo.builder().firstName(userRequest.getFirstName())
@@ -226,10 +229,10 @@ public class UserServiceImpl extends CRUDBaseServiceImpl<UserInfo, UserRequest, 
                 forgotPasswordRepository.save(forgotPassword);
             }
             emailSenderService.sendEmail(account,verifyCode);
-            message = "Please check your email to change password!";
+            message = "Kiểm tra email để lấy lại mật khẩu!";
         } else {
             errorCode = 21;
-            message = "Not find an account with your email, please check again!";
+            message = "Email không tồn tại trong hệ thống! Vui lòng thử lại";
         }
         return PasswordResponse.builder().status(result).message(message).errorCode(errorCode).build();
     }
@@ -277,7 +280,7 @@ public class UserServiceImpl extends CRUDBaseServiceImpl<UserInfo, UserRequest, 
 
 
     @Override
-    public Iterable<UserInfo> getAll() {
-        return userRepository.findAllByAccount_DeleteFlag(false);
+    public Iterable<UserInfo> getAllUser() {
+        return userRepository.findAllByAccount_DeleteFlagAndAccount_Role_Name(false,"ROLE_USER");
     }
 }

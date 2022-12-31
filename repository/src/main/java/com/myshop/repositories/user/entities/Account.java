@@ -23,6 +23,7 @@ public class Account extends Auditing {
     @NonNull
     private String password;
 
+    @Column(unique = true)
     private String email;
 
     @OneToOne(fetch = FetchType.EAGER)

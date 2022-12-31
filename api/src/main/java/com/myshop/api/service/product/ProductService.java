@@ -28,6 +28,8 @@ public interface ProductService {
 
     Iterable<Product> getAllProduct();
 
+    Iterable<Product> getProductBestSeller();
+
     Page<Map<String,Object>> getPagingProduct(Integer page, Integer size);
 
     Iterable<Product> searchByName( String name);
@@ -35,8 +37,6 @@ public interface ProductService {
     Iterable<Product> getProductByCategory( String nameCategory);
 
     Iterable<Product> getProductByTag( String tag);
-
-
 
     Iterable<ProductDetail> getDetailProductById(Long id_product);
 }

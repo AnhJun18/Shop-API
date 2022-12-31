@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Map;
 
 @Repository
-public interface ProductRepository extends CrudRepository<Product, Long> , JpaSpecificationExecutor<Product> {
+public interface ProductRepository extends CrudRepository<Product, Long>, JpaSpecificationExecutor<Product> {
 
     @Query("FROM Product u" +
             " where u.deleteFlag = false " +
@@ -25,15 +25,23 @@ public interface ProductRepository extends CrudRepository<Product, Long> , JpaSp
             " group by u.id,  u.name, u.describe,u.category.name, " +
             " u.linkImg ,u.price, u.sold, u.deleteFlag ,u.tag.id"
     )
-    Page<Map<String,Object>> getListProductPaging(Pageable pageable);
+    Page<Map<String, Object>> getListProductPaging(Pageable pageable);
 
     Iterable<Product> findAllByCategory_Name(String nameCategory);
 
-    Iterable<Product> findAllByCategory_NameAndDeleteFlag(String nameCategory,boolean deleteFlag);
+    Iterable<Product> findAllByCategory_NameAndDeleteFlag(String nameCategory, boolean deleteFlag);
 
     Iterable<Product> findAllByTag_Name(String tag);
 
     @Query(" from Product p where p.name like %:name%" +
-            " and p.deleteFlag =false " )
+            " and p.deleteFlag =false ")
     Iterable<Product> searchProductByName(@Param("name") String name);
+
+    boolean existsByName(String name);
+
+
+    @Query(value = "Select top 4 * from product order by  sold DESC", nativeQuery = true)
+    Iterable<Product> getProductBestSeller();
+
+
 }

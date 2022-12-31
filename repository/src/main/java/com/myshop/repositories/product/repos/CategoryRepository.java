@@ -9,4 +9,5 @@ import org.springframework.stereotype.Repository;
 public interface CategoryRepository extends CrudRepository<Category, Long> , JpaSpecificationExecutor<Category> {
     Category findByName(String name);
 
+    boolean existsByName( String name);
 }

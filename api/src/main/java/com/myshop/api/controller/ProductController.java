@@ -92,6 +92,11 @@ public class ProductController {
         return Mono.just(productService.getAllProduct());
     }
 
+    @GetMapping("/best-seller")
+    public Mono<Iterable<Product>> getProductBestSeller(){
+        return Mono.just(productService.getProductBestSeller());
+    }
+
     @GetMapping("/get_paging")
     public Mono<Page<Map<String,Object>>> getPaging(
             @RequestParam(name = "page", defaultValue = "1", required = false) Integer page,
