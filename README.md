@@ -8,8 +8,7 @@
 #Release
 #####Demo:  https://pa-shop-service.azurewebsites.net/swagger-ui.html
   
-    API được deloy trên Azure với dịch vụ service free nên có 
-    thế sẽ gặp lỗi không mong muốn.
+    API được deloy trên Azure với dịch vụ service free nên có thế sẽ gặp lỗi không mong muốn.
     Hãy cài đặt ứng dụng để trải nghiệm tốt hơn
 
 
