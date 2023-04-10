@@ -7,7 +7,6 @@ import com.myshop.repositories.product.entities.ProductDetail;
 import com.myshop.repositories.product.repos.ProductDetailRepository;
 import com.myshop.repositories.shopping_cart.entities.ShoppingCart;
 import com.myshop.repositories.shopping_cart.repos.ShoppingCartRepository;
-import com.myshop.repositories.user.entities.Account;
 import com.myshop.repositories.user.entities.UserInfo;
 import com.myshop.repositories.user.repos.AccountRepository;
 import com.myshop.repositories.user.repos.UserRepository;
@@ -42,11 +41,7 @@ public class ShoppingCartServiceImpl extends CRUDBaseServiceImpl<ShoppingCart, S
 
     @Override
     public ApiResponse<Object> addToCart(Long userId, ShoppingCartRequest item) {
-        Optional<Account> account = accountRepository.findById(userId);
-        if (!account.isPresent()) {
-            return ApiResponse.builder().message("Account is not exists").status(0).build();
-        }
-        Optional<UserInfo> user = Optional.ofNullable(userRepository.findUserByAccount(account.get()));
+        Optional<UserInfo> user = userRepository.findById(userId);
         if (!user.isPresent()) {
             return ApiResponse.builder().message("User is not exists").status(0).build();
         }

@@ -7,6 +7,8 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface UserRepository extends CrudRepository<UserInfo, Long>, JpaSpecificationExecutor<UserInfo> {
 
@@ -15,5 +17,8 @@ public interface UserRepository extends CrudRepository<UserInfo, Long>, JpaSpeci
 
     Iterable<UserInfo> findAllByAccount_DeleteFlagAndAccount_Role_Name(boolean deleteFlag,String roleName);
 
-    boolean existsByPhone( String phone);
+    @Override
+    Optional<UserInfo> findById(Long userID);
+
+    boolean existsByPhone(String phone);
 }

@@ -17,7 +17,7 @@ import java.util.List;
  */
 
 @RestController
-@RequestMapping("/api/chatbot")
+@RequestMapping("/api/zchatbot")
 public class ChatBotController {
     @Autowired
     ChatBotService chatBotService;
