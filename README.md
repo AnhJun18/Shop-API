@@ -2,13 +2,15 @@
 - Cung cấp các API cho khách hàng: Xem cửa hàng, sản phẩm, mua hàng, quản lý
   giỏ hàng, thông tin cá nhân,...
 - Cung cấp các API cho admin: Quản lý sản phẩm, đơn hàng, khách hàng, báo cáo thống kê,..
-- Sử dụng Java Spring Boot, SQL Server, JWT Token, Jasper Report, Mail Sender,...
+- Sử dụng `Java Spring Boot`, `Gradle`, `SQL Server`, `JWT Token`, `Jasper Report`, `Mail Sender`, `Firebase`, `Design Pattern`...
 # Contributors
 - `AnhJun18` -  `Lê Phương Anh`
 # Release
 ##### Demo:  https://pa-shop-service.azurewebsites.net/swagger-ui.html
+or: https://pa-shop-ptit.azurewebsites.net/swagger-ui.html
+
     API được deloy trên Azure với dịch vụ service free nên có thế sẽ gặp lỗi không mong muốn.
-    Hãy cài đặt ứng dụng để trải nghiệm tốt hơn
+    Hãy cài đặt theo hướng dẫn bên dưới để trải nghiệm tốt hơn
 
 ##### Web (`ReactJS`):
 - Demo: https://shop-ptit.vercel.app/
@@ -21,11 +23,11 @@
 # Installation
 - Bước 1: Cài đặt Docker
 - Bước 2: Build image
-  + mở project bằng terminal
+  + Mở project bằng terminal
   + Chạy: `docker build -t pa-shop .`
 - Bước 3: Run
   Chạy: `docker run -p 8081:8081 pa-shop`
-- Bước 4: Mở Brower > Vào link:
+- Bước 4: Mở Brower:
   http://localhost:8081/swagger-ui.html
 
 # Screenshot
