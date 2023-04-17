@@ -28,8 +28,8 @@ public class AuthSocialController {
         String code = request.getQueryParams().get("code").get(0);
 //        System.out.println(code);
         LoginResponse loginResponse=userService.loginWithGoogle(code);
-        String url= "http://localhost:3000/oauth2/redirect";
-        url+="&accessToken="+loginResponse.getAccessToken();
+        String url= "http://localhost:3001/oauth2/redirect?";
+        url+="accessToken="+loginResponse.getAccessToken();
         url+="&refreshToken="+loginResponse.getRefreshToken();
         return  ResponseEntity.status(HttpStatus.FOUND).header(HttpHeaders.LOCATION, url)
                 .build();
