@@ -12,20 +12,20 @@ spring:
       hibernate:
         enable_lazy_load_no_trans: true
         check_nullabiglity: true
-  datasource:
-    url: "jdbc:sqlserver://anhjun18.database.windows.net:1433;database=MyShop"
-    sqlScriptEncoding: UTF-8
-    username: pa
-    password: 123456qQ
-    hikari:
-      max-lifetime: 30
 #  datasource:
-#    url: "jdbc:sqlserver://localhost:1433;database=MyShop"
+#    url: "jdbc:sqlserver://anhjun18.database.windows.net:1433;database=MyShop"
 #    sqlScriptEncoding: UTF-8
-#    username: sa
-#    password: 18
+#    username: pa
+#    password: 123456qQ
 #    hikari:
 #      max-lifetime: 30
+  datasource:
+    url: "jdbc:sqlserver://localhost:1433;database=MyShop"
+    sqlScriptEncoding: UTF-8
+    username: sa
+    password: 18
+    hikari:
+      max-lifetime: 30
 
 springdoc:
   swagger-ui:
@@ -59,3 +59,10 @@ firebase:
   image-url: https://storage.googleapis.com/${firebase.bucket-name}/%s
   prefix-image-url: https://firebasestorage.googleapis.com/v0/b/${firebase.bucket-name}/o/
   suffix-image-url: ?alt=media
+
+# social login
+GOOGLE_CLIENT_ID: 387422189053-5ojrdmslj960485j5u7n0p0kaheldf2l.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET: 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
+GOOGLE_REDIRECT_URI: http://localhost:8081/api/auth/oauth2/google
+GOOGLE_LINK_GET_TOKEN: https://accounts.google.com/o/oauth2/token
+GOOGLE_LINK_GET_USER: https://www.googleapis.com/oauth2/v1/userinfo?access_token=

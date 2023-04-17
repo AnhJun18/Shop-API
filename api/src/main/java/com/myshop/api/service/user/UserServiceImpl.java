@@ -8,6 +8,8 @@ import com.myshop.api.payload.response.user.LoginResponse;
 import com.myshop.api.payload.response.user.PasswordResponse;
 import com.myshop.api.payload.response.user.UserResponse;
 import com.myshop.api.service.email.EmailSenderService;
+import com.myshop.api.service.google.GooglePojo;
+import com.myshop.api.service.google.IGoogleService;
 import com.myshop.common.Constants;
 import com.myshop.common.http.ApiResponse;
 import com.myshop.common.http.CodeStatus;
@@ -58,6 +60,8 @@ public class UserServiceImpl extends CRUDBaseServiceImpl<UserInfo, UserRequest, 
     private RoleRepository roleRepository;
     @Autowired
     private AccountRepository accountRepository;
+    @Autowired
+    private IGoogleService googleService;
 
     @Autowired
     private EmailSenderService emailSenderService;
@@ -87,6 +91,41 @@ public class UserServiceImpl extends CRUDBaseServiceImpl<UserInfo, UserRequest, 
             return LoginResponse.builder().message("Invalid email or password. Please try again.").status(false).build();
         }
 
+    }
+    
+    @Override
+    public LoginResponse loginWithGoogle(String code_verify){
+
+        GooglePojo googlePojo = null;
+        String accessToken="";
+        try {
+            accessToken = googleService.getToken(code_verify);
+
+            if (accessToken != null) {
+                googlePojo = googleService.getUserInfo(accessToken);
+            }
+        } catch (Exception e) {
+            System.out.println("LỖI" + e.getMessage());
+            return null;
+        }
+        Account account = accountRepository.findAccountByEmail(googlePojo.getEmail());
+        if (account == null) {
+            account = Account.builder()
+                    .email(googlePojo.getEmail())
+                    .username(googlePojo.getEmail())
+                    .password(passwordEncoder.encode(accessToken + Constants.SALT_DEFAULT))
+                    .role(roleRepository.findByName("ROLE_USER"))
+                    .deleteFlag(false).build();
+//            user.setType_account(ETypeAccount.GOOGLE);
+            accountRepository.save(account);
+            UserInfo userInfo = UserInfo.builder()
+                    .firstName(googlePojo.getFamily_name())
+                    .lastName(googlePojo.getGiven_name())
+                    .account(account)
+                    .build();
+            userRepository.save(userInfo);
+        }
+       return buildTokenResponse(userRepository.findUserByAccount(account));
     }
 
 
