@@ -7,7 +7,7 @@ import java.nio.charset.StandardCharsets;
 public class GHTKConfig {
 
     public final static String TOKEN = "700a2a511c4730b289ad27ab100b9de838ca07bd";
-    public final static String API_ENDPOINT = "https://services.giaohangtietkiem.vn";
+    public final static String API_ENDPOINT = "https://services-staging.ghtklab.com";
     public final static String CREATE_ORDER_URL = API_ENDPOINT + "/services/shipment/order/?ver=1.5";
     public final static String CALCUATE_SHIP_FEE_URL = API_ENDPOINT + "/services/shipment/fee";
     public final static String CHECKING_STATUS_URL = API_ENDPOINT + "/services/shipment/v2/";
