@@ -22,5 +22,4 @@ public class UserRequest {
 
     private String roleName;
     private String password;
-    private String address;
 }
