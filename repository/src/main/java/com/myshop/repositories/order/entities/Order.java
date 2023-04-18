@@ -37,6 +37,16 @@ public class Order extends Auditing {
     @Column(columnDefinition = "nvarchar(255)")
     private String note;
 
+
+    @Column(columnDefinition = "nvarchar(255)")
+    private String province;
+
+    @Column(columnDefinition = "nvarchar(255)")
+    private String district;
+
+    @Column(columnDefinition = "nvarchar(255)")
+    private String ward;
+
     private Double feeShip;
 
     @OneToOne
