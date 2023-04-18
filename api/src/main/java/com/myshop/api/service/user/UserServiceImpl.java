@@ -179,7 +179,6 @@ public class UserServiceImpl extends CRUDBaseServiceImpl<UserInfo, UserRequest, 
                 .lastName(userRequest.getLastName())
                 .gender(userRequest.getGender())
                 .phone(Utils.normalPhone(userRequest.getPhone()))
-                .address(userRequest.getAddress())
                 .account(account)
                 .build();
         accountRepository.save(account);
