@@ -10,6 +10,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONObject;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
@@ -24,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping(value = "/api/ship/ghtk")
+@RequestMapping(value = "/api/shipment/ghtk")
 public class ShipmentGHTKController {
 
 
@@ -76,8 +77,12 @@ public class ShipmentGHTKController {
 
     @GetMapping(value = "/update_shipment")
     public Mono<ResponseEntity> update(@RequestParam ("hash") String token) {
-        System.out.println(token);
-        return Mono.just(ResponseEntity.status(200).body(ResponseEntity.status(200).body("Đơn hàng đã được cập nhật")));
+        String ghtk_SecureHash =GHTKConfig.hmacSHA512(GHTKConfig.GHTK_HASHSECRET,GHTKConfig.TOKEN+GHTKConfig.SALT);
+        if (token == ghtk_SecureHash)
+           return Mono.just(ResponseEntity.status(200).body(ResponseEntity.status(200).body("Đơn hàng đã được cập nhật")));
+        else
+            return Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token không hợp lệ"));
+
     }
 
 
