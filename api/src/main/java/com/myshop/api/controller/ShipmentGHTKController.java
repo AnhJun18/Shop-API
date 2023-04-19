@@ -18,14 +18,14 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
@@ -42,9 +42,7 @@ public class ShipmentGHTKController {
     OrderService orderService;
     @Autowired
     OrderRepository orderRepository;
-    @Value("${pdf-file-download-dir}")
-    String INVOICE_FILE_DIRECTORY;
-    
+
     @GetMapping(value = "/fee")
     public Mono<ShipFeeResponse> calculateShipFee(@RequestParam String province, @RequestParam String district,
                                                   @RequestParam Integer weight,
@@ -177,8 +175,11 @@ public class ShipmentGHTKController {
         JSONObject jsonObject = new JSONObject((Map) GHTKresponse);
         String partnerId = jsonObject.getString("partner_id");
         String label_id = jsonObject.getString("label_id");
-        System.out.println(partnerId);
-        System.out.println(label_id);
+        Integer status_id = jsonObject.getInt("status_id");
+        String reason_code = jsonObject.getString("reason_code");
+        String reason = jsonObject.getString("reason");
+        System.out.println(partnerId+"-"+label_id+"-"+status_id);
+        System.out.println(reason_code+" "+reason);
 
         if (token.equals(ghtk_SecureHash))
            return Mono.just(ResponseEntity.status(200).body(ResponseEntity.status(200).body("Đơn hàng đã được cập nhật")));
