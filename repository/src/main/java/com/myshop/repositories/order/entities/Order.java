@@ -37,6 +37,9 @@ public class Order extends Auditing {
     @Column(columnDefinition = "nvarchar(255)")
     private String note;
 
+    @Column(columnDefinition = "nvarchar(255)")
+    private String vnp_id;
+
     private Double feeShip;
 
     @OneToOne
@@ -55,6 +58,15 @@ public class Order extends Auditing {
         newOrder.setStatus(this.status);
         newOrder.setOrderDetails(this.orderDetails);
         return  newOrder;
+    }
+
+    public Integer getTotalPrices(){
+        Double total= 0.0;
+        for (OrderDetail o: this.getOrderDetails() ) {
+            total+=o.getPrices()*o.getAmount();
+        }
+        total+=this.feeShip;
+        return total.intValue();
     }
 
 }
