@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.EntityListeners;
@@ -15,12 +16,17 @@ import java.time.Instant;
 @NoArgsConstructor
 @MappedSuperclass
 @JsonIgnoreProperties(
-        value = {"createdDate"},
+        value = {"createdDate","lastModifiedDate"},
         allowGetters = true
 )
 public class Auditing {
 
     @CreatedDate
     protected Instant createdDate;
+
+    @LastModifiedDate
+    protected Instant lastModifiedDate;
+
+
 
 }
