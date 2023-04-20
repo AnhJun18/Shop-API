@@ -30,7 +30,6 @@ public class VnPayServiceImpl implements VnPayService {
         String vnp_Command = VnPayConfig.vnp_Command;
         Order client_order = orderRepository.findOrderById(order_id);
         if (client_order.getPayment() != null) {
-            if (!client_order.getPayment().getStatus().equals("00"))
                 return VnPayConfig.url_response_ui + "status=false" + "&message= Đơn hàng đã được thanh toán" + "&order_id=" + client_order.getId();
         }
         String vnp_TxnRef = order_id + VnPayConfig.vnp_Salt + VnPayConfig.getRandomNumber(8);
