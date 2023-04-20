@@ -2,6 +2,7 @@ package com.myshop.repositories.order.entities;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.myshop.repositories.Auditing;
+import com.myshop.repositories.payment.entities.Payment;
 import com.myshop.repositories.user.entities.UserInfo;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -52,6 +53,9 @@ public class Order extends Auditing {
     @OneToOne
     private Status status;
 
+    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
+    private Payment payment;
+
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "order")
     @JsonManagedReference
     private List<OrderDetail> orderDetails;
@@ -65,6 +69,15 @@ public class Order extends Auditing {
         newOrder.setStatus(this.status);
         newOrder.setOrderDetails(this.orderDetails);
         return  newOrder;
+    }
+
+    public Integer getTotalPrices(){
+        Double total= 0.0;
+        for (OrderDetail o: this.getOrderDetails() ) {
+            total+=o.getPrices()*o.getAmount();
+        }
+        total+=this.feeShip;
+        return total.intValue();
     }
 
 }
