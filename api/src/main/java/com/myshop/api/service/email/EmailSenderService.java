@@ -37,7 +37,7 @@ public class EmailSenderService {
             helper.setSubject("Quên Mật Khẩu");
 
             ResourceLoader loader = new DefaultResourceLoader();
-            MustacheFactory mf = new DefaultMustacheFactory(loader.getResource("classpath:/templates/").getFile());
+            MustacheFactory mf = new DefaultMustacheFactory(loader.getResource("templates/").getFile());
             Mustache mustache = mf.compile( "forgot-password.html");
             StringWriter htmlContent = new StringWriter();
             String link = "http://localhost:3000/change-pass/verify-code="+verifyCode;
