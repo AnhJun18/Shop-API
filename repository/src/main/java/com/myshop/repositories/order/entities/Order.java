@@ -2,6 +2,7 @@ package com.myshop.repositories.order.entities;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.myshop.repositories.Auditing;
+import com.myshop.repositories.payment.entities.Payment;
 import com.myshop.repositories.user.entities.UserInfo;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -37,13 +38,13 @@ public class Order extends Auditing {
     @Column(columnDefinition = "nvarchar(255)")
     private String note;
 
-    @Column(columnDefinition = "nvarchar(255)")
-    private String vnp_id;
-
     private Double feeShip;
 
     @OneToOne
     private Status status;
+
+    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
+    private Payment payment;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "order")
     @JsonManagedReference
