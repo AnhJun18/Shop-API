@@ -3,9 +3,13 @@ package com.myshop.api.service.payment;
 import com.myshop.api.config.VnPayConfig;
 import com.myshop.repositories.order.entities.Order;
 import com.myshop.repositories.order.repos.OrderRepository;
+import com.myshop.repositories.payment.entities.Epay;
+import com.myshop.repositories.payment.entities.Payment;
+import com.myshop.repositories.payment.repos.PaymentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import java.io.UnsupportedEncodingException;
@@ -18,11 +22,17 @@ import java.util.*;
 public class VnPayServiceImpl implements VnPayService {
     @Autowired
     OrderRepository orderRepository;
+    @Autowired
+    PaymentRepository paymentRepository;
 
     public String createPayment(ServerHttpRequest request, Long order_id) throws UnsupportedEncodingException {
         String vnp_Version = VnPayConfig.vnp_Version;
         String vnp_Command = VnPayConfig.vnp_Command;
         Order client_order = orderRepository.findOrderById(order_id);
+        if (client_order.getPayment() != null) {
+            if (!client_order.getPayment().getStatus().equals("00"))
+                return VnPayConfig.url_response_ui + "status=false" + "&message= Đơn hàng đã được thanh toán" + "&order_id=" + client_order.getId();
+        }
         String vnp_TxnRef = order_id + VnPayConfig.vnp_Salt + VnPayConfig.getRandomNumber(8);
 //        System.out.println(vnp_TxnRef);
         String vnp_IpAddr = VnPayConfig.getIpAddress(request);
@@ -45,8 +55,6 @@ public class VnPayServiceImpl implements VnPayService {
         Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
         String vnp_CreateDate = formatter.format(cld.getTime());
-        client_order.setVnp_id(vnp_TxnRef);
-        orderRepository.save(client_order);
         vnp_Params.put("vnp_CreateDate", vnp_CreateDate);
 
         // Build data to hash and querystring
@@ -58,7 +66,6 @@ public class VnPayServiceImpl implements VnPayService {
         }
         List<String> fieldNames = new ArrayList<>(vnp_Params.keySet());
         Collections.sort(fieldNames);
-        StringBuilder hashData = new StringBuilder();
         StringBuilder query = new StringBuilder();
         Iterator<String> itr = fieldNames.iterator();
         while (itr.hasNext()) {
@@ -81,6 +88,7 @@ public class VnPayServiceImpl implements VnPayService {
     }
 
 
+    @Transactional
     @GetMapping(value = "/result/VnPayIPN")
     public String resultPayment(ServerHttpRequest request) throws UnsupportedEncodingException {
         Map<String, String> vnp_param = request.getQueryParams().toSingleValueMap();
@@ -94,10 +102,21 @@ public class VnPayServiceImpl implements VnPayService {
         if (signValue.equals(vnp_SecureHash)) {
             String vnp_TransactionNo = vnp_param.get("vnp_TransactionNo");
             String vnp_ResponseCode = vnp_param.get("vnp_ResponseCode");
-            if (!vnp_ResponseCode.equals("00"))
+            if (!vnp_ResponseCode.equals("00")) {
                 return VnPayConfig.url_response_ui + "status=false" + "&message=Giao dịch không thành công" + "&order_id=" + client_order.getId();
-            else
-                return VnPayConfig.url_response_ui + "status=true" + "&message=Giao dịch thành công" + "&order_id=" + client_order.getId() + "vnp_TransactionNo=" + vnp_TransactionNo;
+            } else {
+                Payment newPayment = new Payment();
+                newPayment.setDatePayment(vnp_param.get("vnp_PayDate"));
+                newPayment.setTradingCode(vnp_param.get("vnp_BankTranNo"));
+                newPayment.setOrder_code(vnp_param.get("vnp_TxnRef"));
+                newPayment.setBankName(vnp_param.get("vnp_BankCode"));
+                newPayment.setStatus(vnp_ResponseCode);
+                newPayment.setMethod(Epay.VNPAY);
+                newPayment.setOrder(client_order);
+                paymentRepository.save(newPayment);
+
+            }
+            return VnPayConfig.url_response_ui + "status=true" + "&message=Giao dịch thành công" + "&order_id=" + client_order.getId() + "vnp_TransactionNo=" + vnp_TransactionNo;
 
         } else
             return VnPayConfig.url_response_ui + "status=false" + "&message=Sai chữ ký" + "&order_id=" + client_order.getId();
