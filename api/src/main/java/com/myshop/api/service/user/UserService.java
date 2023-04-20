@@ -12,6 +12,8 @@ public interface UserService {
 
     LoginResponse login(LoginRequest loginRequest);
 
+    LoginResponse loginWithGoogle(String code_verify);
+
     UserResponse registerUser(UserRequest userRequest);
 
     UserResponse getUserProfile(long userId);

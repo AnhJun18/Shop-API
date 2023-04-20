@@ -28,6 +28,15 @@ public class UserInfo extends Auditing {
     private String phone;
 
     @Column(columnDefinition = "nvarchar(255)")
+    private String province;
+
+    @Column(columnDefinition = "nvarchar(255)")
+    private String district;
+
+    @Column(columnDefinition = "nvarchar(255)")
+    private String ward;
+
+    @Column(columnDefinition = "nvarchar(255)")
     private String address;
 
     @OneToOne(fetch = FetchType.EAGER)

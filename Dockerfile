@@ -6,5 +6,5 @@ RUN gradle build
 FROM openjdk:11.0.16-jre
 COPY --from=build /home/gradle/src/api/build/libs/*.jar /app/app.jar
 
-EXPOSE 8085
+EXPOSE 8081:8081
 ENTRYPOINT ["java","-jar","/app/app.jar"]
