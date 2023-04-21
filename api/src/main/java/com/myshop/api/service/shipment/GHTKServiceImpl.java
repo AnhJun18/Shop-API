@@ -112,10 +112,13 @@ public class GHTKServiceImpl implements  GHTKService{
         order.put("ward", od.getShipment().getWard());
         order.put("hamlet", "Khác");
         order.put("tel", od.getShipment().getPhoneReceiver());
-        order.put("is_freeship","0");
+        if(od.getPayment()==null){
+            order.put("is_freeship","0");
+        }else {
+            order.put("is_freeship","1");
+        }
         order.put("email",  od.getUserInfo().getAccount().getEmail());
         order.put("value", od.getTotalPrices());
-
 
         List<ItemProduct> list = new ArrayList<ItemProduct>();
         for (OrderDetail detail : od.getOrderDetails()) {

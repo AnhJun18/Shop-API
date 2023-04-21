@@ -4,6 +4,7 @@ import com.myshop.api.base.CRUDBaseServiceImpl;
 import com.myshop.api.payload.request.order.OrderDetailRequest;
 import com.myshop.api.payload.request.order.OrderRequest;
 import com.myshop.api.payload.response.order.OrderResponse;
+import com.myshop.api.service.shipment.GHTKService;
 import com.myshop.repositories.order.entities.Order;
 import com.myshop.repositories.order.entities.OrderDetail;
 import com.myshop.repositories.order.entities.Status;
@@ -28,6 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
+import java.io.IOException;
 import java.util.*;
 
 @Slf4j
@@ -46,6 +48,8 @@ public class OrderServiceImpl extends CRUDBaseServiceImpl<Order, OrderRequest, O
     private ShoppingCartRepository shoppingCartRepository;
     @Autowired
     private ShipmentRepository shipmentRepository;
+    @Autowired
+    private GHTKService ghtkService;
     @Autowired
     private OrderDetailRepository orderDetailRepository;
 
@@ -70,6 +74,7 @@ public class OrderServiceImpl extends CRUDBaseServiceImpl<Order, OrderRequest, O
             try {
                 newOrder = Order.builder()
                         .note(orderRequest.getNote())
+                        .feeShip(orderRequest.getFeeShip())
                         .status(statusRepository.findById(1L).get())
                         .userInfo(userInfo.get())
                         .build();
@@ -141,6 +146,7 @@ public class OrderServiceImpl extends CRUDBaseServiceImpl<Order, OrderRequest, O
         return orderRepository.findAllByStatus_Name(status);
     }
 
+    @Transactional
     @Override
     public OrderResponse confirmOrder(Long userID, Long idOrder) {
         Order order = orderRepository.findOrderById(idOrder);
@@ -150,6 +156,13 @@ public class OrderServiceImpl extends CRUDBaseServiceImpl<Order, OrderRequest, O
         for (OrderDetail item:order.getOrderDetails()) {
             if(item.getAmount()> item.getProductDetail().getCurrent_number())
                 return OrderResponse.builder().status(false).message("Sản phẩm đã hết hàng").order(order).build();
+        }
+        try {
+            ghtkService.createOrder(order.getId());
+
+        } catch (IOException e) {
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return OrderResponse.builder().status(false).message("Không thể giao hàng cho đối tác vận chuyển").order(order).build();
         }
         Status nextStatus = statusRepository.findByName("Đang Chuẩn Bị Hàng");
         order.setStatus(nextStatus);
