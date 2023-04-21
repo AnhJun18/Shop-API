@@ -12,6 +12,8 @@ import com.myshop.repositories.order.repos.OrderRepository;
 import com.myshop.repositories.order.repos.StatusRepository;
 import com.myshop.repositories.product.entities.ProductDetail;
 import com.myshop.repositories.product.repos.ProductDetailRepository;
+import com.myshop.repositories.shipment.entities.Shipment;
+import com.myshop.repositories.shipment.repos.ShipmentRepository;
 import com.myshop.repositories.shopping_cart.entities.ShoppingCart;
 import com.myshop.repositories.shopping_cart.repos.ShoppingCartRepository;
 import com.myshop.repositories.user.entities.UserInfo;
@@ -43,6 +45,8 @@ public class OrderServiceImpl extends CRUDBaseServiceImpl<Order, OrderRequest, O
     @Autowired
     private ShoppingCartRepository shoppingCartRepository;
     @Autowired
+    private ShipmentRepository shipmentRepository;
+    @Autowired
     private OrderDetailRepository orderDetailRepository;
 
 
@@ -64,13 +68,24 @@ public class OrderServiceImpl extends CRUDBaseServiceImpl<Order, OrderRequest, O
             message = "Tài khoản không hoạt động";
         } else {
             try {
-                newOrder = Order.builder().address(orderRequest.getAddress())
+                newOrder = Order.builder()
                         .note(orderRequest.getNote())
-                        .feeShip(orderRequest.getFeeShip()).status(statusRepository.findById(1L).get())
-                        .userInfo(userInfo.get()).nameReceiver(orderRequest.getNameReceiver())
-                        .phoneReceiver(orderRequest.getPhoneReceiver())
+                        .status(statusRepository.findById(1L).get())
+                        .userInfo(userInfo.get())
                         .build();
                 orderRepository.save(newOrder);
+
+                Shipment shipment = Shipment.builder()
+                        .address(orderRequest.getAddress())
+                        .nameReceiver(orderRequest.getNameReceiver())
+                        .phoneReceiver(orderRequest.getPhoneReceiver())
+                        .province(orderRequest.getProvince())
+                        .district(orderRequest.getDistrict())
+                        .ward(orderRequest.getWard())
+                        .order(newOrder)
+                        .build();
+                shipmentRepository.save(shipment);
+
                 Order finalNewOrder = newOrder;
                 for (OrderDetailRequest item:orderRequest.getListProduct()) {
                     Optional<ProductDetail> productDetail = productDetailRepository.findById(item.getProduct_id());
@@ -79,6 +94,7 @@ public class OrderServiceImpl extends CRUDBaseServiceImpl<Order, OrderRequest, O
                     ShoppingCart checkCart= shoppingCartRepository.findShoppingCartByUserInfo_IdAndProductDetail_Id(userID,item.getProduct_id());
                     if(checkCart != null && checkCart.getId()>0)
                         shoppingCartRepository.delete(checkCart);
+
                     orderDetailRepository.save(OrderDetail.builder()
                             .productDetail(productDetail.get())
                             .order(finalNewOrder)
@@ -92,8 +108,8 @@ public class OrderServiceImpl extends CRUDBaseServiceImpl<Order, OrderRequest, O
                 result = false;
                 message = "Lỗi tạo đợn hàng "+e.getMessage();
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                return OrderResponse.builder().message(message).order(null).status(result).build();
             }
-
         }
         return OrderResponse.builder().message(message).order(newOrder).status(result).build();
     }

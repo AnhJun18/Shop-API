@@ -3,6 +3,7 @@ package com.myshop.repositories.order.entities;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.myshop.repositories.Auditing;
 import com.myshop.repositories.payment.entities.Payment;
+import com.myshop.repositories.shipment.entities.Shipment;
 import com.myshop.repositories.user.entities.UserInfo;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,25 +29,7 @@ public class Order extends Auditing {
     private UserInfo userInfo;
 
     @Column(columnDefinition = "nvarchar(255)")
-    private String nameReceiver;
-
-    @Column(columnDefinition = "nvarchar(255)")
-    private String address;
-
-    private String phoneReceiver;
-
-    @Column(columnDefinition = "nvarchar(255)")
     private String note;
-
-
-    @Column(columnDefinition = "nvarchar(255)")
-    private String province;
-
-    @Column(columnDefinition = "nvarchar(255)")
-    private String district;
-
-    @Column(columnDefinition = "nvarchar(255)")
-    private String ward;
 
     private Double feeShip;
 
@@ -56,6 +39,9 @@ public class Order extends Auditing {
     @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
     private Payment payment;
 
+    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
+    private Shipment shipment;
+
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "order")
     @JsonManagedReference
     private List<OrderDetail> orderDetails;
@@ -63,7 +49,6 @@ public class Order extends Auditing {
     public Order copy() {
         Order newOrder = new Order();
         newOrder.userInfo = null;
-        newOrder.setAddress(this.address);
         newOrder.setNote(this.note);
         newOrder.setFeeShip(this.feeShip);
         newOrder.setStatus(this.status);
