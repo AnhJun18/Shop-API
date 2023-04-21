@@ -23,13 +23,13 @@ public interface OrderRepository extends CrudRepository<Order, Long>, JpaSpecifi
 
     Order findOrderById(Long id);
 
-    @Query("SELECT u.id as id,u.phoneReceiver as phone, " +
+    @Query("SELECT u.id as id,u.shipment.phoneReceiver as phone, " +
             "u.feeShip as feeShip,u.userInfo.firstName as firstName , u.userInfo.lastName as lastName, sum(k.prices * k.amount)as summaryMoney " +
             "FROM Order  u join u.orderDetails k " +
             "where (?1 is NULL  OR u.createdDate >= ?1) " +
             "and (?2 is NULL  OR u.createdDate <= ?2)" +
             "and (?3 is NULL  OR u.status.name = ?3)" +
-            "group by  u.id,u.address,u.feeShip,u.userInfo.firstName,u.userInfo.lastName,u.phoneReceiver"
+            "group by  u.id,u.shipment.address,u.feeShip,u.userInfo.firstName,u.userInfo.lastName,u.shipment.phoneReceiver"
     )
     Iterable<Map<String, Object>> findAllOrderToReport(Date from, Date to, String status);
 
@@ -37,7 +37,7 @@ public interface OrderRepository extends CrudRepository<Order, Long>, JpaSpecifi
             "where (:from is NULL  OR :to is NULL  OR u.createdDate BETWEEN :from AND :to)" +
             "and (:status is NULL  OR u.status.name = :status)" +
             "and (u.createdDate is not null ) " +
-            "and (:info is null OR u.phoneReceiver like %:info% OR u.nameReceiver like %:info% )"
+            "and (:info is null OR u.shipment.phoneReceiver like %:info% OR u.shipment.nameReceiver like %:info% )"
     )
     Page<Order> searchOrder(@Param("from") Instant from, @Param("to") Instant to, @Param("info") String info, @Param("status") String status, Pageable pageable);
 

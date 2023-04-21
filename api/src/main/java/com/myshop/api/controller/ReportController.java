@@ -37,7 +37,8 @@ public class ReportController {
     }
 
     @GetMapping(value = "/monthly_revenue", produces = MediaType.APPLICATION_PDF_VALUE)
-    public ResponseEntity<byte[]> reportMonthlyRevenue(@RequestParam(name = "month",required = true) @DateTimeFormat(pattern="yyyy-MM") Date month) {
+    public ResponseEntity<byte[]> reportMonthlyRevenue(@RequestParam(name = "month",defaultValue = "2022-11")
+                                                        @DateTimeFormat(pattern="yyyy-MM") Date month) {
         try {
             return new ResponseEntity<byte[]>(service.reportMonthlyRevenue(month), HttpStatus.OK);
         }
