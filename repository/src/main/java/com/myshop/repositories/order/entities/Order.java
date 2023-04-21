@@ -61,7 +61,6 @@ public class Order extends Auditing {
         for (OrderDetail o: this.getOrderDetails() ) {
             total+=o.getPrices()*o.getAmount();
         }
-        total+=this.feeShip;
         return total.intValue();
     }
 

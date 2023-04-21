@@ -20,7 +20,6 @@ public class Payment extends Auditing {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
     private String order_code;
 
     private String bankName;
@@ -29,6 +28,7 @@ public class Payment extends Auditing {
 
     private String datePayment;
 
+    @Column(unique = true)
     private String tradingCode;
 
     private String status;
