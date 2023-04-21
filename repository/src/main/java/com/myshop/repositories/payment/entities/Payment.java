@@ -28,6 +28,7 @@ public class Payment extends Auditing {
 
     private String datePayment;
 
+    @Column(unique = true)
     private String tradingCode;
 
     private String status;
