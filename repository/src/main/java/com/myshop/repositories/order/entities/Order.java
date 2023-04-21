@@ -58,9 +58,10 @@ public class Order extends Auditing {
 
     public Integer getTotalPrices(){
         Double total= 0.0;
-        for (OrderDetail o: this.getOrderDetails() ) {
-            total+=o.getPrices()*o.getAmount();
-        }
+        if(orderDetails!=null)
+            for (OrderDetail o: this.getOrderDetails() ) {
+                total+=o.getPrices()*o.getAmount();
+            }
         return total.intValue();
     }
 
