@@ -9,6 +9,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -24,6 +25,11 @@ public class ReportServiceImpl implements ReportService {
     public byte[] reportAllOrder(Date from, Date to, String status) throws IOException, JRException {
         JasperReport jasperReport = JasperCompileManager.compileReport(new ClassPathResource("templates/report_order.jrxml").getInputStream());
         List<Map<String,Object>> orders= (List<Map<String, Object>>) orderRepository.findAllOrderToReport(from,to,status);
+        if(orders.size()==0){
+            Map empty= new HashMap();
+            empty.put("id",new Long("0"));
+            orders.add(empty);
+        }
         JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(orders);
         Map<String, Object> parameters = new HashMap<>();
         return JasperExportManager.exportReportToPdf(JasperFillManager.fillReport(jasperReport, parameters, dataSource));
@@ -33,6 +39,11 @@ public class ReportServiceImpl implements ReportService {
     public byte[] reportMonthlyRevenue(Date month) throws IOException, JRException {
         JasperReport jasperReport = JasperCompileManager.compileReport(new ClassPathResource("templates/report_monthly.jrxml").getInputStream());
         List<Map<String,Object>> list= (List<Map<String, Object>>) orderRepository.reportMonthlyRevenue(month.getMonth()+1,month.getYear()+1900);
+        if(list.size()==0){
+            Map empty= new HashMap();
+            empty.put("ngay",0);
+            list.add(empty);
+        }
         JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(list);
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("month", month);
@@ -43,6 +54,11 @@ public class ReportServiceImpl implements ReportService {
     public byte[] reportProductRevenue(Date from, Date to) throws IOException, JRException {
         JasperReport jasperReport = JasperCompileManager.compileReport(new ClassPathResource("templates/report_product.jrxml").getInputStream());
         List<Map<String,Object>> list= (List<Map<String, Object>>) orderRepository.reportProductRevenue(from.toInstant(),to.toInstant());
+        if(list.size()==0){
+            Map empty= new HashMap();
+            empty.put("id",new BigInteger("0"));
+            list.add(empty);
+        }
         JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(list);
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("from", from);
