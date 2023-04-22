@@ -20,11 +20,13 @@ public class VnPayConfig {
     public static String vnp_OrderType = "200000";  // don hang thoi trang
     public static String vnp_BankCode = "";
     public static String vnp_PayUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-    public static String vnp_Returnurl = "http://localhost:8081/api/payment/vnpay/result/VnPayIPN";
+    public static String vnp_Returnurl_dev = "http://localhost:8081/api/payment/vnpay/result/VnPayIPN";
+    public static String vnp_Returnurl = "https://pa-shop-api.up.railway.app/api/payment/vnpay/result/VnPayIPN";
     public static String vnp_TmnCode = "BN42ML7M";
     public static String vnp_HashSecret = "MJHFWENMTHYIASYHDHHMPSJKOSQNNSXF";
     public static String vnp_ApiUrl = "http://sandbox.vnpayment.vn/merchant_webapi/merchant.html";
-    public static String url_response_ui = "http://localhost:3000/result-payment?";
+    public static String url_response_ui_dev = "http://localhost:3000/result-payment?";
+    public static String url_response_ui = "https://shop-ptit.vercel.app/result-payment?";
     public static String vnp_Salt = "AnhJun18";
 
     public static String hmacSHA512(final String key, final String data) {
