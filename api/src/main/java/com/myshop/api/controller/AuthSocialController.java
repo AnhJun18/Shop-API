@@ -5,6 +5,7 @@ import com.myshop.api.service.user.UserService;
 import lombok.Builder;
 import org.apache.http.client.ClientProtocolException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,14 +22,15 @@ import java.io.IOException;
 public class AuthSocialController {
     @Autowired
     private UserService userService;
-
+    @Autowired
+    private Environment env;
     @Transactional
     @RequestMapping(value = "/oauth2/google")
     public ResponseEntity<LoginResponse> loginGoogle(ServerHttpRequest request) throws ClientProtocolException, IOException {
         String code = request.getQueryParams().get("code").get(0);
 //        System.out.println(code);
         LoginResponse loginResponse=userService.loginWithGoogle(code);
-        String url= "http://localhost:3001/oauth2/redirect?";
+        String url= env.getProperty("RESPONSE_URI");
         url+="accessToken="+loginResponse.getAccessToken();
         url+="&refreshToken="+loginResponse.getRefreshToken();
         return  ResponseEntity.status(HttpStatus.FOUND).header(HttpHeaders.LOCATION, url)
