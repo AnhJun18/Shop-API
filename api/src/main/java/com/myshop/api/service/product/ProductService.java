@@ -22,6 +22,8 @@ public interface ProductService {
 
     ProductResponse lockProduct(Long id);
 
+    Product getProductById(Long id);
+
     ProductResponse unLockProduct(Long id);
 
     ProductDetailResponse createProductDetail(List<AddProductDetailRequest> detailRequest);

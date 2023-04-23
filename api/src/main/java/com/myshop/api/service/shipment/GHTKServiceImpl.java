@@ -157,8 +157,8 @@ public class GHTKServiceImpl implements  GHTKService{
             JSONObject data = (JSONObject) result.get("order");
             String order_code = data.get("label").toString();
             String partner_id = data.get("partner_id").toString();
-            Long fee = Long.parseLong(data.get("fee").toString());
-            Long insurance_fee = Long.parseLong(data.get("insurance_fee").toString());
+            Integer fee = Integer.parseInt(data.get("fee").toString());
+            Integer insurance_fee = Integer.parseInt(data.get("insurance_fee").toString());
             String estimated_pick_time = data.get("estimated_pick_time").toString();
             String estimated_deliver_time = data.get("estimated_deliver_time").toString();
             Integer status_id = data.getInt("status_id");
@@ -172,7 +172,7 @@ public class GHTKServiceImpl implements  GHTKService{
             response.put("estimated_deliver_time", estimated_deliver_time);
             response.put("status_id", status_id);
             od.getShipment().setShipCode(order_code);
-            od.setFeeShip((double) (fee+insurance_fee));
+            od.setFeeShip((fee+insurance_fee));
             orderRepository.save(od);
             shipmentRepository.save(od.getShipment());
         }
