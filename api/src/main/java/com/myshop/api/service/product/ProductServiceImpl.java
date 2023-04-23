@@ -125,6 +125,15 @@ public class ProductServiceImpl extends CRUDBaseServiceImpl<Product, ProductRequ
     }
 
     @Override
+    public Product getProductById(Long id) {
+        if(productRepository.findById(id).isPresent())
+            return productRepository.findById(id).get();
+        else
+            return null;
+
+    }
+
+    @Override
     public ProductResponse unLockProduct(Long id) {
         Optional<Product> product = productRepository.findById(id);
         if (!product.isPresent())

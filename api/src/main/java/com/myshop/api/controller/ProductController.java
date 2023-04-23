@@ -44,7 +44,7 @@ public class ProductController {
     public Mono<ProductResponse> upload(@RequestParam("name") String name,
                                         @RequestParam("category") String category,
                                         @RequestParam(value = "describe",required = false) String describe,
-                                        @RequestParam("price") Double price,
+                                        @RequestParam("price") Integer price,
                                         @RequestParam(value = "tag",required = false) String tag,
                                         @RequestPart("image") FilePart filePart) throws IOException {
         ProductRequest product = ProductRequest.builder().name(name)
@@ -57,7 +57,7 @@ public class ProductController {
     public Mono<ProductResponse> updateProduct(@RequestParam(value = "name",required = false) String name,
                                                @RequestParam(value = "category",required = false) String category,
                                                @RequestParam(value = "describe",required = false) String describe,
-                                               @RequestParam(value = "price",required = false) Double price,
+                                               @RequestParam(value = "price",required = false) Integer price,
                                                @RequestParam(value = "tag",required = false) String tag,
                                                @RequestPart(value = "image",required = false) FilePart filePart,
                                                @PathVariable String id) throws IOException {
@@ -66,6 +66,12 @@ public class ProductController {
                 .describe(describe).price(price).build();
         return Mono.just(productService.updateProduct(Long.valueOf(id),product, filePart));
     }
+
+    @GetMapping("/{id}")
+    public Mono<Product> getProductById( @PathVariable Long id) {
+        return Mono.just(productService.getProductById(id));
+    }
+
 
     @DeleteMapping(value = "/block")
     public Mono<ProductResponse> lockProduct(@RequestParam Long productID){

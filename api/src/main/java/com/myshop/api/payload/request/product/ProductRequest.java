@@ -11,6 +11,6 @@ public class ProductRequest {
     private FilePart image;
     private String category;
     private String describe;
-    private Double price;
+    private Integer price;
     private String tag;
 }
