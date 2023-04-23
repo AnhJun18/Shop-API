@@ -14,7 +14,7 @@ public class OrderRequest {
     private String province;
     private String district;
     private String ward;
-    private Double feeShip;
+    private Integer feeShip;
     private String address;
     private String phoneReceiver;
     private String note;

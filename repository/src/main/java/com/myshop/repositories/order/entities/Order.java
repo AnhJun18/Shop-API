@@ -31,7 +31,7 @@ public class Order extends Auditing {
     @Column(columnDefinition = "nvarchar(255)")
     private String note;
 
-    private Double feeShip;
+    private Integer feeShip;
 
     @OneToOne
     private Status status;

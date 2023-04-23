@@ -32,6 +32,6 @@ public class OrderDetail {
 
     private Long amount;
 
-    private Double prices;
+    private Integer prices;
 
 }

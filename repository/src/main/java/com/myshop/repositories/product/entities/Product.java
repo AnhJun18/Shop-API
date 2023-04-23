@@ -35,7 +35,7 @@ public class Product {
     @JoinColumn(nullable = true)
     private Tags tag;
 
-    private Double price;
+    private Integer price;
 
     private Long sold;
 

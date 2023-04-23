@@ -30,6 +30,6 @@ public class WarehouseReceiptDetail {
 
     private Long amount;
 
-    private Double costPrices;
+    private Integer costPrices;
 
 }

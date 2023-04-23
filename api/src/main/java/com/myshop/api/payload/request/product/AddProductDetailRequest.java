@@ -10,5 +10,5 @@ public class AddProductDetailRequest {
     private String size;
     private String color;
     private Long numberAdd;
-    private Double prices;
+    private Integer prices;
 }

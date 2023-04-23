@@ -63,6 +63,7 @@ firebase:
 # social login
 GOOGLE_CLIENT_ID: 387422189053-5ojrdmslj960485j5u7n0p0kaheldf2l.apps.googleusercontent.com
 GOOGLE_CLIENT_SECRET: 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
-GOOGLE_REDIRECT_URI: http://localhost:8081/api/auth/oauth2/google
+GOOGLE_REDIRECT_URI:  https://pa-shop-api.up.railway.app/api/auth/oauth2/google
+RESPONSE_URI: https://shop-ptit.vercel.app/oauth2/redirect?
 GOOGLE_LINK_GET_TOKEN: https://accounts.google.com/o/oauth2/token
 GOOGLE_LINK_GET_USER: https://www.googleapis.com/oauth2/v1/userinfo?access_token=
