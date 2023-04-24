@@ -1,5 +1,6 @@
 package com.myshop.repositories.order.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.myshop.repositories.Auditing;
 import com.myshop.repositories.payment.entities.Payment;
@@ -36,9 +37,11 @@ public class Order extends Auditing {
     @OneToOne
     private Status status;
 
+    @JsonIgnoreProperties("order")
     @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
     private Payment payment;
 
+    @JsonIgnoreProperties("order")
     @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
     private Shipment shipment;
 
