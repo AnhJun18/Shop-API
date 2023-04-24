@@ -35,7 +35,7 @@ public interface OrderRepository extends CrudRepository<Order, Long>, JpaSpecifi
 
     @Query(" SELECT  u as orderInfo FROM Order  u " +
             "where (:from is NULL  OR :to is NULL  OR u.createdDate BETWEEN :from AND :to)" +
-            "and (:status is NULL  OR u.status.name = :status)" +
+            "and (:status is NULL  OR u.status.name like %:status%)" +
             "and (u.createdDate is not null ) " +
             "and (:info is null OR u.shipment.phoneReceiver like %:info% OR u.shipment.nameReceiver like %:info% )"
     )
