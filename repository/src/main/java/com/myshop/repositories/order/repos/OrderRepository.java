@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 @Repository
@@ -54,7 +55,7 @@ public interface OrderRepository extends CrudRepository<Order, Long>, JpaSpecifi
 
     @Query(value = "select p.id  as id, p.name  as name," +
             "sum(od.amount) as quantity," +
-            "sum(od.prices * od.amount) as totalMoney "  +
+            "sum(od.prices * od.amount) as totalMoney " +
             "from product p " +
             "left join product_detail pd " +
             "   on p.id = pd.product " +
@@ -67,4 +68,15 @@ public interface OrderRepository extends CrudRepository<Order, Long>, JpaSpecifi
             "group by p.id, p.name", nativeQuery = true
     )
     Iterable<Map<String, Object>> reportProductRevenue(@Param("from") Instant from, @Param("to") Instant to);
+
+    @Query(value = "  SELECT Month(o.created_date) as Thang," +
+            " sum(od.prices*od.amount+o.fee_ship) as DoanhThu " +
+            "FROM the_order  o  join payment p " +
+            "on o.id=p.order_id " +
+            "join order_detail od " +
+            "on o.id= od.order_id " +
+            "where Year(o.created_date) =:year " +
+            "group by Month(o.created_date) ", nativeQuery = true
+    )
+    List<Map<String,Object>> getRevenueInYear(@Param("year") String year);
 }

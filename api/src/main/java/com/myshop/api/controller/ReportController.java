@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -59,4 +61,10 @@ public class ReportController {
             return new ResponseEntity<byte[]>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @GetMapping("chart-revenue")
+    public List<Map<String, Object>> getRevenueInYear(@RequestParam String year){
+        return  service.getRevenueInYear(year);
+    }
+
 }
