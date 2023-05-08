@@ -65,4 +65,9 @@ public class ReportServiceImpl implements ReportService {
         parameters.put("to", to);
         return JasperExportManager.exportReportToPdf(JasperFillManager.fillReport(jasperReport, parameters, dataSource));
     }
+
+    @Override
+    public List<Map<String, Object>> getRevenueInYear(String year) {
+        return orderRepository.getRevenueInYear(year);
+    }
 }
