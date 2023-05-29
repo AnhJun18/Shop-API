@@ -1,12 +1,14 @@
 package com.myshop.repositories.product.entities;
 
 import com.myshop.repositories.chatbot.entities.Tags;
+import com.myshop.repositories.promotion.entity.Promotion;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Builder
 @Entity
@@ -34,6 +36,9 @@ public class Product {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(nullable = true)
     private Tags tag;
+
+    @OneToMany(fetch = FetchType.EAGER)
+    private List<Promotion> promotions;
 
     private Integer price;
 
