@@ -15,7 +15,7 @@ import java.util.List;
 
 @RestController
 @SecurityRequirement(name = "bearerAuth")
-@RequestMapping("api/admin/promotion")
+@RequestMapping("api/promotion")
 public class PromotionController {
     @Autowired
     PromotionService promotionService;
@@ -31,14 +31,27 @@ public class PromotionController {
         return promotionService.getAllPromotion();
     }
 
+    @GetMapping("/list-product/{id}")
+    public List<Object> getListProductOfPromotion(@PathVariable Long id) {
+        return promotionService.getListProductOfPromotion(id);
+    }
+
     @PostMapping("/addProduct")
     public ApiResponse<?> addProductToPromotion(@RequestBody AddPrToPromotionRequest addPrToPromotionRequest) {
 
         try {
-            Promotion promotion = promotionService.addProductToPromotion(addPrToPromotionRequest);
+            promotionService.addProductToPromotion(addPrToPromotionRequest);
             return ApiResponse.builder().status(HttpStatus.SC_OK).message("Thêm khuyến mãi thành công").build();
         } catch (Exception e) {
             return ApiResponse.builder().status(HttpStatus.SC_INTERNAL_SERVER_ERROR).message(e.toString()).build();
         }
     }
+
+    @DeleteMapping("/{id}")
+    public ApiResponse<?> detelePromotion(@PathVariable Long id) {
+        boolean result= promotionService.deletePromotion(id);
+        return ApiResponse.builder().status(HttpStatus.SC_OK).message(result?"Xóa thành công":"Xóa thất bại").build();
+    }
+
+
 }
