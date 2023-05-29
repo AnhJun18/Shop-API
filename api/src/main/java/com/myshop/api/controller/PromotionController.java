@@ -9,10 +9,9 @@ import com.myshop.repositories.promotion.entity.Promotion;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @SecurityRequirement(name = "bearerAuth")
@@ -24,6 +23,12 @@ public class PromotionController {
     @PostMapping()
     public Promotion createPromotion(@RequestBody PromotionRequest promotionRequest) {
         return promotionService.createPromotion(promotionRequest);
+    }
+
+
+    @GetMapping("/all")
+    public List<Promotion> getAllPromotion() {
+        return promotionService.getAllPromotion();
     }
 
     @PostMapping("/addProduct")
