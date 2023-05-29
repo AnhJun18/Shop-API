@@ -9,7 +9,13 @@ import java.util.List;
 public interface PromotionService {
 
     Promotion createPromotion(PromotionRequest promotionRequest);
+
     List<Promotion> getAllPromotion();
+
+    boolean deletePromotion(Long id);
+
+    public List<Object> getListProductOfPromotion(Long id);
+
     Promotion addProductToPromotion(AddPrToPromotionRequest listProductID) throws Exception;
 
 }

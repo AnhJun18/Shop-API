@@ -39,6 +39,23 @@ public class PromotionServiceImpl implements   PromotionService{
         return promotionRepository.findAll();
     }
 
+    @Override
+    public boolean deletePromotion(Long id) {
+        Optional<Promotion> promotion = promotionRepository.findById(id);
+        if(!promotion.isPresent())
+            return false;
+        else{
+            promotionRepository.delete(promotion.get());
+            return true;
+
+        }
+    }
+
+    @Override
+    public List<Object> getListProductOfPromotion(Long id) {
+        return promotionRepository.getProductApplyPromotion(id);
+    }
+
     @Transactional
     @Override
     public Promotion addProductToPromotion(AddPrToPromotionRequest request) throws Exception {
