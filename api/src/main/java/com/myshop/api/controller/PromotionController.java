@@ -15,7 +15,7 @@ import java.util.List;
 
 @RestController
 @SecurityRequirement(name = "bearerAuth")
-@RequestMapping("api/promotion")
+@RequestMapping("api/admin/promotion")
 public class PromotionController {
     @Autowired
     PromotionService promotionService;
