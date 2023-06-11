@@ -46,4 +46,13 @@ public class Product {
 
     private boolean deleteFlag;
 
+    public Product(String name, String linkImg, Category category, String describe, Integer price, Long sold, boolean deleteFlag) {
+        this.name = name;
+        this.linkImg = linkImg;
+        this.category = category;
+        this.describe = describe;
+        this.price = price;
+        this.sold = sold;
+        this.deleteFlag = deleteFlag;
+    }
 }

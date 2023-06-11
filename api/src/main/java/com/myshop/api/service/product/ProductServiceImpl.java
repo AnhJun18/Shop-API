@@ -8,6 +8,7 @@ import com.myshop.api.payload.response.product.ProductResponse;
 import com.myshop.api.service.firebase.IImageService;
 import com.myshop.repositories.chatbot.entities.Tags;
 import com.myshop.repositories.chatbot.repos.TagRepository;
+import com.myshop.repositories.product.builder.ProductBuilder;
 import com.myshop.repositories.product.entities.Category;
 import com.myshop.repositories.product.entities.Product;
 import com.myshop.repositories.product.entities.ProductDetail;
@@ -74,13 +75,13 @@ public class ProductServiceImpl extends CRUDBaseServiceImpl<Product, ProductRequ
             return ProductResponse.builder().message("Tên sản phẩm đã tồn tại!").status(false).build();
         }
 
-        Product product = Product.builder()
-                .name(productRequest.getName())
-                .category(category)
-                .linkImg(imageService.save(fileImage))
-                .describe(productRequest.getDescribe())
-                .price(productRequest.getPrice()).sold(0L)
-                .deleteFlag(false).build();
+        Product product = new ProductBuilder()
+                .setName(productRequest.getName())
+                .setDescribe(productRequest.getDescribe())
+                .setCategory(category)
+                .setLinkImg(imageService.save(fileImage))
+                .setPrice(productRequest.getPrice()).setSold(0L)
+                .setDeleteFlag(false).build();
         Optional<Tags> tag = tagRepository.findByName(productRequest.getTag());
         if (tag.isPresent()) {
            product.setTag(tag.get());
