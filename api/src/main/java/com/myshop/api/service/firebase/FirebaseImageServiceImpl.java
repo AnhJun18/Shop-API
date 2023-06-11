@@ -1,16 +1,12 @@
 package com.myshop.api.service.firebase;
 
-import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.FirebaseOptions;
 import com.google.firebase.cloud.StorageClient;
 import com.myshop.api.config.FirebaseConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -29,19 +25,9 @@ public class FirebaseImageServiceImpl implements IImageService {
 
     @EventListener
     public void init(ApplicationReadyEvent event) {
-
         // initialize Firebase
-
         try {
-
-            ClassPathResource serviceAccount = new ClassPathResource("firebase.json");
-
-            FirebaseOptions options = new FirebaseOptions.Builder()
-                    .setCredentials(GoogleCredentials.fromStream(serviceAccount.getInputStream()))
-                    .setStorageBucket(properties.getBucketName())
-                    .build();
-
-            FirebaseApp.initializeApp(options);
+            properties.initApp();
 
         } catch (Exception ex) {
 
