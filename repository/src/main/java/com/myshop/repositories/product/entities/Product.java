@@ -1,6 +1,5 @@
 package com.myshop.repositories.product.entities;
 
-import com.myshop.repositories.chatbot.entities.Tags;
 import com.myshop.repositories.promotion.entity.Promotion;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -32,10 +31,6 @@ public class Product {
 
     @Column(columnDefinition = "nvarchar(255)")
     private String describe;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(nullable = true)
-    private Tags tag;
 
     @OneToMany(fetch = FetchType.EAGER)
     private List<Promotion> promotions;

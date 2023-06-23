@@ -19,19 +19,17 @@ public interface ProductRepository extends CrudRepository<Product, Long>, JpaSpe
             "order by u.category.id ASC ")
     Iterable<Product> findAllSortCategory();
 
-    @Query(" SELECT  u.id as id, u.name as name,u.describe as describe,u.category.name as category, u.deleteFlag as status, u.tag.id  as tag, " +
+    @Query(" SELECT  u.id as id, u.name as name,u.describe as describe,u.category.name as category, u.deleteFlag as status, " +
             " u.linkImg as linkImg, u.price as price, u.sold as sold, sum(k.current_number) as quantityInStock" +
             " FROM Product  u left join ProductDetail k on u.id = k.infoProduct.id" +
             " group by u.id,  u.name, u.describe,u.category.name, " +
-            " u.linkImg ,u.price, u.sold, u.deleteFlag ,u.tag.id"
+            " u.linkImg ,u.price, u.sold, u.deleteFlag"
     )
     Page<Map<String, Object>> getListProductPaging(Pageable pageable);
 
     Iterable<Product> findAllByCategory_Name(String nameCategory);
 
     Iterable<Product> findAllByCategory_NameAndDeleteFlag(String nameCategory, boolean deleteFlag);
-
-    Iterable<Product> findAllByTag_Name(String tag);
 
     @Query(" from Product p where p.name like %:name%" +
             " and p.deleteFlag =false ")

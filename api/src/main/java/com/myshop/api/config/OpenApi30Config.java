@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @OpenAPIDefinition(info = @Info(title = "Shop API", version = "v1"),
-        servers = @Server(url = "https://"))
+        servers = @Server(url = "http://"))
 @SecurityScheme(
         name = "bearerAuth",
         type = SecuritySchemeType.HTTP,

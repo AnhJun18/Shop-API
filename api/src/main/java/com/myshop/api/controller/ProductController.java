@@ -120,10 +120,4 @@ public class ProductController {
         return Mono.just(productService.getProductByCategory(nameCategory));
     }
 
-    @GetMapping("/tags")
-    public Mono<Iterable<Product>> getProductByTag(@RequestParam ("nameTag") String tag) {
-        return Mono.just(productService.getProductByTag(tag));
-    }
-
-
 }
