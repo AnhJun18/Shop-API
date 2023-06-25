@@ -1,9 +1,10 @@
 package com.myshop.api.config;
 
+import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
-import org.springframework.stereotype.Component;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -13,25 +14,27 @@ import java.net.InetSocketAddress;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-@Component
-@ConfigurationProperties(prefix = "vnp")
-public class VnPayConfig {
-    public static String vnp_Version;
-    public static String vnp_Command;
-    public static String vnp_Locale;
-    public static String vnp_OrderType;
-    public static String vnp_BankCode;
-    public static String vnp_PayUrl;
-    public static String vnp_Returnurl_dev;
-    public static String vnp_Returnurl;
-    public static String vnp_TmnCode;
-    public static String vnp_HashSecret;
-    public static String vnp_ApiUrl;
-    public static String url_response_ui_dev;
-    public static String url_response_ui;
-    public static String vnp_Salt;
 
-    public static String hmacSHA512(final String key, final String data) {
+@Data
+@Configuration
+@ConfigurationProperties(prefix = "vnpay")
+public class VnPayConfig {
+    public String vnp_Version;
+    public String vnp_Command;
+    public String vnp_Locale;
+    public String vnp_OrderType;
+    public String vnp_BankCode;
+    public String vnp_PayUrl;
+    public String vnp_Returnurl_dev;
+    public String vnp_Returnurl;
+    public String vnp_TmnCode;
+    public String vnp_HashSecret;
+    public String vnp_ApiUrl;
+    public String url_response_ui_dev;
+    public String url_response_ui;
+    public String vnp_Salt;
+
+    public String hmacSHA512(final String key, final String data) {
         try {
 
             if (key == null || data == null) {
@@ -54,7 +57,7 @@ public class VnPayConfig {
         }
     }
 
-    public static String getIpAddress(ServerHttpRequest request) {
+    public String getIpAddress(ServerHttpRequest request) {
         String ipAddress = null;
         try {
             HttpHeaders headers = request.getHeaders();
@@ -82,7 +85,7 @@ public class VnPayConfig {
         return ipAddress;
     }
 
-    public static String hashAllFields(Map fields) throws UnsupportedEncodingException {
+    public String hashAllFields(Map fields) throws UnsupportedEncodingException {
         List fieldNames = new ArrayList(fields.keySet());
         Collections.sort(fieldNames);
         StringBuilder sb = new StringBuilder();
@@ -105,7 +108,7 @@ public class VnPayConfig {
     }
 
 
-    public static String getRandomNumber(int len) {
+    public String getRandomNumber(int len) {
         Random rnd = new Random();
         String chars = "0123456789";
         StringBuilder sb = new StringBuilder(len);

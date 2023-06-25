@@ -48,20 +48,22 @@ public class GHTKServiceImpl implements  GHTKService{
     ShipmentRepository shipmentRepository;
     @Autowired
     PaymentRepository paymentRepository;
+    @Autowired
+    GHTKConfig ghtkConfig;
 
 
     public ShipFeeResponse calculateShipFee(String province,String district,
                                    Double weight,String deliver_option, Long value) throws URISyntaxException, IOException {
         JSONObject json = new JSONObject();
-        json.put("pick_province", GHTKConfig.PICK_PROVINCE);
-        json.put("pick_district", GHTKConfig.PICK_DISTRICT);
+        json.put("pick_province", ghtkConfig.PICK_PROVINCE);
+        json.put("pick_district", ghtkConfig.PICK_DISTRICT);
         json.put("province", province);
         json.put("district", district);
         json.put("weight", weight);
         json.put("deliver_option", deliver_option);
         json.put("value", value);
         CloseableHttpClient client = HttpClients.createDefault();
-        HttpGet get = new HttpGet(GHTKConfig.CALCUATE_SHIP_FEE_URL);
+        HttpGet get = new HttpGet(ghtkConfig.CALCUATE_SHIP_FEE_URL);
         List<NameValuePair> params = new ArrayList<>();
         for (Map.Entry<String, Object> e : json.toMap().entrySet()) {
             params.add(new BasicNameValuePair(e.getKey(), e.getValue().toString()));
@@ -69,7 +71,7 @@ public class GHTKServiceImpl implements  GHTKService{
 
         URI uri = new URIBuilder(get.getURI()).setParameters(params).build();
         get.setURI(uri);
-        get.setHeader("Token", GHTKConfig.TOKEN);
+        get.setHeader("Token", ghtkConfig.TOKEN);
         CloseableHttpResponse res = client.execute(get);
         BufferedReader rd = new BufferedReader(new InputStreamReader(res.getEntity().getContent()));
         StringBuilder resultJsonStr = new StringBuilder();
@@ -134,10 +136,10 @@ public class GHTKServiceImpl implements  GHTKService{
         dataBody.put("products", list);
         System.out.println(dataBody);
         CloseableHttpClient client = HttpClients.createDefault();
-        HttpPost post = new HttpPost(GHTKConfig.CREATE_ORDER_URL);
+        HttpPost post = new HttpPost(ghtkConfig.CREATE_ORDER_URL);
         StringEntity stringEntity = new StringEntity(dataBody.toString(), StandardCharsets.UTF_8);
         post.setHeader("content-type", "application/json");
-        post.setHeader("Token", GHTKConfig.TOKEN);
+        post.setHeader("Token", ghtkConfig.TOKEN);
         post.setEntity(stringEntity);
         CloseableHttpResponse res = client.execute(post);
         BufferedReader rd = new BufferedReader(new InputStreamReader(res.getEntity().getContent()));
@@ -181,7 +183,7 @@ public class GHTKServiceImpl implements  GHTKService{
 
     @Transactional
     public ResponseEntity updateShipment(String token,Object GHTKResponse) {
-        String ghtk_SecureHash =GHTKConfig.hmacSHA512(GHTKConfig.GHTK_HASHSECRET,GHTKConfig.TOKEN+GHTKConfig.SALT);
+        String ghtk_SecureHash =ghtkConfig.hmacSHA512(ghtkConfig.GHTK_HASHSECRET,ghtkConfig.TOKEN+ghtkConfig.SALT);
         System.out.println(ghtk_SecureHash);
         if (token.equals(ghtk_SecureHash)){
 
