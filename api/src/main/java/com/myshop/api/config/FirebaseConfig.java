@@ -19,7 +19,7 @@ import org.springframework.core.io.ClassPathResource;
 @NoArgsConstructor
 @ConfigurationProperties(prefix = "firebase")
 
-public class FirebaseConfig{
+public class FirebaseSingleton {
     public String bucketName;
 
     public String imageUrl;
@@ -28,9 +28,9 @@ public class FirebaseConfig{
 
     public  String suffixImageUrl;
 
+    private static FirebaseSingleton instanceFirebase;
 
-    @Bean
-    public FirebaseApp initApp() {
+    private FirebaseSingleton() {
         try {
 
             ClassPathResource serviceAccount = new ClassPathResource("firebase.json");
@@ -46,4 +46,12 @@ public class FirebaseConfig{
             return null;
         }
     }
+
+    public static FirebaseApp getInstance() {
+        if (instanceFirebase == null) {
+            instanceFirebase = new in();
+        }
+        return instanceFirebase;
+    }
+
 }
