@@ -1,14 +1,12 @@
-package com.myshop.api.controller;
+package com.myshop.api.modules.product;
 
 
+import com.myshop.api.modules.category.CategoryService;
 import com.myshop.api.payload.request.product.AddProductDetailRequest;
 import com.myshop.api.payload.request.product.ProductRequest;
 import com.myshop.api.payload.response.product.ProductDetailResponse;
 import com.myshop.api.payload.response.product.ProductResponse;
-import com.myshop.api.service.category.CategoryService;
-import com.myshop.api.service.product.ProductService;
 import com.myshop.repositories.product.entities.Product;
-import com.myshop.repositories.stocks.entities.StocksDetail;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,7 +87,7 @@ public class ProductController {
     }
 
     @GetMapping(value = "/detail/{id_product}")
-    public Mono<Iterable<StocksDetail>> getDetailProductById(@PathVariable Long id_product) throws IOException {
+    public Mono<Iterable<Map<String,Object>>> getDetailProductById(@PathVariable Long id_product) throws IOException {
         return Mono.just(productService.getDetailProductById(id_product));
     }
 

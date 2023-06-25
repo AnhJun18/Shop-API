@@ -1,4 +1,4 @@
-package com.myshop.repositories.warehouse.entities;
+package com.myshop.repositories.stocks_in.entities;
 
 import com.myshop.repositories.Auditing;
 import lombok.AllArgsConstructor;
@@ -10,11 +10,11 @@ import javax.persistence.*;
 
 @Builder
 @Entity
-@Table(name = "warehouse_receipt")
+@Table(name = "stock_in")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class WarehouseReceipt extends Auditing {
+public class StocksIn extends Auditing {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

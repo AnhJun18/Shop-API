@@ -8,7 +8,7 @@
     </queryString>
     <field name="ngay" class="java.lang.Integer"/>
     <field name="total" class="java.math.BigInteger"/>
-    <field name="totalMoney" class="java.lang.Double"/>
+    <field name="totalMoney" class="java.math.BigInteger"/>
     <background>
         <band splitType="Stretch"/>
     </background>

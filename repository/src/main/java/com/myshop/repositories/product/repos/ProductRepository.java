@@ -14,14 +14,12 @@ import java.util.Map;
 @Repository
 public interface ProductRepository extends CrudRepository<Product, Long>, JpaSpecificationExecutor<Product> {
 
-    @Query("FROM Product u" +
-            " where u.deleteFlag = false " +
-            "order by u.category.id ASC ")
-    Iterable<Product> findAllSortCategory();
+    @Query(value = "exec getAllProduct ",nativeQuery = true)
+    Iterable<Map<String, Object>> findAllSortCategory();
 
     @Query(" SELECT  u.id as id, u.name as name,u.describe as describe,u.category.name as category, u.deleteFlag as status, " +
             " u.linkImg as linkImg, u.price as price, u.sold as sold, sum(k.current_number) as quantityInStock" +
-            " FROM Product  u left join ProductDetail k on u.id = k.infoProduct.id" +
+            " FROM Product  u left join StocksDetail k on u.id = k.infoProduct.id" +
             " group by u.id,  u.name, u.describe,u.category.name, " +
             " u.linkImg ,u.price, u.sold, u.deleteFlag"
     )
@@ -38,8 +36,8 @@ public interface ProductRepository extends CrudRepository<Product, Long>, JpaSpe
     boolean existsByName(String name);
 
 
-    @Query(value = "Select top 4 * from product order by  sold DESC", nativeQuery = true)
-    Iterable<Product> getProductBestSeller();
+    @Query(value = "exec getProductBestSeller", nativeQuery = true)
+    Iterable<Map<String,Object>> getProductBestSeller();
 
 
 }

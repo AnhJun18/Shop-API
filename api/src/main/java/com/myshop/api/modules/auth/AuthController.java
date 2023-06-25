@@ -1,4 +1,4 @@
-package com.myshop.api.controller;
+package com.myshop.api.modules.auth;
 
 
 import com.myshop.api.payload.request.user.ForgotPasswordRequest;
@@ -8,7 +8,7 @@ import com.myshop.api.payload.request.user.UserRequest;
 import com.myshop.api.payload.response.user.LoginResponse;
 import com.myshop.api.payload.response.user.PasswordResponse;
 import com.myshop.api.payload.response.user.UserResponse;
-import com.myshop.api.service.user.UserService;
+import com.myshop.api.modules.user.UserService;
 import com.myshop.common.http.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;

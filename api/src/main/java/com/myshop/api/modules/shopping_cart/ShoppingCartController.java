@@ -1,8 +1,7 @@
-package com.myshop.api.controller;
+package com.myshop.api.modules.shopping_cart;
 
 
 import com.myshop.api.payload.request.shopping_cart.ShoppingCartRequest;
-import com.myshop.api.service.shopping_cart.ShoppingCartService;
 import com.myshop.common.http.ApiResponse;
 import com.myshop.security.jwt.CustomAuthUser;
 import com.myshop.security.jwt.JWTAuthenticationToken;

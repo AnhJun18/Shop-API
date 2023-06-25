@@ -1,4 +1,4 @@
-package com.myshop.api.service.google;
+package com.myshop.api.modules.auth_social;
 
 import org.apache.http.client.ClientProtocolException;
 

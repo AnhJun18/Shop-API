@@ -1,7 +1,7 @@
 package com.myshop.repositories.order.entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.myshop.repositories.product.entities.ProductDetail;
+import com.myshop.repositories.stocks.entities.StocksDetail;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,7 +28,7 @@ public class OrderDetail {
 
     @ManyToOne
     @JoinColumn(name = "product_id")
-    private ProductDetail productDetail;
+    private StocksDetail stocksDetail;
 
     private Long amount;
 

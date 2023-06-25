@@ -8,4 +8,5 @@ import lombok.Data;
 public class OrderDetailRequest {
     private Long product_id;
     private Long amount;
+    private Integer price_after;
 }

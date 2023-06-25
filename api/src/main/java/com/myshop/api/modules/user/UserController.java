@@ -1,9 +1,8 @@
-package com.myshop.api.controller;
+package com.myshop.api.modules.user;
 
 
 import com.myshop.api.payload.request.user.UpdateProfileRequest;
 import com.myshop.api.payload.response.user.UserResponse;
-import com.myshop.api.service.user.UserService;
 import com.myshop.common.http.ApiResponse;
 import com.myshop.repositories.user.entities.UserInfo;
 import com.myshop.security.jwt.CustomAuthUser;

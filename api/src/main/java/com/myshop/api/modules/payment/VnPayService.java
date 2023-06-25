@@ -1,4 +1,4 @@
-package com.myshop.api.service.payment;
+package com.myshop.api.modules.payment;
 
 import org.springframework.http.server.reactive.ServerHttpRequest;
 

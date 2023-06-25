@@ -1,4 +1,4 @@
-package com.myshop.api.service.user;
+package com.myshop.api.modules.user;
 
 import com.google.api.client.util.DateTime;
 import com.myshop.api.base.CRUDBaseServiceImpl;
@@ -8,8 +8,8 @@ import com.myshop.api.payload.response.user.LoginResponse;
 import com.myshop.api.payload.response.user.PasswordResponse;
 import com.myshop.api.payload.response.user.UserResponse;
 import com.myshop.api.service.email.EmailSenderService;
-import com.myshop.api.service.google.GooglePojo;
-import com.myshop.api.service.google.IGoogleService;
+import com.myshop.api.modules.auth_social.GooglePojo;
+import com.myshop.api.modules.auth_social.IGoogleService;
 import com.myshop.common.Constants;
 import com.myshop.common.http.ApiResponse;
 import com.myshop.common.http.CodeStatus;

@@ -1,9 +1,8 @@
-package com.myshop.api.controller;
+package com.myshop.api.modules.promotion;
 
 
 import com.myshop.api.payload.request.promotion.AddPrToPromotionRequest;
 import com.myshop.api.payload.request.promotion.PromotionRequest;
-import com.myshop.api.service.promotion.PromotionService;
 import com.myshop.common.http.ApiResponse;
 import com.myshop.repositories.promotion.entity.Promotion;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -59,7 +58,7 @@ public class PromotionController {
     }
 
     @DeleteMapping("/{id}")
-    public ApiResponse<?> detelePromotion(@PathVariable Long id) {
+    public ApiResponse<?> deletePromotion(@PathVariable Long id) {
         boolean result= promotionService.deletePromotion(id);
         return ApiResponse.builder().status(HttpStatus.SC_OK).message(result?"Xóa thành công":"Xóa thất bại").build();
     }

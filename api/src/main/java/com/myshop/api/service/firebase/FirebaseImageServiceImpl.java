@@ -21,8 +21,6 @@ public class FirebaseImageServiceImpl implements IImageService {
     @Autowired
     FirebaseConfig properties;
 
-
-
     @EventListener
     public void init(ApplicationReadyEvent event) {
         // initialize Firebase

@@ -1,4 +1,4 @@
-package com.myshop.api.service.promotion;
+package com.myshop.api.modules.promotion;
 
 import com.myshop.api.payload.request.promotion.AddPrToPromotionRequest;
 import com.myshop.api.payload.request.promotion.PromotionRequest;

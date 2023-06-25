@@ -10,12 +10,12 @@ import javax.persistence.*;
 
 @Builder
 @Entity
-@Table(name = "product_detail",
+@Table(name = "stock_detail",
         uniqueConstraints =@UniqueConstraint(columnNames = {"product", "size","color"}))
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductDetail {
+public class StocksDetail {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

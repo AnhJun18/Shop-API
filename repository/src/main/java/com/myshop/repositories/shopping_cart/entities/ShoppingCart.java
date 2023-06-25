@@ -1,6 +1,6 @@
 package com.myshop.repositories.shopping_cart.entities;
 
-import com.myshop.repositories.product.entities.ProductDetail;
+import com.myshop.repositories.stocks.entities.StocksDetail;
 import com.myshop.repositories.user.entities.UserInfo;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,7 +27,7 @@ public class ShoppingCart {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "product_id")
-    private  ProductDetail productDetail;
+    private StocksDetail stocksDetail;
 
     private Long amount;
 

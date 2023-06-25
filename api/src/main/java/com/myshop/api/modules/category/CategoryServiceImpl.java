@@ -1,4 +1,4 @@
-package com.myshop.api.service.category;
+package com.myshop.api.modules.category;
 
 import com.myshop.api.base.CRUDBaseServiceImpl;
 import com.myshop.api.payload.request.product.CategoryRequest;

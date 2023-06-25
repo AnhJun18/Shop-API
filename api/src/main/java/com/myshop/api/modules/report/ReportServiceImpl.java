@@ -1,4 +1,4 @@
-package com.myshop.api.service.report;
+package com.myshop.api.modules.report;
 
 import com.myshop.repositories.order.repos.OrderRepository;
 import lombok.extern.slf4j.Slf4j;

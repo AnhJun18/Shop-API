@@ -1,6 +1,5 @@
-package com.myshop.api.controller;
+package com.myshop.api.modules.report;
 
-import com.myshop.api.service.report.ReportService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

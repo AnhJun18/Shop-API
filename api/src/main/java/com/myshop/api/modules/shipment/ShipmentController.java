@@ -1,7 +1,6 @@
-package com.myshop.api.controller;
+package com.myshop.api.modules.shipment;
 
 import com.myshop.api.payload.response.ship.ShipFeeResponse;
-import com.myshop.api.service.shipment.GHTKService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

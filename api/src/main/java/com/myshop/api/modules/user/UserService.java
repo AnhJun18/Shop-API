@@ -1,4 +1,4 @@
-package com.myshop.api.service.user;
+package com.myshop.api.modules.user;
 
 
 import com.myshop.api.payload.request.user.*;

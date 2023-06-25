@@ -1,6 +1,5 @@
-package com.myshop.api.controller;
+package com.myshop.api.modules.payment;
 
-import com.myshop.api.service.payment.VnPayService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;

@@ -1,4 +1,4 @@
-package com.myshop.api.service.google;
+package com.myshop.api.modules.auth_social;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;

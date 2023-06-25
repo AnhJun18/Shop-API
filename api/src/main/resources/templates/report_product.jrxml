@@ -9,7 +9,7 @@
     </queryString>
     <field name="id" class="java.math.BigInteger"/>
     <field name="name" class="java.lang.String"/>
-    <field name="totalMoney" class="java.lang.Double"/>
+    <field name="totalMoney" class="java.math.BigInteger"/>
     <field name="quantity" class="java.math.BigInteger"/>
     <background>
         <band splitType="Stretch"/>

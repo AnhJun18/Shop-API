@@ -1,4 +1,4 @@
-package com.myshop.api.service.product;
+package com.myshop.api.modules.product;
 
 import com.myshop.api.base.CRUDBaseServiceImpl;
 import com.myshop.api.payload.request.product.AddProductDetailRequest;
@@ -202,7 +202,7 @@ public class ProductServiceImpl extends CRUDBaseServiceImpl<Product, ProductRequ
     }
 
     @Override
-    public Iterable<StocksDetail> getDetailProductById(Long id_product) {
+    public Iterable<Map<String,Object>> getDetailProductById(Long id_product) {
 
         return stocksDetailRepository.findAllByInfoProduct_Id(id_product);
     }

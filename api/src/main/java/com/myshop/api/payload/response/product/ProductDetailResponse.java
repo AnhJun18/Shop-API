@@ -1,6 +1,6 @@
 package com.myshop.api.payload.response.product;
 
-import com.myshop.repositories.product.entities.ProductDetail;
+import com.myshop.repositories.stocks.entities.StocksDetail;
 import lombok.Builder;
 import lombok.Data;
 
@@ -9,5 +9,5 @@ import lombok.Data;
 public class ProductDetailResponse {
     private boolean status;
     private String message;
-    private ProductDetail productDetail;
+    private StocksDetail stocksDetail;
 }

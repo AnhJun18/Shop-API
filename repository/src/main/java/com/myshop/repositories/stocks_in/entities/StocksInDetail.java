@@ -1,4 +1,4 @@
-package com.myshop.repositories.warehouse.entities;
+package com.myshop.repositories.stocks_in.entities;
 
 import com.myshop.repositories.stocks.entities.StocksDetail;
 import lombok.AllArgsConstructor;
@@ -10,22 +10,22 @@ import javax.persistence.*;
 
 @Builder
 @Entity
-@Table(name = "warehouse_receipt_detail")
+@Table(name = "stock_in_detail")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class WarehouseReceiptDetail {
+public class StocksInDetail {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "warehouse_receipt_id")
-    private WarehouseReceipt warehouseReceipt;
+    @JoinColumn(name = "stocks_in_id")
+    private StocksIn stocksIn;
 
     @ManyToOne
-    @JoinColumn(name = "product_id")
+    @JoinColumn(name = "stock_id")
     private StocksDetail stocksDetail;
 
     private Long amount;

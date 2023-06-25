@@ -1,7 +1,7 @@
-package com.myshop.api.controller;
+package com.myshop.api.modules.auth_social;
 
 import com.myshop.api.payload.response.user.LoginResponse;
-import com.myshop.api.service.user.UserService;
+import com.myshop.api.modules.user.UserService;
 import lombok.Builder;
 import org.apache.http.client.ClientProtocolException;
 import org.springframework.beans.factory.annotation.Autowired;

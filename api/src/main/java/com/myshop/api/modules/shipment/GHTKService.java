@@ -1,4 +1,4 @@
-package com.myshop.api.service.shipment;
+package com.myshop.api.modules.shipment;
 
 import com.myshop.api.payload.response.ship.ShipFeeResponse;
 import org.springframework.http.ResponseEntity;

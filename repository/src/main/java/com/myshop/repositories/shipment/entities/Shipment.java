@@ -44,6 +44,10 @@ public class Shipment extends Auditing {
     @JoinColumn(name = "order_id")
     private Order order;
 
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "status_id")
+    private GHTKStatus status;
+
     public String getFullAddress(){
         return address+", "+ward+", "+district+", "+province;
     }

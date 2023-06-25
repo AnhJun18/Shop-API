@@ -1,4 +1,4 @@
-package com.myshop.api.service.order;
+package com.myshop.api.modules.order;
 
 import com.myshop.api.payload.request.order.OrderRequest;
 import com.myshop.api.payload.response.order.OrderResponse;

@@ -1,4 +1,4 @@
-package com.myshop.api.service.stock_in;
+package com.myshop.api.modules.stocks.stock_in;
 
 import com.myshop.api.base.CRUDBaseServiceImpl;
 import com.myshop.api.payload.request.product.AddProductDetailRequest;

@@ -12,9 +12,9 @@ import java.util.Map;
 @Repository
 public interface ShoppingCartRepository extends CrudRepository<ShoppingCart, Long> , JpaSpecificationExecutor<ShoppingCart> {
 
-    @Query("SELECT u.id as idCart, u.productDetail as product, u.amount as amount FROM ShoppingCart u WHERE u.userInfo.id=:userId")
+    @Query("SELECT u.id as idCart, u.stocksDetail as product, u.amount as amount FROM ShoppingCart u WHERE u.userInfo.id=:userId")
     Iterable<Map<String,Object>> findAllByUserInfo_Id(@Param("userId") Long id);
 
 
-    ShoppingCart findShoppingCartByUserInfo_IdAndProductDetail_Id(Long userID, Long product);
+    ShoppingCart findShoppingCartByUserInfo_IdAndStocksDetail_Id(Long userID, Long product);
 }

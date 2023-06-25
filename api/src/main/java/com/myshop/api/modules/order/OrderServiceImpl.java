@@ -1,10 +1,10 @@
-package com.myshop.api.service.order;
+package com.myshop.api.modules.order;
 
 import com.myshop.api.base.CRUDBaseServiceImpl;
 import com.myshop.api.payload.request.order.OrderDetailRequest;
 import com.myshop.api.payload.request.order.OrderRequest;
 import com.myshop.api.payload.response.order.OrderResponse;
-import com.myshop.api.service.shipment.GHTKService;
+import com.myshop.api.modules.shipment.GHTKService;
 import com.myshop.repositories.order.entities.Order;
 import com.myshop.repositories.order.entities.OrderDetail;
 import com.myshop.repositories.order.entities.Status;
@@ -104,7 +104,7 @@ public class OrderServiceImpl extends CRUDBaseServiceImpl<Order, OrderRequest, O
                             .stocksDetail(productDetail.get())
                             .order(finalNewOrder)
                             .amount(item.getAmount())
-                            .prices(productDetail.get().getInfoProduct().getPrice())
+                            .prices(item.getPrice_after())
                             .build());
                 }
                 result = true;

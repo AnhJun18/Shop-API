@@ -1,4 +1,4 @@
-package com.myshop.api.modules.stocks;
+package com.myshop.api.modules.stocks.inventory;
 
 
 import com.myshop.api.payload.request.product.AddProductDetailRequest;

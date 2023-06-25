@@ -1,8 +1,8 @@
-package com.myshop.api.controller;
+package com.myshop.api.modules.admin_order;
 
 
 import com.myshop.api.payload.response.order.OrderResponse;
-import com.myshop.api.service.order.OrderService;
+import com.myshop.api.modules.order.OrderService;
 import com.myshop.repositories.order.entities.Order;
 import com.myshop.security.jwt.CustomAuthUser;
 import com.myshop.security.jwt.JWTAuthenticationToken;

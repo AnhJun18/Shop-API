@@ -1,4 +1,4 @@
-package com.myshop.api.service.shipment;
+package com.myshop.api.modules.shipment;
 
 import com.myshop.api.config.GHTKConfig;
 import com.myshop.api.payload.response.ship.ItemProduct;
@@ -6,9 +6,12 @@ import com.myshop.api.payload.response.ship.ShipFeeResponse;
 import com.myshop.repositories.order.entities.Order;
 import com.myshop.repositories.order.entities.OrderDetail;
 import com.myshop.repositories.order.repos.OrderRepository;
+import com.myshop.repositories.order.repos.StatusRepository;
 import com.myshop.repositories.payment.entities.Epay;
 import com.myshop.repositories.payment.entities.Payment;
 import com.myshop.repositories.payment.repos.PaymentRepository;
+import com.myshop.repositories.shipment.entities.GHTKStatus;
+import com.myshop.repositories.shipment.repos.GHTKStatusRepository;
 import com.myshop.repositories.shipment.repos.ShipmentRepository;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -48,6 +51,10 @@ public class GHTKServiceImpl implements  GHTKService{
     ShipmentRepository shipmentRepository;
     @Autowired
     PaymentRepository paymentRepository;
+    @Autowired
+    GHTKStatusRepository ghtkStatusRepository;
+    @Autowired
+    StatusRepository statusOrderRepository;
 
 
     public ShipFeeResponse calculateShipFee(String province,String district,
@@ -189,13 +196,16 @@ public class GHTKServiceImpl implements  GHTKService{
             String partnerId = jsonObject.getString("partner_id");
             String label_id = jsonObject.getString("label_id");
             Integer status_id = jsonObject.getInt("status_id");
+            GHTKStatus ghtkStatus= ghtkStatusRepository.findByCode(status_id).get();
             String reason_code = jsonObject.getString("reason_code");
             String action_time = jsonObject.getString("action_time");
             String reason = jsonObject.getString("reason");
+            Order order= orderRepository.findOrderById(Long.parseLong(partnerId));
+            order.getShipment().setStatus(ghtkStatus);
             if(status_id.equals(6)){
                 //Don hang đã đc đối soát
                 try {
-                    Order order= orderRepository.findOrderById(Long.valueOf(partnerId));
+                    order.setStatus(statusOrderRepository.findByName("Đã Thanh Toán"));
                     Payment payment=Payment.builder().datePayment(action_time)
                             .bankName("GHTK").method(Epay.GHTK).order(order)
                             .status("00")
@@ -205,6 +215,7 @@ public class GHTKServiceImpl implements  GHTKService{
                     TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                 };
             }
+            orderRepository.save(order);
             return ResponseEntity.status(200).body(ResponseEntity.status(200).body("Đơn hàng đã được cập nhật"));
         }
         else

@@ -1,8 +1,7 @@
-package com.myshop.api.controller;
+package com.myshop.api.modules.category;
 
 
 import com.myshop.api.payload.request.product.CategoryRequest;
-import com.myshop.api.service.category.CategoryService;
 import com.myshop.common.http.ApiResponse;
 import com.myshop.repositories.product.entities.Category;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;

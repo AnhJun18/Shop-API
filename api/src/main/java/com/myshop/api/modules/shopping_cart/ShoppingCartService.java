@@ -1,4 +1,4 @@
-package com.myshop.api.service.shopping_cart;
+package com.myshop.api.modules.shopping_cart;
 
 import com.myshop.api.payload.request.shopping_cart.ShoppingCartRequest;
 import com.myshop.common.http.ApiResponse;

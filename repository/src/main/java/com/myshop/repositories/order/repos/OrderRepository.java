@@ -42,14 +42,7 @@ public interface OrderRepository extends CrudRepository<Order, Long>, JpaSpecifi
     )
     Page<Order> searchOrder(@Param("from") Instant from, @Param("to") Instant to, @Param("info") String info, @Param("status") String status, Pageable pageable);
 
-    @Query(value = "SELECT Day(u.created_date) as ngay, sum(od.amount) as total, " +
-            "sum(od.amount*od.prices) as totalMoney " +
-            "FROM the_order  u left join order_detail od " +
-            "on u.id = od.order_id " +
-            " where u.status_id = 4 " +
-            "and MONTH(u.created_date)=:month " +
-            "and Year(u.created_date)=:year " +
-            "group by Day(u.created_date)", nativeQuery = true
+    @Query(value = "exec getRevenueInMonth :month,:year ", nativeQuery = true
     )
     Iterable<Map<String, Object>> reportMonthlyRevenue(@Param("month") int month, @Param("year") int year);
 
@@ -57,7 +50,7 @@ public interface OrderRepository extends CrudRepository<Order, Long>, JpaSpecifi
             "sum(od.amount) as quantity," +
             "sum(od.prices * od.amount) as totalMoney " +
             "from product p " +
-            "left join product_detail pd " +
+            "left join stock_detail pd " +
             "   on p.id = pd.product " +
             "   left join order_detail od " +
             "       on pd.id = od.product_id " +
@@ -69,14 +62,6 @@ public interface OrderRepository extends CrudRepository<Order, Long>, JpaSpecifi
     )
     Iterable<Map<String, Object>> reportProductRevenue(@Param("from") Instant from, @Param("to") Instant to);
 
-    @Query(value = "  SELECT Month(o.created_date) as Thang," +
-            " sum(od.prices*od.amount+o.fee_ship) as DoanhThu " +
-            "FROM the_order  o  join payment p " +
-            "on o.id=p.order_id " +
-            "join order_detail od " +
-            "on o.id= od.order_id " +
-            "where Year(o.created_date) =:year " +
-            "group by Month(o.created_date) ", nativeQuery = true
-    )
+    @Query(value = " exec getRevenueInYear :year " , nativeQuery = true)
     List<Map<String,Object>> getRevenueInYear(@Param("year") String year);
 }

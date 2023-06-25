@@ -1,4 +1,4 @@
-package com.myshop.api.service.report;
+package com.myshop.api.modules.report;
 
 import net.sf.jasperreports.engine.JRException;
 

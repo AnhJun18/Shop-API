@@ -1,4 +1,4 @@
-package com.myshop.api.service.product;
+package com.myshop.api.modules.product;
 
 
 import com.myshop.api.payload.request.product.AddProductDetailRequest;
@@ -6,7 +6,6 @@ import com.myshop.api.payload.request.product.ProductRequest;
 import com.myshop.api.payload.response.product.ProductDetailResponse;
 import com.myshop.api.payload.response.product.ProductResponse;
 import com.myshop.repositories.product.entities.Product;
-import com.myshop.repositories.stocks.entities.StocksDetail;
 import org.springframework.data.domain.Page;
 import org.springframework.http.codec.multipart.FilePart;
 
@@ -38,6 +37,6 @@ public interface ProductService {
 
     Iterable<Product> getProductByCategory( String nameCategory);
 
-    Iterable<StocksDetail> getDetailProductById(Long id_product);
+    Iterable<Map<String,Object>> getDetailProductById(Long id_product);
 }
 

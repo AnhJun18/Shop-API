@@ -1,4 +1,4 @@
-package com.myshop.api.service.google;
+package com.myshop.api.modules.auth_social;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
