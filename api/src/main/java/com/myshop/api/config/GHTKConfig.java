@@ -4,6 +4,7 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+import javax.annotation.PostConstruct;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
@@ -23,6 +24,11 @@ public class GHTKConfig {
     public String PICK_DISTRICT;
     public String GHTK_HASHSECRET;
     public String SALT;
+
+    @PostConstruct()
+    public void logGHTK(){
+        System.out.println("CHECK LOG GHTK:=" +API_ENDPOINT);
+    }
 
     public String hmacSHA512(final String key, final String data) {
         try {
