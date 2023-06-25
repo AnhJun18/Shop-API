@@ -1,7 +1,9 @@
 package com.myshop.api.config;
 
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.stereotype.Component;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -11,23 +13,23 @@ import java.net.InetSocketAddress;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-
+@Component
+@ConfigurationProperties(prefix = "vnp")
 public class VnPayConfig {
-
-    public static String vnp_Version = "2.1.0";
-    public static String vnp_Command = "pay";
-    public static String vnp_Locale = "vn";
-    public static String vnp_OrderType = "200000";  // don hang thoi trang
-    public static String vnp_BankCode = "";
-    public static String vnp_PayUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-    public static String vnp_Returnurl_dev = "http://localhost:8081/api/payment/vnpay/result/VnPayIPN";
-    public static String vnp_Returnurl = "https://pa-shop-api.up.railway.app/api/payment/vnpay/result/VnPayIPN";
-    public static String vnp_TmnCode = "BN42ML7M";
-    public static String vnp_HashSecret = "MJHFWENMTHYIASYHDHHMPSJKOSQNNSXF";
-    public static String vnp_ApiUrl = "http://sandbox.vnpayment.vn/merchant_webapi/merchant.html";
-    public static String url_response_ui_dev = "http://localhost:3000/result-payment?";
-    public static String url_response_ui = "https://shop-ptit.vercel.app/result-payment?";
-    public static String vnp_Salt = "AnhJun18";
+    public static String vnp_Version;
+    public static String vnp_Command;
+    public static String vnp_Locale;
+    public static String vnp_OrderType;
+    public static String vnp_BankCode;
+    public static String vnp_PayUrl;
+    public static String vnp_Returnurl_dev;
+    public static String vnp_Returnurl;
+    public static String vnp_TmnCode;
+    public static String vnp_HashSecret;
+    public static String vnp_ApiUrl;
+    public static String url_response_ui_dev;
+    public static String url_response_ui;
+    public static String vnp_Salt;
 
     public static String hmacSHA512(final String key, final String data) {
         try {
