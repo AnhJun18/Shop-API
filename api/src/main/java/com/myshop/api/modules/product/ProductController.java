@@ -6,6 +6,7 @@ import com.myshop.api.payload.request.product.AddProductDetailRequest;
 import com.myshop.api.payload.request.product.ProductRequest;
 import com.myshop.api.payload.response.product.ProductDetailResponse;
 import com.myshop.api.payload.response.product.ProductResponse;
+import com.myshop.common.http.ApiResponse;
 import com.myshop.repositories.product.entities.Product;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.extern.slf4j.Slf4j;
@@ -92,13 +93,13 @@ public class ProductController {
     }
 
     @GetMapping("/all")
-    public Mono<Iterable<Map<String,Object>>> getAllProduct(){
-        return Mono.just(productService.getAllProduct());
+    public Mono<ApiResponse<Object>> getAllProduct(){
+        return Mono.just(ApiResponse.builder().status(200).data(productService.getAllProduct()).build());
     }
 
     @GetMapping("/best-seller")
-    public Mono<Iterable<Map<String,Object>>> getProductBestSeller(){
-        return Mono.just(productService.getProductBestSeller());
+    public Mono<ApiResponse<Object>> getProductBestSeller(){
+        return Mono.just(ApiResponse.builder().status(200).data(productService.getProductBestSeller()).build());
     }
 
     @GetMapping("/get_paging")

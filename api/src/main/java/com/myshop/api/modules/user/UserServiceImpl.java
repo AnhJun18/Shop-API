@@ -191,8 +191,7 @@ public class UserServiceImpl extends CRUDBaseServiceImpl<UserInfo, UserRequest, 
     public UserResponse getUserProfile(long userId) {
         UserInfo userInfo = userRepository.findById(userId).orElseThrow();
         return UserResponse.builder().status(true)
-                .userInfo(userInfo)
-                .role(userInfo.getAccount().getRole())
+                .data(userInfo)
                 .build();
     }
 
