@@ -3,7 +3,6 @@ package com.myshop.api.modules.category;
 
 import com.myshop.api.payload.request.product.CategoryRequest;
 import com.myshop.common.http.ApiResponse;
-import com.myshop.repositories.product.entities.Category;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,9 +29,9 @@ public class CategoryController {
         return Mono.just(categoryService.createCategory(categoryRequest));
     }
 
-    @GetMapping("/all")
-    public Mono<Iterable<Category>> getAllCategory() {
-        return Mono.just(categoryService.getAllCategory());
+    @GetMapping("")
+    public Mono<ApiResponse<?>> getAllCategory() {
+        return Mono.just(ApiResponse.builder().status(200).data(categoryService.getAllCategory()).build());
     }
 
 
