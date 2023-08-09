@@ -1,71 +1,52 @@
 package com.myshop.repositories.order.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.myshop.repositories.Auditing;
-import com.myshop.repositories.payment.entities.Payment;
-import com.myshop.repositories.shipment.entities.Shipment;
-import com.myshop.repositories.user.entities.UserInfo;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.List;
 
 @Builder
 @Entity
-@Table(name = "the_order")
+@Table(name = "THEORDER")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Order extends Auditing {
+public class Order {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "ORDERID")
+    private Long orderId;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    private UserInfo userInfo;
+    @Column(name = "CUSTOMERID")
+    private Long customerId;
 
-    @Column(columnDefinition = "nvarchar(255)")
+    @Column(name = "NAMERECEIVER")
+    private String nameReceiver;
+
+    @Column(name = "PHONERECEIVER")
+    private String phoneReceiver;
+
+    @Column(name = "ADDRESS")
+    private String address;
+
+    @Column(name = "NOTE")
     private String note;
 
-    private Integer feeShip;
-
     @OneToOne
+    @JoinColumn(name = "STATUSID")
     private Status status;
 
-    @JsonIgnoreProperties("order")
-    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
-    private Payment payment;
+    @Column(name = "EMPLOYEEREVIEW")
+    private Long employeeReview;
 
-    @JsonIgnoreProperties("order")
-    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
-    private Shipment shipment;
+    @Column(name = "EMPLOYEEDELIVERY")
+    private Long employeeDelivery;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "order")
+    @OneToOne(mappedBy = "orderId",fetch = FetchType.EAGER)
     @JsonManagedReference
-    private List<OrderDetail> orderDetails;
-
-    public Order copy() {
-        Order newOrder = new Order();
-        newOrder.userInfo = null;
-        newOrder.setNote(this.note);
-        newOrder.setFeeShip(this.feeShip);
-        newOrder.setStatus(this.status);
-        newOrder.setOrderDetails(this.orderDetails);
-        return  newOrder;
-    }
-
-    public Integer getTotalPrices(){
-        Double total= 0.0;
-        if(orderDetails!=null)
-            for (OrderDetail o: this.getOrderDetails() ) {
-                total+=o.getPrices()*o.getAmount();
-            }
-        return total.intValue();
-    }
-
+    private Bill bill;
 }

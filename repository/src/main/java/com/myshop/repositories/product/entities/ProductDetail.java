@@ -9,8 +9,7 @@ import javax.persistence.*;
 
 @Builder
 @Entity
-@Table(name = "product_detail",
-        uniqueConstraints =@UniqueConstraint(columnNames = {"product", "size","color"}))
+@Table(name = "PRODUCT_DETAIL")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,20 +17,19 @@ public class ProductDetail {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "PRODUCTDETAILID")
     private Long id;
 
+    @Column(name="PRODUCTID")
+    private Long product;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-//    @JsonBackReference
-    @JoinColumn(name = "product")
-    private Product infoProduct;
-
-    @Column(nullable = false)
+    @Column(name = "SIZEID")
     private String size;
 
-    @Column(columnDefinition = "nvarchar(255)",nullable = false)
+    @Column(name = "COLORID")
     private String color;
 
-    private Long current_number;
+    @Column(name = "QUANTITY")
+    private Long quantity;
 
 }

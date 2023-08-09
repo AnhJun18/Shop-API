@@ -81,10 +81,11 @@ public class JWTSecurityConfig {
                 .and()
                 .authorizeExchange()
                 .pathMatchers(HttpMethod.OPTIONS).permitAll()
-                .pathMatchers("/api/auth/**","/api/payment/**","/api/shipment/**","/api/chatbot/**", "/api/address/**" ,"/api/common/**", "/swagger-ui.html", "/webjars/**", "/api-docs/**", "/uploads/**", "/api/upload/**").permitAll()
-                .pathMatchers(HttpMethod.GET,"/api/category/**","/api/product/**").permitAll()
-                .pathMatchers("/api/admin/**","/api/report/**","/api/category/**","/api/product/**","/api/warehouse/**","/api/user/all").hasAuthority("ROLE_ADMIN")
-                .pathMatchers("/api/cart/**","/api/order/**").hasAuthority("ROLE_USER")
+                .pathMatchers("/api/auth/**","/api/**/**","/api/payment/**","/api/chatbot/**", "/api/address+" +
+                        "/**" ,"/api/common/**", "/swagger-ui.html", "/webjars/**", "/api-docs/**", "/uploads/**", "/api/upload/**").permitAll()
+//                .pathMatchers(HttpMethod.GET,"/api/category/**","/api/product/**").permitAll()
+//                .pathMatchers("/api/admin/**","/api/report/**","/api/category/**","/api/product/**","/api/warehouse/**","/api/user/all").hasAuthority("ROLE_ADMIN")
+//                .pathMatchers("/api/cart/**","/api/order/**").hasAuthority("ROLE_USER")
                 .anyExchange().authenticated()
                 .and().build();
     }
@@ -100,6 +101,5 @@ public class JWTSecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
-
 
 }

@@ -47,7 +47,7 @@ public class EmailSenderService {
             StringWriter htmlContent = new StringWriter();
 
             String link = "http://localhost:3000/change-pass/verify-code="+verifyCode;
-            mustache.execute(htmlContent, Map.of("link", link,"name",account.getUsername())).flush();
+            mustache.execute(htmlContent, Map.of("link", link,"name",account.getEmail())).flush();
 
             helper.setText(htmlContent.toString(), true);
             mailSender.send(message);

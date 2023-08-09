@@ -6,6 +6,7 @@ import lombok.Data;
 @Data
 @Builder
 public class OrderDetailRequest {
-    private Long product_id;
-    private Long amount;
+    private Long productDetailId;
+    private Long quantity;
+    private Long price;
 }

@@ -7,7 +7,7 @@ import lombok.Data;
 @Builder
 @Data
 public class OrderResponse {
-    private boolean status;
+    private Integer status;
     private String message;
-    private Order order;
+    private Order data;
 }

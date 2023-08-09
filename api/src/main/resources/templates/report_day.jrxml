@@ -1,14 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.19.1.final using JasperReports Library version 6.19.1-867c00bf88cd4d784d404379d6c05e1b419e8a4c  -->
-<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="thongkemuon" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="00add6d1-e70d-49fe-95ba-30242cdcff36">
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="thongkemuon" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" isFloatColumnFooter="true" uuid="00add6d1-e70d-49fe-95ba-30242cdcff36">
     <property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
-    <parameter name="month" class="java.util.Date"/>
+    <parameter name="fromDate" class="java.lang.String"/>
+    <parameter name="toDate" class="java.lang.String"/>
+    <parameter name="employeeCreated" class="java.lang.String"/>
     <queryString>
         <![CDATA[]]>
     </queryString>
-    <field name="ngay" class="java.lang.Integer"/>
-    <field name="total" class="java.math.BigInteger"/>
-    <field name="totalMoney" class="java.lang.Double"/>
+    <field name="ngay" class="java.lang.String"/>
+    <field name="total" class="java.lang.Integer"/>
+    <field name="totalMoney" class="java.math.BigDecimal"/>
+    <variable name="SUM_totalMoney" class="java.math.BigDecimal" calculation="Sum">
+        <variableExpression><![CDATA[$F{totalMoney}]]></variableExpression>
+    </variable>
     <background>
         <band splitType="Stretch"/>
     </background>
@@ -47,7 +52,7 @@
                 <textElement textAlignment="Center" verticalAlignment="Middle">
                     <font fontName="Bauhaus 93" size="13"/>
                 </textElement>
-                <text><![CDATA[PTIT SHOP]]></text>
+                <text><![CDATA[SHOP PTIT ]]></text>
             </staticText>
             <staticText>
                 <reportElement x="460" y="130" width="80" height="1" uuid="ddc6ba3c-818c-4bb6-9e43-30d5c2d74fda"/>
@@ -68,28 +73,42 @@
                 <textElement textAlignment="Center" verticalAlignment="Middle">
                     <font fontName="DejaVu Sans" size="18" isBold="true"/>
                 </textElement>
-                <text><![CDATA[Doanh số tháng]]></text>
+                <text><![CDATA[Báo cáo doanh thu theo ngày]]></text>
             </staticText>
             <textField>
-                <reportElement x="270" y="30" width="110" height="20" uuid="e570a489-fd1c-4d3d-b56d-6ef65b05a4b2"/>
+                <reportElement x="200" y="30" width="110" height="20" uuid="e570a489-fd1c-4d3d-b56d-6ef65b05a4b2"/>
                 <textElement>
                     <font fontName="DejaVu Sans Mono"/>
                 </textElement>
-                <textFieldExpression><![CDATA[new SimpleDateFormat("MM/YYYY").format($P{month})]]></textFieldExpression>
+                <textFieldExpression><![CDATA[($P{fromDate})]]></textFieldExpression>
             </textField>
             <staticText>
-                <reportElement x="230" y="30" width="40" height="30" uuid="40d31696-8079-4c6d-82d5-344a52797655"/>
+                <reportElement x="170" y="30" width="40" height="30" uuid="40d31696-8079-4c6d-82d5-344a52797655"/>
                 <textElement>
                     <font fontName="DejaVu Sans Mono"/>
                 </textElement>
-                <text><![CDATA[Tháng:]]></text>
+                <text><![CDATA[Từ:]]></text>
             </staticText>
+            <staticText>
+                <reportElement x="310" y="30" width="40" height="30" uuid="a277d7fd-44a5-415d-b7bf-f322f96acc76"/>
+                <textElement>
+                    <font fontName="DejaVu Sans Mono"/>
+                </textElement>
+                <text><![CDATA[Đên:]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="340" y="30" width="110" height="20" uuid="9263e76b-faa9-41b5-923c-cae7dd18e7b2"/>
+                <textElement>
+                    <font fontName="DejaVu Sans Mono"/>
+                </textElement>
+                <textFieldExpression><![CDATA[($P{toDate})]]></textFieldExpression>
+            </textField>
         </band>
     </pageHeader>
     <columnHeader>
-        <band height="62" splitType="Stretch">
+        <band height="65" splitType="Stretch">
             <staticText>
-                <reportElement x="40" y="30" width="90" height="30" forecolor="#050505" backcolor="#FFFFFF" uuid="052e633e-2c91-4f14-b951-637d5a7a6a3a">
+                <reportElement x="40" y="35" width="90" height="30" forecolor="#050505" backcolor="#FFFFFF" uuid="052e633e-2c91-4f14-b951-637d5a7a6a3a">
                     <property name="com.jaspersoft.studio.spreadsheet.connectionID" value="d84d7752-344a-42c8-aa5b-d3cb85d4b4e2"/>
                 </reportElement>
                 <box>
@@ -104,7 +123,7 @@
                 <text><![CDATA[STT]]></text>
             </staticText>
             <staticText>
-                <reportElement x="130" y="30" width="130" height="30" uuid="c0fd1344-aae6-4f66-b1c0-e65861509155">
+                <reportElement x="130" y="35" width="130" height="30" uuid="c0fd1344-aae6-4f66-b1c0-e65861509155">
                     <property name="com.jaspersoft.studio.spreadsheet.connectionID" value="e9cfaa74-28f1-4aec-8bf1-bfabbb73347b"/>
                 </reportElement>
                 <box>
@@ -119,7 +138,7 @@
                 <text><![CDATA[Ngày]]></text>
             </staticText>
             <staticText>
-                <reportElement x="260" y="30" width="100" height="30" uuid="f56a471e-13a4-4377-84fc-0e12bbbf5898">
+                <reportElement x="260" y="35" width="100" height="30" uuid="f56a471e-13a4-4377-84fc-0e12bbbf5898">
                     <property name="com.jaspersoft.studio.spreadsheet.connectionID" value="d9e9a2cf-22e8-4abc-b63a-75927425d5cb"/>
                 </reportElement>
                 <box>
@@ -131,10 +150,10 @@
                 <textElement textAlignment="Center" verticalAlignment="Middle">
                     <font fontName="DejaVu Sans" isBold="true"/>
                 </textElement>
-                <text><![CDATA[Số lượng bán]]></text>
+                <text><![CDATA[Số lượng đơn hàng]]></text>
             </staticText>
             <staticText>
-                <reportElement x="360" y="30" width="160" height="30" uuid="60c053be-6c18-4bb5-8d36-cf976a226484">
+                <reportElement x="360" y="35" width="160" height="30" uuid="60c053be-6c18-4bb5-8d36-cf976a226484">
                     <property name="com.jaspersoft.studio.spreadsheet.connectionID" value="f192a657-3af5-4f43-a0ce-785cfab2563e"/>
                 </reportElement>
                 <box>
@@ -214,13 +233,10 @@
                 <textElement textAlignment="Center" verticalAlignment="Middle">
                     <font fontName="DejaVu Sans"/>
                 </textElement>
-                <textFieldExpression><![CDATA[$F{totalMoney}]]></textFieldExpression>
+                <textFieldExpression><![CDATA[$F{totalMoney} != null ? new java.text.DecimalFormat("#,###,###,###").format($F{totalMoney}) : "0"]]></textFieldExpression>
             </textField>
         </band>
     </detail>
-    <columnFooter>
-        <band splitType="Stretch"/>
-    </columnFooter>
     <pageFooter>
         <band height="64" splitType="Stretch">
             <textField>
@@ -230,6 +246,69 @@
         </band>
     </pageFooter>
     <summary>
-        <band height="43" splitType="Stretch"/>
+        <band height="110" splitType="Stretch">
+            <staticText>
+                <reportElement x="40" y="0" width="320" height="30" forecolor="#050505" backcolor="#FFFFFF" uuid="0f327c23-c3b0-4866-b086-b9a705999d7c">
+                    <property name="com.jaspersoft.studio.spreadsheet.connectionID" value="d84d7752-344a-42c8-aa5b-d3cb85d4b4e2"/>
+                </reportElement>
+                <box>
+                    <topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+                    <leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+                    <bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+                    <rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+                </box>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font fontName="DejaVu Sans" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Tổng Tiền]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="360" y="0" width="160" height="30" uuid="f84b281f-bb02-4f11-8125-79492fe1cdab"/>
+                <box>
+                    <pen lineColor="#050505"/>
+                    <topPen lineWidth="1.0" lineStyle="Solid" lineColor="#050505"/>
+                    <leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#050505"/>
+                    <bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#050505"/>
+                    <rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#050505"/>
+                </box>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font fontName="DejaVu Sans" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[( $V{SUM_totalMoney} != null ? new java.text.DecimalFormat("#,###,###,###").format($V{SUM_totalMoney}) : "0" )]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="375" y="65" width="144" height="20" uuid="d9a9be99-030b-43d6-bac8-a89eb70bc3eb">
+                    <property name="com.jaspersoft.studio.unit.y" value="px"/>
+                </reportElement>
+                <textElement>
+                    <font fontName="DejaVu Sans" isItalic="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[new SimpleDateFormat("'Ngày' dd 'tháng' MM 'nam' YYYY").format(new Date())]]></textFieldExpression>
+            </textField>
+            <staticText>
+                <reportElement x="330" y="65" width="55" height="20" uuid="e973fa0f-c554-4fa3-b780-be9d6f939c44">
+                    <property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+                    <property name="com.jaspersoft.studio.unit.x" value="px"/>
+                </reportElement>
+                <textElement>
+                    <font fontName="DejaVu Sans" isItalic="true"/>
+                </textElement>
+                <text><![CDATA[TP.HCM, ]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="90" y="60" width="150" height="25" uuid="6fe4980d-4e51-4fe8-8443-7a9d9e795755"/>
+                <textElement textAlignment="Center">
+                    <font fontName="DejaVu Sans Mono" size="11" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Nhân viên lập]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="90" y="80" width="150" height="20" uuid="d6e72961-0472-426b-a5db-dc042042881c"/>
+                <textElement textAlignment="Center">
+                    <font fontName="DejaVu Sans Mono"/>
+                </textElement>
+                <textFieldExpression><![CDATA[($P{employeeCreated})]]></textFieldExpression>
+            </textField>
+        </band>
     </summary>
 </jasperReport>

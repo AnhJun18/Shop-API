@@ -9,7 +9,7 @@ import javax.persistence.*;
 
 @Builder
 @Entity
-@Table(name = "status")
+@Table(name = "STATUS")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,9 +17,10 @@ public class Status {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "STATUSID")
     private Long id;
 
-    @Column(columnDefinition = "nvarchar(255)")
+    @Column(name = "STATUSNAME")
     private String name;
 
 }

@@ -23,7 +23,7 @@ public class IGoogleServiceIml implements IGoogleService{
                         .add("code", code)
                         .add("grant_type","authorization_code").build())
                 .execute().returnContent().asString();
-        System.out.println(response);
+
         JsonObject job = new Gson().fromJson(response, JsonObject.class);
         String accessToken = job.get("access_token").toString().replaceAll("\"", "");
         return accessToken;

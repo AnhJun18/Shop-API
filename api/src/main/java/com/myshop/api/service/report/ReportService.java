@@ -3,13 +3,9 @@ package com.myshop.api.service.report;
 import net.sf.jasperreports.engine.JRException;
 
 import java.io.IOException;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 public interface ReportService {
-    byte[] reportAllOrder(Date from, Date to, String name) throws IOException, JRException;
-    byte[] reportMonthlyRevenue(Date date) throws IOException, JRException;
-    byte[] reportProductRevenue(Date from, Date to)throws IOException, JRException;
-    List<Map<String, Object>> getRevenueInYear(String year);
+    byte[] reportRevenueByDay(String fromDate, String toDate) throws IOException, JRException;
+    byte[] reportRevenueByOrder(String fromDate, String toDate) throws IOException, JRException;
+    byte[] printBill(Long orderID) throws IOException, JRException;
 }

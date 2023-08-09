@@ -1,33 +1,29 @@
 package com.myshop.repositories.user.entities;
 
-import com.myshop.repositories.Auditing;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import javax.persistence.*;
 
-@EqualsAndHashCode(callSuper = true)
 @Builder
 @Data
-@Table(name = "account")
+@Table(name = "ACCOUNT")
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-public class Account extends Auditing {
+public class Account {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @NonNull
-    @Column(unique=true)
-    private String username;
-
-    @NonNull
-    private String password;
-
-    @Column(unique = true)
+    @Column(name = "EMAIL")
     private String email;
 
-    @OneToOne(fetch = FetchType.EAGER)
-    private Role role;
+    @Column(name = "PASSWORD")
+    private String password;
 
-    private  boolean deleteFlag;
+    @Column(name = "ROLEID")
+    private Long roleId;
+
+    @Column(name = "ISDELETED")
+    private boolean isDeleted;
 }

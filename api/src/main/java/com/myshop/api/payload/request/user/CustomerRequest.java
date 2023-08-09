@@ -6,20 +6,20 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 
 @Data
-public class UserRequest {
-    private String userName;
+public class CustomerRequest {
     private String firstName;
     private String lastName;
     private String gender;
 
-    @NotNull(message = "Email cannot be null")
-    @Email(message = "Email sai be null")
+    @NotNull(message = "Email là bắt buộc")
+    @Email(message = "Email sai định dạng")
     private String email;
 
-    @NotNull(message = "Phone cannot be null")
-    @NotNull
+    @NotNull(message = "Số điện thoại là bắt buộc")
     private String phone;
 
-    private String roleName;
+    @NotNull(message = "Mật khẩu là bắt buộc")
     private String password;
+
+    private String address;
 }

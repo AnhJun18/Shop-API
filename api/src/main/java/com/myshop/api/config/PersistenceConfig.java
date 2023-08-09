@@ -8,7 +8,7 @@ import org.springframework.data.domain.AuditorAware;
 @Configuration
 public class PersistenceConfig {
     @Bean
-    AuditorAware<Long> auditorProvider() {
+    AuditorAware<String> auditorProvider() {
         return new AuditorAwareImpl();
     }
 

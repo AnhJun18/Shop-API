@@ -1,22 +1,19 @@
 package com.myshop.api.service.firebase;
 
-import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.FirebaseOptions;
 import com.google.firebase.cloud.StorageClient;
 import com.myshop.api.config.FirebaseConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.Base64;
 
 
 @Service
@@ -25,24 +22,12 @@ public class FirebaseImageServiceImpl implements IImageService {
     @Autowired
     FirebaseConfig properties;
 
-
-
     @EventListener
     public void init(ApplicationReadyEvent event) {
 
         // initialize Firebase
-
         try {
-
-            ClassPathResource serviceAccount = new ClassPathResource("firebase.json");
-
-            FirebaseOptions options = new FirebaseOptions.Builder()
-                    .setCredentials(GoogleCredentials.fromStream(serviceAccount.getInputStream()))
-                    .setStorageBucket(properties.getBucketName())
-                    .build();
-
-            FirebaseApp.initializeApp(options);
-
+            properties.initApp();
         } catch (Exception ex) {
 
             ex.printStackTrace();
@@ -60,9 +45,19 @@ public class FirebaseImageServiceImpl implements IImageService {
 
         Bucket bucket = StorageClient.getInstance().bucket();
 
-        String name = generateFileName(file.filename());
-
+        String name = _generateRandomFileName();
+        System.out.println(file.headers().getContentType().toString());
         bucket.create(name,convertFilePartToByteArray(file),file.headers().getContentType().toString());
+        return properties.prefixImageUrl.concat(name).concat(properties.suffixImageUrl);
+    }
+
+    @Override
+    public String saveBase64String(String base64String) throws IOException {
+        String contentType=(base64String.split(";base64,")[0]).split(":")[1];
+        byte[] bytes = Base64.getDecoder().decode(base64String.split(";base64,")[1]);
+        Bucket bucket = StorageClient.getInstance().bucket();
+        String name=_generateRandomFileName();
+        bucket.create(name, bytes,contentType);
         return properties.prefixImageUrl.concat(name).concat(properties.suffixImageUrl);
     }
 
@@ -73,7 +68,7 @@ public class FirebaseImageServiceImpl implements IImageService {
 
         com.google.cloud.storage.Bucket bucket = StorageClient.getInstance().bucket();
 
-        String name = generateFileName(originalFileName);
+        String name = _generateRandomFileName();
 
         bucket.create(name, bytes);
 
@@ -97,5 +92,6 @@ public class FirebaseImageServiceImpl implements IImageService {
 
         blob.delete();
     }
+
 
 }

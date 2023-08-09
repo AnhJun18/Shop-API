@@ -1,25 +1,15 @@
 package com.myshop.api.controller;
 
-
 import com.myshop.api.payload.request.order.OrderRequest;
 import com.myshop.api.payload.response.order.OrderResponse;
 import com.myshop.api.service.order.OrderService;
-import com.myshop.repositories.order.entities.Order;
-import com.myshop.security.jwt.CustomAuthUser;
-import com.myshop.security.jwt.JWTAuthenticationToken;
+import com.myshop.common.http.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
-
-import java.security.Principal;
-import java.util.List;
-
-/**
- * @author Anh Jun
- * @author Anh Jun
- */
 
 @Slf4j
 @RestController
@@ -27,32 +17,32 @@ import java.util.List;
 @RequestMapping("/api/order")
 public class OrderController {
 
+    @Autowired
+    AuditorAware auditorProvider;
 
     @Autowired
     private OrderService orderService;
 
-    @PostMapping("/create")
-    public Mono<OrderResponse> order(Principal principal,@RequestBody OrderRequest orderRequest) {
+    @PostMapping("")
+    public Mono<OrderResponse> order(@RequestBody OrderRequest orderRequest) {
 
-        JWTAuthenticationToken jwtTokenObject = (JWTAuthenticationToken) principal;
-        return Mono.just(orderService.order(Long.parseLong(((CustomAuthUser) jwtTokenObject.getPrincipal()).getUserId()),orderRequest));
+        return Mono.just(orderService.order(auditorProvider.getCurrentAuditor().get().toString(),orderRequest));
     }
 
-    @GetMapping("/all")
-    public Mono<List<Order>> getTheOrder(Principal principal) {
-        JWTAuthenticationToken jwtTokenObject = (JWTAuthenticationToken) principal;
-        return Mono.just(orderService.getTheOrder(Long.parseLong(((CustomAuthUser) jwtTokenObject.getPrincipal()).getUserId())));
+    @GetMapping("/state/{orderId}")
+    public Mono<ApiResponse<?>> order(@PathVariable("orderId") String orderId) {
+        return Mono.just(orderService.getStateOrder(Long.parseLong(orderId)));
     }
 
-    @GetMapping("/status={statusName}")
-    public Mono<Iterable<Order>> getTheOrderByStatus(Principal principal, @PathVariable("statusName") String status) {
-        JWTAuthenticationToken jwtTokenObject = (JWTAuthenticationToken) principal;
-        return Mono.just(orderService.getTheOrderByStatus(Long.parseLong(((CustomAuthUser) jwtTokenObject.getPrincipal()).getUserId()),status));
+    @GetMapping("/history/{statusName}")
+    public Mono<ApiResponse<?>> getOrderByStatus(@PathVariable("statusName") String statusName) {
+        return Mono.just(orderService.getHistoryOrderByStatus(auditorProvider.getCurrentAuditor().get().toString(),statusName));
     }
 
-    @DeleteMapping("/cancel_order")
-    public Mono<OrderResponse> confirmCancelOrder(@RequestParam("order_id") Long id) {
-        return Mono.just(orderService.cancelOrderByUser(id));
+    @DeleteMapping("/{orderId}")
+    public Mono<ApiResponse<?>> cancelOrderById(@PathVariable("orderId") Long orderId) {
+        return Mono.just(orderService.cancelOrderById(auditorProvider.getCurrentAuditor().get().toString(),orderId));
     }
+
 
 }

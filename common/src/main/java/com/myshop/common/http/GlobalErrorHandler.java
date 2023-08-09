@@ -12,6 +12,9 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebExceptionHandler;
 import reactor.core.publisher.Mono;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Slf4j
 @Configuration
 public class GlobalErrorHandler implements WebExceptionHandler {
@@ -41,6 +44,20 @@ public class GlobalErrorHandler implements WebExceptionHandler {
       log.error("error", throwable);
       if (throwable.getLocalizedMessage().contains("Jwt expired")){
         serverWebExchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+        String errorMessage = "Jwt has expired";
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("message", errorMessage);
+        ObjectMapper objectMapper = new ObjectMapper();
+        byte[] errorMessageBytes = new byte[0];
+        try {
+          errorMessageBytes = objectMapper.writeValueAsBytes(errorResponse);
+        } catch (JsonProcessingException e) {
+          e.printStackTrace();
+        }
+        DataBuffer buffer = serverWebExchange.getResponse().bufferFactory().wrap(errorMessageBytes);
+        serverWebExchange.getResponse().getHeaders().setContentLength(errorMessageBytes.length);
+        serverWebExchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
+        return serverWebExchange.getResponse().writeWith(Mono.just(buffer));
       }else{
         serverWebExchange.getResponse().setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
       }

@@ -1,26 +1,16 @@
 package com.myshop.api.controller;
 
 
-import com.myshop.api.payload.request.product.AddProductDetailRequest;
 import com.myshop.api.payload.request.product.ProductRequest;
-import com.myshop.api.payload.response.product.ProductDetailResponse;
-import com.myshop.api.payload.response.product.ProductResponse;
-import com.myshop.api.service.product.CategoryService;
 import com.myshop.api.service.product.ProductService;
-import com.myshop.repositories.product.entities.Product;
-import com.myshop.repositories.product.entities.ProductDetail;
+import com.myshop.common.http.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.http.MediaType;
-import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Anh Jun
@@ -33,97 +23,55 @@ import java.util.Map;
 @RequestMapping("/api/product")
 public class ProductController {
 
-    @Autowired
-    CategoryService categoryService;
 
     @Autowired
     ProductService productService;
 
-
-    @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Mono<ProductResponse> upload(@RequestParam("name") String name,
-                                        @RequestParam("category") String category,
-                                        @RequestParam(value = "describe",required = false) String describe,
-                                        @RequestParam("price") Integer price,
-                                        @RequestParam(value = "tag",required = false) String tag,
-                                        @RequestPart("image") FilePart filePart) throws IOException {
-        ProductRequest product = ProductRequest.builder().name(name)
-                .category(category).image(filePart).tag(tag)
-                .describe(describe).price(price).build();
-        return Mono.just(productService.createProduct(product, filePart));
+    @GetMapping("")
+    public Mono<ApiResponse<?>> getListCategory(@RequestParam(required = false, defaultValue = "") String search,
+                                                @RequestParam(required = false, defaultValue = "1") Integer page,
+                                                @RequestParam(required = false, defaultValue = "10") Integer itemsPerPage,
+                                                @RequestParam(required = false) Long fromPrice,
+                                                @RequestParam(required = false) Long toPrice,
+                                                @RequestParam(required = false,name = "type[]") List<String> types ) {
+        return Mono.just(productService.getListProduct(search, page, itemsPerPage, fromPrice, toPrice,types));
     }
 
-    @PutMapping(value = "/edit/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Mono<ProductResponse> updateProduct(@RequestParam(value = "name",required = false) String name,
-                                               @RequestParam(value = "category",required = false) String category,
-                                               @RequestParam(value = "describe",required = false) String describe,
-                                               @RequestParam(value = "price",required = false) Integer price,
-                                               @RequestParam(value = "tag",required = false) String tag,
-                                               @RequestPart(value = "image",required = false) FilePart filePart,
-                                               @PathVariable String id) throws IOException {
-        ProductRequest product = ProductRequest.builder().name(name)
-                .category(category).image(filePart).tag(tag)
-                .describe(describe).price(price).build();
-        return Mono.just(productService.updateProduct(Long.valueOf(id),product, filePart));
+    @PostMapping(value = "")
+    public Mono<ApiResponse<?>> upload(@RequestBody ProductRequest productRequest) {
+        return Mono.just(productService.createProduct(productRequest));
     }
 
-    @GetMapping("/{id}")
-    public Mono<Product> getProductById( @PathVariable Long id) {
-        return Mono.just(productService.getProductById(id));
+    @GetMapping("/{productID}")
+    public Mono<ApiResponse<?>> getById(@PathVariable(name = "productID") Long id) {
+        return Mono.just(productService.getById(id));
     }
 
-
-    @DeleteMapping(value = "/block")
-    public Mono<ProductResponse> lockProduct(@RequestParam Long productID){
-        return Mono.just(productService.lockProduct(productID));
+    @GetMapping("/detail/{productID}")
+    public Mono<ApiResponse<?>> getDetailInventory(@PathVariable(name = "productID") Long id) {
+        return Mono.just(productService.getDetailInventory(id));
     }
 
-    @DeleteMapping(value = "/un_block")
-    public Mono<ProductResponse> unLockProduct(@RequestParam Long productID){
-        return Mono.just(productService.unLockProduct(productID));
+    @GetMapping("/top-viewed")
+    public Mono<ApiResponse<?>> getTopViewed() {
+        return Mono.just(productService.getTopViewed());
     }
 
-    @PostMapping(value = "/detail")
-    public Mono<ProductDetailResponse> createDetailProduct(@RequestBody List<AddProductDetailRequest> detailRequest) throws IOException {
-        return Mono.just(productService.createProductDetail(detailRequest));
+    @GetMapping("/best-selling")
+    public Mono<ApiResponse<?>> getBestSelling() {
+        return Mono.just(productService.getBestSelling());
     }
 
-    @GetMapping(value = "/detail/{id_product}")
-    public Mono<Iterable<ProductDetail>> getDetailProductById(@PathVariable Long id_product) throws IOException {
-        return Mono.just(productService.getDetailProductById(id_product));
+    @GetMapping("/list-promotion")
+    public Mono<ApiResponse<?>> getListProductOnPromotion() {
+        return Mono.just(productService.getListProductOnPromotion());
     }
-
-    @GetMapping("/all")
-    public Mono<Iterable<Product>> getAllProduct(){
-        return Mono.just(productService.getAllProduct());
-    }
-
-    @GetMapping("/best-seller")
-    public Mono<Iterable<Product>> getProductBestSeller(){
-        return Mono.just(productService.getProductBestSeller());
-    }
-
-    @GetMapping("/get_paging")
-    public Mono<Page<Map<String,Object>>> getPaging(
-            @RequestParam(name = "page", defaultValue = "1", required = false) Integer page,
-            @RequestParam(name = "size", defaultValue = "10", required = false) Integer size) {
-        return Mono.just(productService.getPagingProduct(page, size));
-    }
-
-    @GetMapping("/search")
-    public Mono<Iterable<Product>> search(@RequestParam(required = false)String name) {
-        return Mono.just(productService.searchByName(name));
-    }
-
-    @GetMapping("/category={nameCategory}")
-    public Mono<Iterable<Product>> getProductByCategory(@PathVariable String nameCategory) {
-        return Mono.just(productService.getProductByCategory(nameCategory));
-    }
-
-    @GetMapping("/tags")
-    public Mono<Iterable<Product>> getProductByTag(@RequestParam ("nameTag") String tag) {
-        return Mono.just(productService.getProductByTag(tag));
-    }
-
+//
+//
+//    @PostMapping(value = "")
+//    public Mono<String> upload(@RequestBody ProductRequest productRequest) throws IOException {
+//        System.out.println("CSDSS");
+//        return Mono.just("productService.createProduct(product, filePart)");
+//    }
 
 }

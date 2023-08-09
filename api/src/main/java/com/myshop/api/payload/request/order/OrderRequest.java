@@ -11,12 +11,8 @@ import java.util.List;
 @AllArgsConstructor
 public class OrderRequest {
     private String nameReceiver;
-    private String province;
-    private String district;
-    private String ward;
-    private Integer feeShip;
-    private String address;
     private String phoneReceiver;
+    private String addressReceiver;
     private String note;
-    private List<OrderDetailRequest> listProduct;
+    private List<OrderDetailRequest> orderItems;
 }

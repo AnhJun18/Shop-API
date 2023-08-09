@@ -9,7 +9,7 @@ import javax.persistence.*;
 
 @Builder
 @Entity
-@Table(name = "auth_role")
+@Table(name = "ROLE")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,8 +17,11 @@ public class Role {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ROLEID")
     private Long id;
 
-    @Column(unique = true)
+    @Column(name = "ROLENAME")
     private String name;
+
+
 }

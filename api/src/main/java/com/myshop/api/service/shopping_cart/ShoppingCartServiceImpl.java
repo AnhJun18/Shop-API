@@ -1,94 +1,108 @@
 package com.myshop.api.service.shopping_cart;
 
-import com.myshop.api.base.CRUDBaseServiceImpl;
 import com.myshop.api.payload.request.shopping_cart.ShoppingCartRequest;
+import com.myshop.api.service.product.ProductService;
 import com.myshop.common.http.ApiResponse;
 import com.myshop.repositories.product.entities.ProductDetail;
+import com.myshop.repositories.product.repos.ColorRepository;
 import com.myshop.repositories.product.repos.ProductDetailRepository;
+import com.myshop.repositories.product.repos.ProductRepository;
+import com.myshop.repositories.product.repos.SizeRepository;
 import com.myshop.repositories.shopping_cart.entities.ShoppingCart;
 import com.myshop.repositories.shopping_cart.repos.ShoppingCartRepository;
-import com.myshop.repositories.user.entities.UserInfo;
+import com.myshop.repositories.user.entities.Customer;
 import com.myshop.repositories.user.repos.AccountRepository;
-import com.myshop.repositories.user.repos.UserRepository;
+import com.myshop.repositories.user.repos.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import reactor.core.publisher.Mono;
 
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 
 @Transactional
 @Service
-public class ShoppingCartServiceImpl extends CRUDBaseServiceImpl<ShoppingCart, ShoppingCart, ShoppingCart, Long> implements ShoppingCartService {
+public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     private final ShoppingCartRepository shoppingCartRepository;
 
+    @Autowired
+    SizeRepository sizeRepository;
+    @Autowired
+    ColorRepository colorRepository;
+    @Autowired
+    ProductRepository productRepository;
+    @Autowired
+    ProductService productService;
     @Autowired
     ProductDetailRepository productDetailRepository;
     @Autowired
     AccountRepository accountRepository;
     @Autowired
-    UserRepository userRepository;
+    CustomerRepository customerRepository;
 
 
     public ShoppingCartServiceImpl(ShoppingCartRepository shoppingCartRepository) {
-        super(ShoppingCart.class, ShoppingCart.class, ShoppingCart.class, shoppingCartRepository);
         this.shoppingCartRepository = shoppingCartRepository;
     }
 
 
     @Override
-    public ApiResponse<Object> addToCart(Long userId, ShoppingCartRequest item) {
-        Optional<UserInfo> user = userRepository.findById(userId);
-        if (!user.isPresent()) {
-            return ApiResponse.builder().message("User is not exists").status(0).build();
+    public ApiResponse<Object> addToCart(String userId, ShoppingCartRequest item) {
+        Optional<Customer> customer = customerRepository.findByEmail(userId);
+        if (!customer.isPresent()) {
+            return ApiResponse.builder().message("Tài khoản không hợp lệ").status(505).build();
         }
-        Optional<ProductDetail> productDetail = productDetailRepository.findById(item.getProductID());
+        Optional<ProductDetail> productDetail = productDetailRepository.findById(item.getProductDetailID());
         if (!productDetail.isPresent()) {
-            return ApiResponse.builder().message("Product is not exists").status(0).build();
+            return ApiResponse.builder().message("Sản phẩm không tồn tại").status(505).build();
         }
-        if (item.getAmount() < 1 || productDetail.get().getCurrent_number() < item.getAmount()) {
-            return ApiResponse.builder().message("Invalid product quantity or insufficient product quantity").status(0).build();
+        if (item.getQuantity() < 0 ) {
+            return ApiResponse.builder().message("Số lượng không hợp lệ").status(505).build();
         }
-        ShoppingCart shoppingCart = shoppingCartRepository.findShoppingCartByUserInfo_IdAndProductDetail_Id(userId, item.getProductID());
-        if (shoppingCart == null || shoppingCart.getId() < 1) {
-            ShoppingCart newProduct = ShoppingCart.builder().userInfo(user.get())
-                    .productDetail(productDetail.get()).amount(item.getAmount()).build();
+        Optional<ShoppingCart> myCart = shoppingCartRepository.findShoppingCartByCustomerIdAndProductDetailId(customer.get().getId(), item.getProductDetailID());
+        if (!myCart.isPresent()) {
+            ShoppingCart newProduct = ShoppingCart.builder().customerId(customer.get().getId())
+                    .productDetailId(productDetail.get().getId()).quantity(item.getQuantity()).build();
             shoppingCartRepository.save(newProduct);
-            return ApiResponse.builder().status(200).message("Add to cart successful").data(Mono.just(newProduct)).build();
+            return ApiResponse.builder().status(200).message("Sản phẩm đã được thêm vào giỏ hàng").data(newProduct).build();
         } else {
-            shoppingCart.setAmount(shoppingCart.getAmount()+item.getAmount());
-            return ApiResponse.builder().message("Your cart is updated").status(200).build();
+            if(item.getQuantity()==0)
+                shoppingCartRepository.delete(myCart.get());
+            else
+                myCart.get().setQuantity(item.getQuantity());
+            return ApiResponse.builder().message("Giỏ hàng đã được cập nhật").status(200).build();
         }
     }
 
+
+//    @Override
+//    public ApiResponse<Object> deleteItem(Long userId, Long productID) {
+////        ShoppingCart shoppingCart = shoppingCartRepository.findShoppingCartByUserInfo_IdAndProductDetail_Id(userId, productID);
+////        if (shoppingCart == null || shoppingCart.getId() <= 0)
+////            return ApiResponse.builder().status(101).message("cannot find this item in your cart").data(null).build();
+////        shoppingCartRepository.delete(shoppingCart);
+//        return ApiResponse.builder().status(200).message("update cart successful").data(Mono.just(null)).build();
+//    }
+//
     @Override
-    public ApiResponse<Object> updateCart(Long userId, ShoppingCartRequest item) {
-        ShoppingCart shoppingCart = shoppingCartRepository.findShoppingCartByUserInfo_IdAndProductDetail_Id(userId, item.getProductID());
-        if (shoppingCart == null || shoppingCart.getId() <= 0)
-            return ApiResponse.builder().status(101).message("update cart fail").data(null).build();
-        if (item.getAmount() == 0)
-            shoppingCartRepository.delete(shoppingCart);
-        else {
-            shoppingCart.setAmount(item.getAmount());
-            shoppingCartRepository.save(shoppingCart);
+    public ApiResponse<?> getShoppingCart(String userId) {
+        Optional<Customer> customer = customerRepository.findByEmail(userId);
+        if (!customer.isPresent()) {
+            return ApiResponse.builder().status(505).data(null).message("Không tìm thấy thông tin khách hàng").build();
         }
-        return ApiResponse.builder().status(200).message("update cart successful").data(Mono.just(shoppingCart)).build();
-    }
-
-    @Override
-    public ApiResponse<Object> deleteItem(Long userId, Long productID) {
-        ShoppingCart shoppingCart = shoppingCartRepository.findShoppingCartByUserInfo_IdAndProductDetail_Id(userId, productID);
-        if (shoppingCart == null || shoppingCart.getId() <= 0)
-            return ApiResponse.builder().status(101).message("cannot find this item in your cart").data(null).build();
-        shoppingCartRepository.delete(shoppingCart);
-        return ApiResponse.builder().status(200).message("update cart successful").data(Mono.just(shoppingCart)).build();
-    }
-
-    @Override
-    public Iterable<Map<String, Object>> getShoppingCart(Long userID) {
-        return shoppingCartRepository.findAllByUserInfo_Id(userID);
+        List<ShoppingCart> listCart= shoppingCartRepository.findAllByCustomerId(customer.get().getId());
+        List<Map<String,Object>> resCart= new ArrayList<>();
+        for (ShoppingCart cart:listCart) {
+            Map<String,Object> item= new HashMap<>();
+            ProductDetail pdt=productDetailRepository.findById(cart.getProductDetailId()).get();
+            ApiResponse res=productService.getDetailInventory(pdt.getProduct());
+            item.put("color",colorRepository.findById(Long.valueOf(pdt.getColor())).get().getColorName());
+            item.put("size",sizeRepository.findById(Long.valueOf(pdt.getSize())).get().getSizeName());
+            item.put("product",res.getData());
+            item.put("quantity",cart.getQuantity());
+            resCart.add(item);
+        }
+        return ApiResponse.builder().status(200).data(resCart).message("ok").build();
     }
 }

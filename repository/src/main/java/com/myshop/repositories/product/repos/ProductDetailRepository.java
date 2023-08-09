@@ -9,8 +9,5 @@ import java.util.Optional;
 
 @Repository
 public interface ProductDetailRepository extends CrudRepository<ProductDetail, Long> , JpaSpecificationExecutor<ProductDetail> {
-    Optional<ProductDetail> findProductDetailByInfoProduct_IdAndSizeAndAndColor(Long productID, String size, String Color);
-
-
-    Iterable<ProductDetail> findAllByInfoProduct_Id(Long id);
+    Optional<ProductDetail> findById(Long id);
 }

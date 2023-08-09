@@ -1,17 +1,25 @@
 package com.myshop.api.service.payment;
 
 import com.myshop.api.config.VnPayConfig;
+import com.myshop.common.EnumCommon;
+import com.myshop.repositories.order.entities.Bill;
 import com.myshop.repositories.order.entities.Order;
+import com.myshop.repositories.order.entities.OrderDetail;
+import com.myshop.repositories.order.repos.BillRepository;
+import com.myshop.repositories.order.repos.OrderDetailRepository;
 import com.myshop.repositories.order.repos.OrderRepository;
-import com.myshop.repositories.payment.entities.Epay;
-import com.myshop.repositories.payment.entities.Payment;
-import com.myshop.repositories.payment.repos.PaymentRepository;
+import com.myshop.repositories.order.repos.StatusRepository;
+import com.myshop.repositories.product.entities.ProductDetail;
+import com.myshop.repositories.product.repos.ProductDetailRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import javax.persistence.EntityManager;
+import javax.persistence.ParameterMode;
+import javax.persistence.StoredProcedureQuery;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -22,18 +30,37 @@ import java.util.*;
 public class VnPayServiceImpl implements VnPayService {
     @Autowired
     OrderRepository orderRepository;
+
     @Autowired
-    PaymentRepository paymentRepository;
+    OrderDetailRepository orderDetailRepository;
+
+    @Autowired
+    ProductDetailRepository productDetailRepository;
+
+    @Autowired
+    StatusRepository statusRepository;
+    @Autowired
+    BillRepository billRepository;
     @Autowired
     VnPayConfig vnPayConfig;
+    private final EntityManager entityManager;
 
+    VnPayServiceImpl(EntityManager entityManager){
+        this.entityManager=entityManager;
+    }
+
+    @Transactional
     public String createPayment(ServerHttpRequest request, Long order_id) throws UnsupportedEncodingException {
         String vnp_Version = vnPayConfig.vnp_Version;
         String vnp_Command = vnPayConfig.vnp_Command;
-        Order client_order = orderRepository.findOrderById(order_id);
-        if (client_order.getPayment() != null) {
-                return vnPayConfig.url_response_ui + "status=false" + "&message= Đơn hàng đã được thanh toán" + "&order_id=" + client_order.getId();
-        }
+        StoredProcedureQuery queryOrder = entityManager.createStoredProcedureQuery("SP_ORDER_GetOrderById")
+                .registerStoredProcedureParameter("ORDERID", Long.class, ParameterMode.IN);
+        queryOrder.setParameter("ORDERID", order_id);
+        queryOrder.execute();
+        Object[] client_order = (Object[]) queryOrder.getSingleResult();
+//        if (!client_order.isPresent()) {
+//            return vnPayConfig.url_response_ui + "status=false" + "&message= Đơn hàng đã được thanh toán" + "&order_id=";
+//        }
         String vnp_TxnRef = order_id + vnPayConfig.vnp_Salt + vnPayConfig.getRandomNumber(8);
 //        System.out.println(vnp_TxnRef);
         String vnp_IpAddr = vnPayConfig.getIpAddress(request);
@@ -43,7 +70,8 @@ public class VnPayServiceImpl implements VnPayService {
         vnp_Params.put("vnp_Version", vnp_Version);
         vnp_Params.put("vnp_Command", vnp_Command);
         vnp_Params.put("vnp_TmnCode", vnp_TmnCode);
-        vnp_Params.put("vnp_Amount", String.valueOf(((client_order.getTotalPrices() +client_order.getFeeShip())* 100)));
+        double amount = Double.parseDouble(client_order[7].toString());
+        vnp_Params.put("vnp_Amount", String.valueOf((int) (amount * 100)));
         vnp_Params.put("vnp_CurrCode", "VND");
         vnp_Params.put("vnp_BankCode", vnPayConfig.vnp_BankCode);
         vnp_Params.put("vnp_TxnRef", vnp_TxnRef);
@@ -95,7 +123,7 @@ public class VnPayServiceImpl implements VnPayService {
         Map<String, String> vnp_param = request.getQueryParams().toSingleValueMap();
         String vnp_SecureHash = vnp_param.get("vnp_SecureHash");
         Long order_id = Long.valueOf(vnp_param.get("vnp_TxnRef").toString().split(vnPayConfig.vnp_Salt)[0]);
-        Order client_order = orderRepository.findOrderById(order_id);
+        Order client_order = orderRepository.findById(order_id).get();
 
         // Check checksum
         vnp_param.remove("vnp_SecureHash");
@@ -104,23 +132,27 @@ public class VnPayServiceImpl implements VnPayService {
             String vnp_TransactionNo = vnp_param.get("vnp_TransactionNo");
             String vnp_ResponseCode = vnp_param.get("vnp_ResponseCode");
             if (!vnp_ResponseCode.equals("00")) {
-                return vnPayConfig.url_response_ui + "status=false" + "&message=Giao dịch không thành công" + "&order_id=" + client_order.getId();
+                return vnPayConfig.url_response_ui + client_order.getOrderId() + "?status=false" + "&message=Giao dịch không thành công";
             } else {
-                Payment newPayment = new Payment();
-                newPayment.setDatePayment(vnp_param.get("vnp_PayDate"));
-                newPayment.setTradingCode(vnp_param.get("vnp_BankTranNo"));
-                newPayment.setOrder_code(vnp_param.get("vnp_TxnRef"));
-                newPayment.setBankName(vnp_param.get("vnp_BankCode"));
-                newPayment.setStatus(vnp_ResponseCode);
-                newPayment.setMethod(Epay.VNPAY);
-                newPayment.setOrder(client_order);
-                paymentRepository.save(newPayment);
-
+                client_order.setStatus(statusRepository.findByName(EnumCommon.EStatus.WAITCONFIRM.getName()));
+                Bill createBill = Bill.builder()
+                        .orderId(orderRepository.findById(client_order.getOrderId()).get())
+                        .billId(vnp_param.get("vnp_BankTranNo"))
+                        .build();
+                billRepository.save(createBill);
+                List<OrderDetail> orderDetails=orderDetailRepository.findAllByOrder_OrderId(order_id);
+                System.out.println(orderDetails.size());
+                for (OrderDetail odt:orderDetails ) {
+                    Long quantityBefore=odt.getProductDetail().getQuantity();
+                    ProductDetail proDetail=odt.getProductDetail();
+                    proDetail.setQuantity(quantityBefore-odt.getQuantityOrder());
+                    productDetailRepository.save(proDetail);
+                }
+                orderRepository.save(client_order);
             }
-            return vnPayConfig.url_response_ui + "status=true" + "&message=Giao dịch thành công" + "&order_id=" + client_order.getId() + "vnp_TransactionNo=" + vnp_TransactionNo;
+            return vnPayConfig.url_response_ui + client_order.getOrderId() + "?status=true" + "&message=Giao dịch thành công" + "&vnp_TransactionNo=" + vnp_TransactionNo;
 
         } else
-            return vnPayConfig.url_response_ui + "status=false" + "&message=Sai chữ ký" + "&order_id=" + client_order.getId();
-
+            return vnPayConfig.url_response_ui + client_order.getOrderId() + "?status=false" + "&message=Sai chữ ký";
     }
 }

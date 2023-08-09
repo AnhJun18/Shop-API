@@ -1,39 +1,29 @@
 package com.myshop.api.service.product;
 
 import com.myshop.api.base.CRUDBaseServiceImpl;
-import com.myshop.api.payload.request.product.AddProductDetailRequest;
+import com.myshop.api.base.ProcedureNames;
+import com.myshop.api.payload.dtos.ProductDTO;
 import com.myshop.api.payload.request.product.ProductRequest;
-import com.myshop.api.payload.response.product.ProductDetailResponse;
-import com.myshop.api.payload.response.product.ProductResponse;
 import com.myshop.api.service.firebase.IImageService;
-import com.myshop.repositories.chatbot.entities.Tags;
-import com.myshop.repositories.chatbot.repos.TagRepository;
-import com.myshop.repositories.product.entities.Category;
+import com.myshop.common.http.ApiResponse;
+import com.myshop.common.http.CodeStatus;
+import com.myshop.common.http.ListResponse;
+import com.myshop.repositories.category.entities.Category;
+import com.myshop.repositories.category.repos.CategoryRepository;
 import com.myshop.repositories.product.entities.Product;
-import com.myshop.repositories.product.entities.ProductDetail;
-import com.myshop.repositories.product.repos.CategoryRepository;
+import com.myshop.repositories.product.entities.ProductCategory;
 import com.myshop.repositories.product.repos.ProductDetailRepository;
 import com.myshop.repositories.product.repos.ProductRepository;
-import com.myshop.repositories.warehouse.entities.WarehouseReceipt;
-import com.myshop.repositories.warehouse.entities.WarehouseReceiptDetail;
-import com.myshop.repositories.warehouse.repos.WarehouseReceiptDetailRepository;
-import com.myshop.repositories.warehouse.repos.WarehouseReceiptRepository;
+import com.myshop.repositories.product_category.repos.ProductCategoryRepository;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import javax.persistence.EntityManager;
+import javax.persistence.ParameterMode;
+import javax.persistence.StoredProcedureQuery;
+import java.util.*;
 
 
 @Transactional
@@ -45,182 +35,220 @@ public class ProductServiceImpl extends CRUDBaseServiceImpl<Product, ProductRequ
     @Autowired
     ProductDetailRepository productDetailRepository;
     @Autowired
+    ProductCategoryRepository productCategoryRepository;
+    @Autowired
     IImageService imageService;
     @Autowired
     CategoryRepository categoryRepository;
-    @Autowired
-    TagRepository tagRepository;
-    @Autowired
-    WarehouseReceiptRepository warehouseReceiptRepository;
-    @Autowired
-    WarehouseReceiptDetailRepository warehouseReceiptDetailRepository;
+    private final EntityManager entityManager;
+    private List<String> categoryDTOs;
 
-    @Value("${jwkFile}")
-    private Resource jwkFile;
 
-    public ProductServiceImpl(ProductRepository productRepository) {
+    public ProductServiceImpl(ProductRepository productRepository, EntityManager entityManager) {
         super(Product.class, ProductRequest.class, Product.class, productRepository);
         this.productRepository = productRepository;
+        this.entityManager = entityManager;
     }
 
     @Transactional
     @Override
-    public ProductResponse createProduct(ProductRequest productRequest, FilePart fileImage) throws IOException {
-        Category category = categoryRepository.findByName(productRequest.getCategory());
-        if (category == null) {
-            return ProductResponse.builder().message("Category is not exists").status(false).build();
-        }
-        if (productRepository.existsByName(productRequest.getName())) {
-            return ProductResponse.builder().message("Tên sản phẩm đã tồn tại!").status(false).build();
-        }
-
-        Product product = Product.builder()
-                .name(productRequest.getName())
-                .category(category)
-                .linkImg(imageService.save(fileImage))
-                .describe(productRequest.getDescribe())
-                .price(productRequest.getPrice()).sold(0L)
-                .deleteFlag(false).build();
-        Optional<Tags> tag = tagRepository.findByName(productRequest.getTag());
-        if (tag.isPresent()) {
-           product.setTag(tag.get());
-        }
-        else product.setTag(null);
-        productRepository.save(product);
-        return ProductResponse.builder().message("Create Product Successful").status(true).product(product).build();
-    }
-
-    @Override
-    public ProductResponse updateProduct(Long productID, ProductRequest productRequest, FilePart filePart) throws IOException {
-        Optional<Product> product = productRepository.findById(productID);
-        if (!product.isPresent())
-            return ProductResponse.builder().status(false).message("Cannot find product").build();
-        if (productRequest.getDescribe() != null)
-            product.get().setDescribe(productRequest.getDescribe());
-
-        if (productRequest.getPrice() != null)
-            product.get().setPrice(productRequest.getPrice());
-
-        if (productRequest.getName() != null)
-            product.get().setName(productRequest.getName());
-
-        Optional<Tags> tg= tagRepository.findByName(productRequest.getTag());
-        if (productRequest.getTag() != null && tg.isPresent())
-            product.get().setTag(tg.get());
-
-        if (productRequest.getCategory() != null)
-            product.get().setCategory(categoryRepository.findByName(productRequest.getCategory()));
-        productRepository.save(product.get());
-        return ProductResponse.builder().status(true).message("Update product successful").product(product.get()).build();
-    }
-
-    @Override
-    public ProductResponse lockProduct(Long id) {
-        Optional<Product> product = productRepository.findById(id);
-        if (!product.isPresent())
-            return ProductResponse.builder().status(false).message("Cannot find product").build();
-        product.get().setDeleteFlag(true);
-        productRepository.save(product.get());
-        return ProductResponse.builder().status(true).message("Block product successful").product(product.get()).build();
-    }
-
-    @Override
-    public Product getProductById(Long id) {
-        if(productRepository.findById(id).isPresent())
-            return productRepository.findById(id).get();
-        else
-            return null;
-
-    }
-
-    @Override
-    public ProductResponse unLockProduct(Long id) {
-        Optional<Product> product = productRepository.findById(id);
-        if (!product.isPresent())
-            return ProductResponse.builder().status(false).message("Cannot find product").build();
-        product.get().setDeleteFlag(false);
-        productRepository.save(product.get());
-        return ProductResponse.builder().status(true).message("Unblock product successful").product(product.get()).build();
-    }
-
-
-    @Transactional
-    @Override
-    public ProductDetailResponse createProductDetail(List<AddProductDetailRequest> listRq) {
-        String message = "";
-        boolean result = false;
-
+    public ApiResponse<?> createProduct(@RequestBody ProductRequest productRequest) {
+        String imageDefault;
         try {
-            WarehouseReceipt newReceipt=WarehouseReceipt.builder().build();
-            warehouseReceiptRepository.save(newReceipt);
-            for (AddProductDetailRequest productAddRq : listRq) {
-                Optional<Product> product = productRepository.findById(productAddRq.getProduct_id());
-                if (!product.isPresent()) {
-                    throw new Exception("Không tìm thấy sản phẩm cần thêm");
+            imageDefault = imageService.saveBase64String(productRequest.getPictures());
+
+            Product newProduct = Product.builder()
+                    .linkImg(imageDefault)
+                    .name(productRequest.getName())
+                    .description(productRequest.getDescription())
+                    .build();
+            productRepository.save(newProduct);
+
+            for (String categoryCode : productRequest.getCategories()) {
+                Category category = categoryRepository.findByCategoryCode(categoryCode);
+                if (category == null)
+                    throw new Exception("Danh mục không tồn tại");
+                else {
+                    productCategoryRepository.save(ProductCategory.builder()
+                            .category(category)
+                            .product(newProduct)
+                            .build());
                 }
-                Optional<ProductDetail> productDetail = productDetailRepository.findProductDetailByInfoProduct_IdAndSizeAndAndColor(productAddRq.getProduct_id(), productAddRq.getSize(), productAddRq.getColor());
-                WarehouseReceiptDetail newReceiptDetail=WarehouseReceiptDetail.builder().warehouseReceipt(newReceipt)
-                        .productDetail(productDetail.get()).amount(productAddRq.getNumberAdd())
-                        .costPrices(productAddRq.getPrices()).build();
-                warehouseReceiptDetailRepository.save(newReceiptDetail);
-                if (productDetail.isPresent()) {
-                    /*Nếu sản phẩm đã tồn tại size và color thì chỉ thêm số lượng*/
-                    productDetail.get().setCurrent_number(productDetail.get().getCurrent_number() + productAddRq.getNumberAdd());
-                    productDetailRepository.save(productDetail.get());
-                } else {
-                    /*Nếu sản phẩm chưa có size và color thì tạo chi tiết sản phẩm*/
-                    ProductDetail newDetail = ProductDetail.builder()
-                            .infoProduct(product.get()).size(productAddRq.getSize())
-                            .color(productAddRq.getColor()).current_number(productAddRq.getNumberAdd()).build();
-                    productDetailRepository.save(newDetail);
-                }
+
             }
-            result = true;
-            message = "Nhập hàng thành công";
+            return ApiResponse.builder().message("Tạo sản phẩm thành công!").status(200).data(null).build();
         } catch (Exception e) {
-            message = "Lỗi nhập hàng! " + e.getMessage();
-            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return ApiResponse.builder().status(500).data(null).message("Lỗi upload file").build();
+        }
+    }
+
+    @Override
+    public ApiResponse<?> getListProduct(String search, Integer page, Integer itemsPerPage, Long fromPrice, Long toPrice, List<String> types) {
+
+        String typesCate = types==null ? null : String.join(",", types);
+        StoredProcedureQuery query = entityManager.createStoredProcedureQuery(ProcedureNames.SP_PRODUCT_GetList)
+                .registerStoredProcedureParameter("PAGE", Integer.class, ParameterMode.IN)
+                .registerStoredProcedureParameter("PAGESIZE", Integer.class, ParameterMode.IN)
+                .registerStoredProcedureParameter("SEARCH", String.class, ParameterMode.IN)
+                .registerStoredProcedureParameter("FROMPRICE", Long.class, ParameterMode.IN)
+                .registerStoredProcedureParameter("TOPRICE", Long.class, ParameterMode.IN)
+                .registerStoredProcedureParameter("TYPES", String.class, ParameterMode.IN)
+                .registerStoredProcedureParameter("TOTALITEM", Integer.class, ParameterMode.OUT);
+        query.setParameter("PAGE", page);
+        query.setParameter("PAGESIZE", itemsPerPage);
+        query.setParameter("SEARCH", search);
+        query.setParameter("FROMPRICE", fromPrice);
+        query.setParameter("TOPRICE", toPrice);
+        query.setParameter("TYPES", typesCate);
+
+        query.execute();
+        int totalItem = (int) query.getOutputParameterValue("TOTALITEM");
+        List<Object[]> results = query.getResultList();
+        List<Map<String,Object>> resMap= new ArrayList<>();
+        for (Object[] it:results) {
+            Map<String,Object> mapIt= new HashMap<>();
+            mapIt.put("id",it[0]);
+            mapIt.put("description",it[1]);
+            mapIt.put("linkImg",it[2]);
+            mapIt.put("name",it[3]);
+            mapIt.put("viewed",it[4]);
+            mapIt.put("isDeleted",it[5]);
+            mapIt.put("price",it[6]);
+            mapIt.put("promotionValue", it[7]);
+            resMap.add(mapIt);
         }
 
-        return ProductDetailResponse.builder().status(result).message(message).build();
+        return ApiResponse.of(ListResponse.builder()
+                .page(page)
+                .totalItems(totalItem)
+                .totalPages((int) Math.ceil(totalItem * 1.0 / itemsPerPage))
+                .itemsPerPage(itemsPerPage)
+                .items(resMap)
+                .build());
     }
 
     @Override
-    public Iterable<Product> getAllProduct() {
-        return productRepository.findAllSortCategory();
+    public ApiResponse<?> getById(Long id) {
+        Optional<Product> product = productRepository.findById(id);
+        if (!product.isPresent())
+            return ApiResponse.fromErrorCode(CodeStatus.CODE_NOT_EXIST);
+        List<ProductCategory> productCategories = productCategoryRepository.findProductCategoriesByProduct(product.get());
+        List<String> categoryDTOs = new ArrayList<>();
+        for (ProductCategory prCategory : productCategories) {
+            categoryDTOs.add(prCategory.getCategory().getCategoryCode());
+        }
+
+        ProductDTO productDTO = new ProductDTO(
+                product.get().getId(),
+                product.get().getName(),
+                product.get().getLinkImg(),
+                product.get().getDescription(),
+                product.get().getViewed(),
+                categoryDTOs);
+        return ApiResponse.of(productDTO);
     }
 
     @Override
-    public Iterable<Product> getProductBestSeller() {
-        return productRepository.getProductBestSeller();
+    public ApiResponse<?> getDetailInventory(Long id) {
+        StoredProcedureQuery query = entityManager.createStoredProcedureQuery(ProcedureNames.SP_PRODUCT_GetDetailProduct);
+        query.registerStoredProcedureParameter("PRODUCTID", Long.class, ParameterMode.IN);
+        query.setParameter("PRODUCTID", id);
+        query.execute();
+
+        List<Object[]> resultList = query.getResultList();
+        List<Map<String, Object>> detailStocks = new ArrayList<>();
+        Map<String, Object> resultMap = new HashMap<>();
+        if (resultList != null && !resultList.isEmpty()) {
+            Object[] info = resultList.get(0);
+            resultMap.put("id", info[0]);
+            resultMap.put("description", info[1]);
+            resultMap.put("linkImg", info[2]);
+            resultMap.put("name", info[3]);
+            resultMap.put("promotionValue", info[6]);
+            resultMap.put("price", info[7]);
+        }
+
+        StoredProcedureQuery query2 = entityManager.createStoredProcedureQuery(ProcedureNames.SP_PRODUCT_GetDetailInStock);
+        query2.registerStoredProcedureParameter("PRODUCTID", Long.class, ParameterMode.IN);
+        query2.setParameter("PRODUCTID", id);
+        query2.execute();
+        List<Object[]> resultList2 = query2.getResultList();
+        for (Object[] ct : resultList2) {
+            Map<String, Object> dtMap = new HashMap<>();
+            dtMap.put("detailId", ct[0]);
+            dtMap.put("color", ct[1]);
+            dtMap.put("size", ct[2]);
+            dtMap.put("inventory", ct[3]);
+            detailStocks.add(dtMap);
+        }
+        resultMap.put("detailInventory", detailStocks);
+
+        return ApiResponse.of(resultMap);
+
+
     }
 
     @Override
-    public Page<Map<String, Object>> getPagingProduct(Integer page, Integer size) {
-        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("category.name").ascending());
-        return productRepository.getListProductPaging(pageable);
+    public ApiResponse<?> getTopViewed() {
+        StoredProcedureQuery query = entityManager.createStoredProcedureQuery(ProcedureNames.SP_PRODUCT_GetTopViewed);
+        query.execute();
+        List<Object[]> results = query.getResultList();
+
+        List<Map<String, Object>> resultList = new ArrayList<>();
+        for (Object[] row : results) {
+            Map<String, Object> result = new HashMap<>();
+            result.put("id", row[0]);
+            result.put("name", row[1]);
+            result.put("description", row[2]);
+            result.put("linkImg", row[3]);
+            result.put("price", row[5]);
+            result.put("promotionValue", row[7]);
+            resultList.add(result);
+        }
+        return ApiResponse.of(resultList);
     }
 
     @Override
-    public Iterable<Product> searchByName(String name) {
-        return productRepository.searchProductByName(name);
+    public ApiResponse<?> getBestSelling() {
+        StoredProcedureQuery query = entityManager.createStoredProcedureQuery(ProcedureNames.SP_PRODUCT_GetBestSelling);
+        query.execute();
+        List<Object[]> results = query.getResultList();
+        System.out.println(results.size());
+        List<Map<String,Object>> resMap= new ArrayList<>();
+        for (Object[] it:results) {
+            Map<String,Object> mapIt= new HashMap<>();
+            mapIt.put("id",it[0]);
+            mapIt.put("description",it[1]);
+            mapIt.put("linkImg",it[2]);
+            mapIt.put("name",it[3]);
+            mapIt.put("viewed",it[4]);
+            mapIt.put("isDeleted",it[5]);
+            mapIt.put("price",it[6]);
+            mapIt.put("promotionValue", it[7]);
+            resMap.add(mapIt);
+        }
+        return ApiResponse.of(resMap);
     }
 
     @Override
-    public Iterable<Product> getProductByCategory(String nameCategory) {
-        return productRepository.findAllByCategory_NameAndDeleteFlag(nameCategory,false);
+    public ApiResponse<?> getListProductOnPromotion() {
+        StoredProcedureQuery query = entityManager.createStoredProcedureQuery(ProcedureNames.SP_PRODUCT_GetListOnPromotion);
+        query.execute();
+        List<Object[]> results = query.getResultList();
+        List<Map<String,Object>> resMap= new ArrayList<>();
+        for (Object[] it:results) {
+            Map<String,Object> mapIt= new HashMap<>();
+            mapIt.put("id",it[0]);
+            mapIt.put("description",it[1]);
+            mapIt.put("linkImg",it[2]);
+            mapIt.put("name",it[3]);
+            mapIt.put("viewed",it[4]);
+            mapIt.put("isDeleted",it[5]);
+            mapIt.put("price",it[6]);
+            mapIt.put("promotionValue", it[7]);
+            resMap.add(mapIt);
+        }
+        return ApiResponse.of(resMap);
     }
-
-    @Override
-    public Iterable<Product> getProductByTag(String tag) {
-        return productRepository.findAllByTag_Name(tag);
-    }
-
-    @Override
-    public Iterable<ProductDetail> getDetailProductById(Long id_product) {
-
-        return productDetailRepository.findAllByInfoProduct_Id(id_product);
-    }
-
 
 }

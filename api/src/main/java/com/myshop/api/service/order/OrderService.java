@@ -2,32 +2,29 @@ package com.myshop.api.service.order;
 
 import com.myshop.api.payload.request.order.OrderRequest;
 import com.myshop.api.payload.response.order.OrderResponse;
-import com.myshop.repositories.order.entities.Order;
-import org.springframework.data.domain.Page;
-
-import java.util.Date;
-import java.util.List;
+import com.myshop.common.http.ApiResponse;
 
 public interface OrderService {
-    OrderResponse order(Long userID, OrderRequest orderRequest) ;
+    OrderResponse order(String userOrder,OrderRequest orderRequest) ;
 
-    List<Order> getTheOrder(Long UserID);
+    ApiResponse<?> getStateOrder(Long orderId) ;
 
-    Iterable<Order> getAllOrderByAdmin();
+    ApiResponse<?> getHistoryOrderByStatus(String user,String statusName) ;
 
-    Iterable<Order> getTheOrderByStatus(Long UserID, String status);
+    ApiResponse<?> getListOrder(String search,Integer statusId,String fromDate,String toDate, Integer page, Integer itemsPerPage);
 
-    Iterable<Order> getOrderByStatusByAdmin(String status);
+    ApiResponse<?> getOptionStatus();
 
-    OrderResponse confirmOrder(Long userID, Long idOrder);
+    ApiResponse<?> getDetailById(Long orderId);
 
-    OrderResponse deliveryOrder( Long idOrder);
+    ApiResponse<?> confirmOrder(Long orderId, String employeeReview);
 
-    OrderResponse confirmPaidOrder( Long idOrder);
+    ApiResponse<?> addDeliveryOrder(Long orderId, String employeeDelivery);
 
-    OrderResponse confirmCancelOrder( Long idOrder);
+    ApiResponse<?> confirmDeliveryOrder(Long orderId);
 
-    OrderResponse cancelOrderByUser( Long idOrder);
+    ApiResponse<?> cancelOrderById(String user,Long orderId);
 
-    Page<Order> searchOrder(Date from, Date to, String query, String name, Integer page, Integer size) ;
+
+
 }

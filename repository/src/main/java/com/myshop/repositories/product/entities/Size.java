@@ -9,17 +9,17 @@ import javax.persistence.*;
 
 @Builder
 @Entity
-@Table(name = "category")
+@Table(name = "SIZE")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Category {
-
+public class Size {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "SIZEID")
+    private Long sizeId;
 
-    @Column(columnDefinition = "nvarchar(255)",unique = true)
-    private String name;
+    @Column(name = "SIZENAME")
+    private String sizeName;
 
 }

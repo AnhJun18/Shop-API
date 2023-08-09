@@ -1,18 +1,19 @@
 package com.myshop.security.jwt;
 
-import java.security.Principal;
-import java.util.Collection;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import reactor.core.publisher.Mono;
 
+import java.security.Principal;
+import java.util.Collection;
+
 public class CustomAuthUser implements Principal {
 
-    private final String userId;
+    private final String email;
     private final Collection<GrantedAuthority> authorities;
 
-    public CustomAuthUser(String userId, Collection<GrantedAuthority> authorities) {
-        this.userId = userId;
+    public CustomAuthUser(String email, Collection<GrantedAuthority> authorities) {
+        this.email = email;
         this.authorities = authorities;
     }
 
@@ -25,8 +26,8 @@ public class CustomAuthUser implements Principal {
         return "";
     }
 
-    public String getUserId() {
-        return userId;
+    public String getEmail() {
+        return email;
     }
 
     public static Mono<CustomAuthUser> getUser() {

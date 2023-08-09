@@ -4,7 +4,6 @@ package com.myshop.api.controller;
 import com.myshop.api.payload.request.product.CategoryRequest;
 import com.myshop.api.service.product.CategoryService;
 import com.myshop.common.http.ApiResponse;
-import com.myshop.repositories.product.entities.Category;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,28 +24,25 @@ public class CategoryController {
     @Autowired
     CategoryService categoryService;
 
-
     @PostMapping("")
     public Mono<ApiResponse<?>> createCategory(@RequestBody CategoryRequest categoryRequest) {
         return Mono.just(categoryService.createCategory(categoryRequest));
     }
 
-    @GetMapping("/all")
-    public Mono<Iterable<Category>> getAllCategory() {
-        return Mono.just(categoryService.getAllCategory());
+    @GetMapping("")
+    public Mono<ApiResponse<?>> getListCategory(@RequestParam(required = false,defaultValue = "") String search,
+                                                @RequestParam(required = false,defaultValue = "1") Integer page,
+                                                @RequestParam(required = false,defaultValue = "10") Integer itemsPerPage) {
+        return Mono.just(categoryService.getListCategory(search,page,itemsPerPage));
     }
 
-
-    @PutMapping ("/update/{id}")
-    public Mono<ApiResponse<?>> updateCategory(@PathVariable Long id,@RequestBody CategoryRequest categoryRequest) {
-        return Mono.just(categoryService.updateCategory(id,categoryRequest));
+    @GetMapping("/{code}")
+    public Mono<ApiResponse<?>> getById(@PathVariable(name = "code")String code) {
+        return Mono.just(categoryService.getById(code));
     }
 
-    @DeleteMapping("/delete/{id}")
-    public Mono<ApiResponse<?>> deleteCategory(@PathVariable Long id) {
-        return Mono.just(categoryService.deleteCategory(id));
+    @GetMapping("/get-options")
+    public Mono<ApiResponse<?>> getOptsCategory() {
+        return Mono.just(categoryService.getOptionCategory());
     }
-
-
-
 }

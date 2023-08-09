@@ -11,27 +11,28 @@ import javax.persistence.*;
 
 @Builder
 @Entity
-@Table(name = "order_detail", uniqueConstraints =@UniqueConstraint(columnNames = {"order_id", "product_id"}))
+@IdClass(OrderDetailKey.class)
+@Table(name = "ORDER_DETAIL")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderDetail {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @ManyToOne
-    @JoinColumn(name = "order_id")
+    @JoinColumn(name = "ORDERID")
+    @ManyToOne(fetch = FetchType.LAZY)
     @JsonBackReference
     private Order order;
 
+    @Id
     @ManyToOne
-    @JoinColumn(name = "product_id")
+    @JoinColumn(name = "PRODUCTDETAILID")
     private ProductDetail productDetail;
 
-    private Long amount;
+    @Column(name = "QUANTITYORDER")
+    private Long quantityOrder;
 
-    private Integer prices;
+    @Column(name = "SALEPRICE")
+    private Long priceSale;
 
 }

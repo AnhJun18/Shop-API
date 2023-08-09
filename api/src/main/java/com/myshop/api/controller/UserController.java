@@ -5,11 +5,9 @@ import com.myshop.api.payload.request.user.UpdateProfileRequest;
 import com.myshop.api.payload.response.user.UserResponse;
 import com.myshop.api.service.user.UserService;
 import com.myshop.common.http.ApiResponse;
-import com.myshop.repositories.user.entities.UserInfo;
-import com.myshop.security.jwt.CustomAuthUser;
-import com.myshop.security.jwt.JWTAuthenticationToken;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
@@ -26,31 +24,36 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    AuditorAware<String> auditorAware;
 
     @GetMapping("/profile")
-    public Mono<UserResponse> getUserCurrent(Principal principal) {
-        JWTAuthenticationToken jwtTokenObject = (JWTAuthenticationToken) principal;
-            return Mono.just(userService.getUserProfile(Long.parseLong(((CustomAuthUser) jwtTokenObject.getPrincipal()).getUserId())));
+    public Mono<ApiResponse<UserResponse>> getUserCurrent(Principal principal) {
+            return Mono.just(ApiResponse.of(userService.getUserProfile(auditorAware.getCurrentAuditor().get())));
     }
 
+    @GetMapping("/employee/get-options")
+    public Mono<ApiResponse<?>> getOptsEmployee() {
+        return Mono.just(userService.getOptsEmployee());
+    }
+//
     @PutMapping("/profile")
-    public Mono<ApiResponse<?>>  updateProfile (Principal principal, @RequestBody UpdateProfileRequest profileRequest) {
-        JWTAuthenticationToken jwtTokenObject = (JWTAuthenticationToken) principal;
-        return Mono.just(userService.updateProfile(Long.parseLong(((CustomAuthUser) jwtTokenObject.getPrincipal()).getUserId()),profileRequest));
+    public Mono<ApiResponse<?>>  updateProfile ( @RequestBody UpdateProfileRequest profileRequest) {
+        return Mono.just(userService.updateProfile(auditorAware.getCurrentAuditor().get(),profileRequest));
 
     }
-
-    @DeleteMapping("")
-    public Mono<ApiResponse<?>> blockUserCurrent(Principal principal) {
-            JWTAuthenticationToken jwtTokenObject = (JWTAuthenticationToken) principal;
-            return Mono.just(userService.deleteAccountUser(Long.parseLong(((CustomAuthUser) jwtTokenObject.getPrincipal()).getUserId())));
-
-    }
-
-    @GetMapping("/all")
-    public Iterable<UserInfo> getUsers(){
-        return userService.getAllUser();
-    }
+//
+//    @DeleteMapping("")
+//    public Mono<ApiResponse<?>> blockUserCurrent(Principal principal) {
+//            JWTAuthenticationToken jwtTokenObject = (JWTAuthenticationToken) principal;
+//            return Mono.just(userService.deleteAccountUser(Long.parseLong(((CustomAuthUser) jwtTokenObject.getPrincipal()).getUserId())));
+//
+//    }
+//
+//    @GetMapping("/all")
+//    public Iterable<UserInfo> getUsers(){
+//        return userService.getAllUser();
+//    }
 
 
 }

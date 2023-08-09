@@ -1,7 +1,5 @@
 package com.myshop.repositories.shopping_cart.entities;
 
-import com.myshop.repositories.product.entities.ProductDetail;
-import com.myshop.repositories.user.entities.UserInfo;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,25 +9,22 @@ import javax.persistence.*;
 
 @Builder
 @Entity
-@Table(name = "shopping_cart", uniqueConstraints =@UniqueConstraint(columnNames = {"user_id", "product_id"}))
+@IdClass(ShoppingCartKey.class)
+@Table(name = "SHOPPING_CART")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class ShoppingCart {
+    @Id
+    @Column(name = "PRODUCTDETAILID")
+    private Long productDetailId;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "CUSTOMERID")
+    private Long customerId;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id")
-    private UserInfo userInfo;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "product_id")
-    private  ProductDetail productDetail;
-
-    private Long amount;
+    @Column(name = "QUANTITY")
+    private Long quantity;
 
 
 }

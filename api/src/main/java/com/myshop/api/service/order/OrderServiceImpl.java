@@ -1,10 +1,16 @@
 package com.myshop.api.service.order;
 
 import com.myshop.api.base.CRUDBaseServiceImpl;
+import com.myshop.api.base.ProcedureNames;
 import com.myshop.api.payload.request.order.OrderDetailRequest;
 import com.myshop.api.payload.request.order.OrderRequest;
 import com.myshop.api.payload.response.order.OrderResponse;
-import com.myshop.api.service.shipment.GHTKService;
+import com.myshop.common.EnumCommon;
+import com.myshop.common.http.ApiResponse;
+import com.myshop.common.http.CodeStatus;
+import com.myshop.common.http.ListResponse;
+import com.myshop.common.utils.JsonUtils;
+import com.myshop.repositories.common.GlobalOption;
 import com.myshop.repositories.order.entities.Order;
 import com.myshop.repositories.order.entities.OrderDetail;
 import com.myshop.repositories.order.entities.Status;
@@ -13,23 +19,20 @@ import com.myshop.repositories.order.repos.OrderRepository;
 import com.myshop.repositories.order.repos.StatusRepository;
 import com.myshop.repositories.product.entities.ProductDetail;
 import com.myshop.repositories.product.repos.ProductDetailRepository;
-import com.myshop.repositories.shipment.entities.Shipment;
-import com.myshop.repositories.shipment.repos.ShipmentRepository;
-import com.myshop.repositories.shopping_cart.entities.ShoppingCart;
-import com.myshop.repositories.shopping_cart.repos.ShoppingCartRepository;
-import com.myshop.repositories.user.entities.UserInfo;
-import com.myshop.repositories.user.repos.UserRepository;
+import com.myshop.repositories.user.entities.Customer;
+import com.myshop.repositories.user.entities.Employee;
+import com.myshop.repositories.user.repos.CustomerRepository;
+import com.myshop.repositories.user.repos.EmployeeRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
+import org.webjars.NotFoundException;
 
-import java.io.IOException;
+import javax.persistence.EntityManager;
+import javax.persistence.ParameterMode;
+import javax.persistence.StoredProcedureQuery;
 import java.util.*;
 
 @Slf4j
@@ -38,207 +41,297 @@ import java.util.*;
 public class OrderServiceImpl extends CRUDBaseServiceImpl<Order, OrderRequest, OrderResponse, Long> implements OrderService {
 
     private final OrderRepository orderRepository;
-    @Autowired
-    private StatusRepository statusRepository;
+    private final EntityManager entityManager;
     @Autowired
     private ProductDetailRepository productDetailRepository;
+
     @Autowired
-    private UserRepository userRepository;
+    private CustomerRepository customerRepository;
+
     @Autowired
-    private ShoppingCartRepository shoppingCartRepository;
-    @Autowired
-    private ShipmentRepository shipmentRepository;
-    @Autowired
-    private GHTKService ghtkService;
+    private EmployeeRepository employeeRepository;
+
     @Autowired
     private OrderDetailRepository orderDetailRepository;
 
+    @Autowired
+    private StatusRepository statusRepository;
 
 
-    public OrderServiceImpl(OrderRepository orderRepository) {
+    public OrderServiceImpl(OrderRepository orderRepository, EntityManager entityManager) {
         super(Order.class, OrderRequest.class, OrderResponse.class, orderRepository);
         this.orderRepository = orderRepository;
+        this.entityManager = entityManager;
     }
 
     @Transactional
     @Override
-    public OrderResponse order(Long userID, OrderRequest orderRequest) {
-        boolean result = false;
+    public OrderResponse order(String orderUser, OrderRequest orderRequest) {
+        Integer result = 500;
         String message = "";
         Order newOrder = null;
-        Optional<UserInfo> userInfo = userRepository.findById(userID);
+        Optional<Customer> userInfo = customerRepository.findByEmail(orderUser);
         if (!userInfo.isPresent()) {
-            result = false;
-            message = "Tài khoản không hoạt động";
+            result = 504;
+            message = "Tài khoản không hợp lệ";
         } else {
             try {
                 newOrder = Order.builder()
                         .note(orderRequest.getNote())
-                        .feeShip(orderRequest.getFeeShip())
-                        .status(statusRepository.findById(1L).get())
-                        .userInfo(userInfo.get())
-                        .build();
-                orderRepository.save(newOrder);
-
-                Shipment shipment = Shipment.builder()
-                        .address(orderRequest.getAddress())
                         .nameReceiver(orderRequest.getNameReceiver())
                         .phoneReceiver(orderRequest.getPhoneReceiver())
-                        .province(orderRequest.getProvince())
-                        .district(orderRequest.getDistrict())
-                        .ward(orderRequest.getWard())
-                        .order(newOrder)
+                        .address(orderRequest.getAddressReceiver())
+                        .status(statusRepository.findByName(EnumCommon.EStatus.WAITPAYMENT.getName()))
+                        .customerId(userInfo.get().getId())
                         .build();
-                shipmentRepository.save(shipment);
-
-                Order finalNewOrder = newOrder;
-                for (OrderDetailRequest item:orderRequest.getListProduct()) {
-                    Optional<ProductDetail> productDetail = productDetailRepository.findById(item.getProduct_id());
-                    if(productDetail.get().getCurrent_number() < item.getAmount())
-                        throw new Exception("Vấn đề tồn kho số lượng sản phẩm "+productDetail.get().getInfoProduct().getName() +" của chúng tôi không đủ!");
-                    ShoppingCart checkCart= shoppingCartRepository.findShoppingCartByUserInfo_IdAndProductDetail_Id(userID,item.getProduct_id());
-                    if(checkCart != null && checkCart.getId()>0)
-                        shoppingCartRepository.delete(checkCart);
-
-                    orderDetailRepository.save(OrderDetail.builder()
-                            .productDetail(productDetail.get())
-                            .order(finalNewOrder)
-                            .amount(item.getAmount())
-                            .prices(productDetail.get().getInfoProduct().getPrice())
-                            .build());
+                orderRepository.save(newOrder);
+                for (OrderDetailRequest item : orderRequest.getOrderItems()) {
+                    Optional<ProductDetail> productDetail = productDetailRepository.findById(item.getProductDetailId());
+                    if (item.getQuantity() <= 0)
+                        throw new Exception("Số lượng mua không hợp lệ");
+                    if (productDetail.get().getQuantity() < item.getQuantity())
+                        throw new Exception("Sản phẩm " + productDetail.get().getProduct() + " không đủ số lượng tồn!");
+                    orderDetailRepository
+                            .save(
+                                    OrderDetail.builder()
+                                            .productDetail(productDetail.get())
+                                            .order(newOrder)
+                                            .quantityOrder(item.getQuantity())
+                                            .priceSale(item.getPrice())
+                                            .build());
+                    result = 200;
+                    message = "Đơn hàng đã được tạo thành công";
                 }
-                result = true;
-                message = "Đơn hàng đã được tạo thành công";
             } catch (Exception e) {
-                result = false;
-                message = "Lỗi tạo đợn hàng "+e.getMessage();
+                result = 504;
+                message = "Lỗi tạo đợn hàng " + e.getMessage();
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-                return OrderResponse.builder().message(message).order(null).status(result).build();
+                return OrderResponse.builder().message(message).data(null).status(result).build();
             }
         }
-        return OrderResponse.builder().message(message).order(newOrder).status(result).build();
+        return OrderResponse.builder().message(message).data(newOrder).status(result).build();
     }
 
     @Override
-    public List<Order> getTheOrder(Long userID) {
+    public ApiResponse<?> getStateOrder(Long orderId) {
+        StoredProcedureQuery query = entityManager.createStoredProcedureQuery("SP_ORDER_GetState");
+        query.registerStoredProcedureParameter("ORDERID", Long.class, ParameterMode.IN);
+        query.setParameter("ORDERID",orderId);
+        query.execute();
+        List<Object[]> data = query.getResultList();
+        if(data.size()==0){
+           return ApiResponse.fromErrorCode(CodeStatus.CODE_NOT_EXIST);
+        }
+        Object[] orderRes = data.get(0);
 
-        Iterator<Order> source = orderRepository.findAllByUserInfo_Id(userID).iterator();
-        List<Order> target = new ArrayList<>();
-        source.forEachRemaining((item) -> {
-            target.add(item.copy());
-        });
-        return target;
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put("id", orderRes[0]);
+        resultMap.put("nameReceiver", orderRes[1]);
+        resultMap.put("phoneReceiver", orderRes[2]);
+        resultMap.put("address", orderRes[3]);
+        resultMap.put("billId", orderRes[4]);
+        resultMap.put("totalMoney", orderRes[5]);
+        return ApiResponse.of(resultMap);
     }
 
     @Override
-    public Iterable<Order> getAllOrderByAdmin() {
-        return orderRepository.findAll();
+    public ApiResponse<?> getHistoryOrderByStatus(String user, String statusName) {
+        try{
+            Customer customer = customerRepository.findByEmail(user).get();
+            Status status =statusRepository.findByName(statusName);
+            List<Order> orders=orderRepository.findAllByCustomerIdAndStatus_Id(customer.getId(),status.getId());
+            List<Map<String,Object>> resMap= new ArrayList<>();
+            for (Order od:orders) {
+                Map<String,Object> map=new HashMap<>();
+                map.put("orderId",od.getOrderId());
+                map.put("billCode",od.getBill());
+                StoredProcedureQuery query = entityManager.createStoredProcedureQuery("SP_ORDER_GetDetailOrder")
+                        .registerStoredProcedureParameter("ORDERID", Long.class, ParameterMode.IN);
+                query.setParameter("ORDERID", od.getOrderId());
+                query.execute();
+                List<Object[]> orderDetailList = query.getResultList();
+                List<Map<String,Object>> details = new ArrayList<>();
+                for (Object[] ob:orderDetailList) {
+                    Map<String,Object> newDetail = new HashMap<>();
+                    newDetail.put("productId",ob[0]);
+                    newDetail.put("productName",ob[1]);
+                    newDetail.put("defaultImage",ob[2]);
+                    newDetail.put("size",ob[3]);
+                    newDetail.put("color",ob[4]);
+                    newDetail.put("productDetailId",ob[6]);
+                    newDetail.put("salePrice",ob[7]);
+                    newDetail.put("quantityOrder",ob[8]);
+                    newDetail.put("returnFormId",ob[9]);
+                    newDetail.put("quantityReturn",ob[10]);
+                    newDetail.put("quantityInventory",ob[11]);
+                    newDetail.put("amountOrder",ob[12]);
+                    details.add(newDetail);
+                }
+                map.put("details",details);
+                resMap.add(map);
+            }
+            return ApiResponse.builder().status(200).data(resMap).build();
+        }catch (Exception e){
+            return ApiResponse.builder().status(505).data(null).build();
+        }
     }
 
     @Override
-    public Iterable<Order> getTheOrderByStatus(Long userID, String status) {
+    public ApiResponse<?> getListOrder(String search,Integer statusId,String fromDate, String toDate, Integer page, Integer itemsPerPage) {
+        StoredProcedureQuery query = entityManager.createStoredProcedureQuery(ProcedureNames.SP_ORDER_GetList)
+                .registerStoredProcedureParameter("PAGE", Integer.class, ParameterMode.IN)
+                .registerStoredProcedureParameter("PAGESIZE", Integer.class, ParameterMode.IN)
+                .registerStoredProcedureParameter("SEARCH", String.class, ParameterMode.IN)
+                .registerStoredProcedureParameter("STATUSID", Integer.class, ParameterMode.IN)
+                .registerStoredProcedureParameter("CREATEDFROM", String.class, ParameterMode.IN)
+                .registerStoredProcedureParameter("CREATEDTO", String.class, ParameterMode.IN)
+                .registerStoredProcedureParameter("TOTALITEM", Integer.class, ParameterMode.OUT);
+        query.setParameter("PAGE", page);
+        query.setParameter("PAGESIZE", itemsPerPage);
+        query.setParameter("SEARCH", search);
+        query.setParameter("STATUSID", statusId);
+        query.setParameter("CREATEDFROM", fromDate);
+        query.setParameter("CREATEDTO", toDate);
 
-        return orderRepository.findAllByUserInfo_IdAndStatus_Name(userID, status);
+        query.execute();
+        int totalItem = (int) query.getOutputParameterValue("TOTALITEM");
+        List<Object[]> orderList = query.getResultList();
+        List<Map<String,Object>> resMap= new ArrayList<>();
+        for (Object[] ob:orderList ) {
+            Map<String,Object> item= new HashMap<>();
+            item.put("orderId",ob[0]);
+            item.put("note",ob[1]);
+            item.put("address",ob[2]);
+            item.put("nameReceiver",ob[3]);
+            item.put("phoneReceiver",ob[4]);
+            item.put("statusId",ob[5]);
+            item.put("createdDate",ob[10]);
+            item.put("statusName",ob[11]);
+            item.put("pickerName",ob[12]);
+            item.put("totalMoney",ob[13]);
+            resMap.add(item);
+        }
+        return ApiResponse.of(ListResponse.builder()
+                .page(page)
+                .totalItems(totalItem)
+                .totalPages((int) Math.ceil(totalItem * 1.0 / itemsPerPage))
+                .itemsPerPage(itemsPerPage)
+                .items(resMap)
+                .build());
     }
 
     @Override
-    public Iterable<Order> getOrderByStatusByAdmin(String status) {
-        return orderRepository.findAllByStatus_Name(status);
+    public ApiResponse<?> getOptionStatus() {
+        StoredProcedureQuery query = entityManager.createStoredProcedureQuery("CBO_GetOption", GlobalOption.class);
+        query.registerStoredProcedureParameter("TABLENAME", String.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("COLUMNID", String.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("COLUMNNAME", String.class, ParameterMode.IN);
+        query.setParameter("TABLENAME", "STATUS");
+        query.setParameter("COLUMNID", "STATUSID");
+        query.setParameter("COLUMNNAME", "STATUSNAME");
+
+        query.execute();
+        List<GlobalOption> options = query.getResultList();
+
+        return ApiResponse.of(options);
+    }
+
+    @Override
+    public ApiResponse<?> getDetailById(Long orderId) {
+
+        StoredProcedureQuery queryOrder = entityManager.createStoredProcedureQuery("SP_ORDER_GetOrderById")
+                .registerStoredProcedureParameter("ORDERID", Long.class, ParameterMode.IN);
+        queryOrder.setParameter("ORDERID", orderId);
+        queryOrder.execute();
+        Object[] order = (Object[]) queryOrder.getSingleResult();
+        Map<String, Object> resMap= new HashMap<>();
+        resMap.put("orderId",order[0]);
+        resMap.put("nameReceiver",order[1]);
+        resMap.put("phoneReceiver",order[2]);
+        resMap.put("address",order[3]);
+        resMap.put("note",order[4]);
+        resMap.put("statusId",order[5]);
+        resMap.put("statusName",order[6]);
+        resMap.put("totalMoney",order[7]);
+        resMap.put("customerPicker",order[8]);
+        resMap.put("employeeDeliver",order[9]);
+        resMap.put("billCode",order[10]);
+        resMap.put("orderDate",order[11]);
+        StoredProcedureQuery query = entityManager.createStoredProcedureQuery("SP_ORDER_GetDetailOrder")
+                .registerStoredProcedureParameter("ORDERID", Long.class, ParameterMode.IN);
+        query.setParameter("ORDERID", orderId);
+        query.execute();
+        List<Object[]> orderDetailList = query.getResultList();
+        List<Map<String,Object>> details = new ArrayList<>();
+        for (Object[] ob:orderDetailList) {
+            Map<String,Object> newDetail = new HashMap<>();
+            newDetail.put("productId",ob[0]);
+            newDetail.put("productName",ob[1]);
+            newDetail.put("defaultImage",ob[2]);
+            newDetail.put("size",ob[3]);
+            newDetail.put("color",ob[4]);
+            newDetail.put("productDetailId",ob[6]);
+            newDetail.put("salePrice",ob[7]);
+            newDetail.put("quantityOrder",ob[8]);
+            newDetail.put("returnFormId",ob[9]);
+            newDetail.put("quantityReturn",ob[10]);
+            newDetail.put("quantityInventory",ob[11]);
+            newDetail.put("amountOrder",ob[12]);
+            details.add(newDetail);
+        }
+        resMap.put("details",details);
+
+        return ApiResponse.of(resMap);
     }
 
     @Transactional
     @Override
-    public OrderResponse confirmOrder(Long userID, Long idOrder) {
-        Order order = orderRepository.findOrderById(idOrder);
-        if (order == null || order.getId() <= 0 || !order.getStatus().getName().equals("Chờ Xác Nhận")) {
-            return OrderResponse.builder().status(false).message("Đơn hàng không tồn tại hoặc đã được xác nhận").order(order).build();
-        }
-        for (OrderDetail item:order.getOrderDetails()) {
-            if(item.getAmount()> item.getProductDetail().getCurrent_number())
-                return OrderResponse.builder().status(false).message("Sản phẩm đã hết hàng").order(order).build();
-        }
+    public ApiResponse<?> confirmOrder(Long orderId, String employeeId) {
+        Optional<Order> order = orderRepository.findById(orderId);
+        Optional<Employee> employee= employeeRepository.findByEmail(employeeId);
+        if(!order.isPresent())
+            return ApiResponse.fromErrorCode(CodeStatus.CODE_NOT_EXIST);
+        order.get().setEmployeeReview(employee.get().getId());
+        order.get().setStatus(statusRepository.findByName(EnumCommon.EStatus.PAPERING.getName()));
+        orderRepository.save(order.get());
+        return ApiResponse.builder().status(200).message("Đơn hàng đã được duyệt").build();
+    }
+
+    @Override
+    public ApiResponse<?> addDeliveryOrder(Long orderId, String employeeDelivery) {
+        Map<String,Object> data=JsonUtils.readToMap(employeeDelivery);
+        Long employeeId= Long.parseLong(data.get("employeeDelivery").toString()) ;
+        employeeRepository.findById(employeeId).get();
+        Order order = orderRepository.findById(orderId).get();
+        order.setEmployeeDelivery(employeeId);
+        order.setStatus(statusRepository.findByName(EnumCommon.EStatus.DELIVERING.getName()));
+        orderRepository.save(order);
+        return ApiResponse.builder().status(200).message("Đơn hàng đã được phân công").build();
+    }
+
+    @Override
+    public ApiResponse<?> confirmDeliveryOrder(Long orderId) {
+        Order order = orderRepository.findById(orderId).get();
+        order.setStatus(statusRepository.findByName(EnumCommon.EStatus.DONE.getName()));
+        orderRepository.save(order);
+        return ApiResponse.builder().status(200).message("Đơn hàng đã hoàn thành").build();
+    }
+
+    @Override
+    public ApiResponse<?> cancelOrderById(String user, Long orderId) {
         try {
-            ghtkService.createOrder(order.getId());
+            Customer customer = customerRepository.findByEmail(user).get();
+            Optional<Order> orderOptional = orderRepository.findOrderByCustomerIdAndOrderId(customer.getId(),orderId);
+            if(!orderOptional.isPresent())
+                throw new NotFoundException("Không tìm thấy đơn hàng");
+            orderOptional.get().setStatus(statusRepository.findByName(EnumCommon.EStatus.CANCEL.getName()));
+            orderRepository.save(orderOptional.get());
+            return  ApiResponse.builder().status(200).data(orderOptional.get()).build();
 
-        } catch (IOException e) {
-            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-            return OrderResponse.builder().status(false).message("Không thể giao hàng cho đối tác vận chuyển").order(order).build();
+        }catch (Exception e){
+            return  ApiResponse.builder().status(505).data(e.getMessage()).build();
         }
-        Status nextStatus = statusRepository.findByName("Đang Chuẩn Bị Hàng");
-        order.setStatus(nextStatus);
-        orderRepository.save(order);
-        order.getOrderDetails().forEach(item -> {
-            item.getProductDetail().setCurrent_number(item.getProductDetail().getCurrent_number() - item.getAmount());
-            item.getProductDetail().getInfoProduct().setSold(item.getProductDetail().getInfoProduct().getSold() + item.getAmount());
-        });
-        return OrderResponse.builder().status(true).message("Đơn hàng đã được xác nhận").order(order).build();
+
     }
 
-    @Override
-    public OrderResponse deliveryOrder(Long idOrder) {
-        Order order = orderRepository.findOrderById(idOrder);
-        if (order == null || order.getId() <= 0 || !order.getStatus().getName().equals("Đang Chuẩn Bị Hàng")) {
-            return OrderResponse.builder().status(false).message("Có lỗi! Vui lòng thử lại").order(order).build();
-        }
-        Status nextStatus = statusRepository.findByName("Đang Vận Chuyển");
-        order.setStatus(nextStatus);
-        orderRepository.save(order);
-
-        return OrderResponse.builder().status(true).message("Đơn hàng đã được vận chuyển").order(order).build();
-    }
-
-    @Override
-    public OrderResponse confirmPaidOrder(Long idOrder) {
-        Order order = orderRepository.findOrderById(idOrder);
-        if (order == null || order.getId() <= 0 || !order.getStatus().getName().equals("Đang Vận Chuyển")) {
-            return OrderResponse.builder().status(false).message("Có lỗi! Vui lòng thử lại").order(order).build();
-        }
-        Status nextStatus = statusRepository.findByName("Đã Thanh Toán");
-        order.setStatus(nextStatus);
-        orderRepository.save(order);
-
-        return OrderResponse.builder().status(true).message("Đơn hàng đã thanh toán thành công!").order(order).build();
-    }
-
-    @Override
-    public OrderResponse confirmCancelOrder(Long idOrder) {
-        Order order = orderRepository.findOrderById(idOrder);
-        if (order == null || order.getId() <= 0 || order.getStatus().getName().equals("Đã Thanh Toán")) {
-            return OrderResponse.builder().status(false).message("Đơn hàng không tồn tại hoặc đã được thanh toán!").order(order).build();
-        }
-        Status nextStatus = statusRepository.findByName("Đã Hủy");
-        order.setStatus(nextStatus);
-        orderRepository.save(order);
-
-        return OrderResponse.builder().status(true).message("Đơn hàng đã bị hủy").order(order).build();
-    }
-
-    @Override
-    public OrderResponse cancelOrderByUser(Long idOrder) {
-        Order order = orderRepository.findOrderById(idOrder);
-        if (order == null || order.getId() <= 0) {
-            return OrderResponse.builder().status(false).message("Đơn hàng không tồn tại").order(order).build();
-        }
-        if(!order.getStatus().getName().equals("Chờ Xác Nhận") && !order.getStatus().getName().equals("Đang Chuẩn Bị Hàng")){
-            // Khách hàng chỉ đuọc huy đơn khi đơn đang trạng thái chờ xác nhân hoặc đang chuẩn bị hàng
-            return OrderResponse.builder().status(false).message("Đơn hàng "+order.getStatus().getName()+" nên không thể hủy").order(order).build();
-        }
-
-        Status nextStatus = statusRepository.findByName("Đã Hủy");
-        order.setStatus(nextStatus);
-        if(!order.getStatus().getName().equals("Chờ Xác Nhận")){
-            order.getOrderDetails().forEach(item->{
-                item.getProductDetail().setCurrent_number(item.getProductDetail().getCurrent_number()+item.getAmount());
-            });
-        }
-        orderRepository.save(order);
-
-        return OrderResponse.builder().status(true).message("Đơn hàng đã bị hủy").order(order).build();
-    }
-
-    @Override
-    public Page<Order> searchOrder(Date from, Date to, String query, String status, Integer page, Integer size) {
-        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdDate").descending());
-        return orderRepository.searchOrder(from.toInstant(), to.toInstant(), query == "" ? null : query, status == "" ? null : status, pageable);
-    }
 }
