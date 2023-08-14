@@ -13,7 +13,7 @@ import java.util.Optional;
 
 @Repository
 public interface OrderRepository extends CrudRepository<Order, Long>, JpaSpecificationExecutor<Order> {
-    @Query(value = "exec SP_ORDER_reportRevenue :fromDate, :toDate", nativeQuery = true)
+    @Query(value = "exec SP_ORDER_reportRevenue_ByDay :fromDate, :toDate", nativeQuery = true)
     Iterable<Map<String, Object>> reportRevenueByDay(@Param("fromDate") String fromDate,@Param("toDate")String toDate);
 
 
