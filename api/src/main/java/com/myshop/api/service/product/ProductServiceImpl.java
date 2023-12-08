@@ -10,6 +10,7 @@ import com.myshop.common.http.CodeStatus;
 import com.myshop.common.http.ListResponse;
 import com.myshop.repositories.category.entities.Category;
 import com.myshop.repositories.category.repos.CategoryRepository;
+import com.myshop.repositories.common.GlobalOption;
 import com.myshop.repositories.product.entities.Product;
 import com.myshop.repositories.product.entities.ProductCategory;
 import com.myshop.repositories.product.repos.ProductDetailRepository;
@@ -32,8 +33,6 @@ public class ProductServiceImpl extends CRUDBaseServiceImpl<Product, ProductRequ
 
     private final ProductRepository productRepository;
 
-    @Autowired
-    ProductDetailRepository productDetailRepository;
     @Autowired
     ProductCategoryRepository productCategoryRepository;
     @Autowired
@@ -251,4 +250,18 @@ public class ProductServiceImpl extends CRUDBaseServiceImpl<Product, ProductRequ
         return ApiResponse.of(resMap);
     }
 
+    @Override
+    public ApiResponse<?> getOptionProduct() {
+        StoredProcedureQuery query = entityManager.createStoredProcedureQuery("CBO_GetOption", GlobalOption.class);
+        query.registerStoredProcedureParameter("TABLENAME", String.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("COLUMNID", String.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("COLUMNNAME", String.class, ParameterMode.IN);
+        query.setParameter("TABLENAME", "PRODUCT");
+        query.setParameter("COLUMNID", "PRODUCTID");
+        query.setParameter("COLUMNNAME", "PRODUCTNAME");
+        query.execute();
+        List<GlobalOption> options = query.getResultList();
+
+        return ApiResponse.of(options);
+    }
 }

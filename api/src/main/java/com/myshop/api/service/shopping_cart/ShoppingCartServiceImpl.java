@@ -97,8 +97,8 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
             Map<String,Object> item= new HashMap<>();
             ProductDetail pdt=productDetailRepository.findById(cart.getProductDetailId()).get();
             ApiResponse res=productService.getDetailInventory(pdt.getProduct());
-            item.put("color",colorRepository.findById(Long.valueOf(pdt.getColor())).get().getColorName());
-            item.put("size",sizeRepository.findById(Long.valueOf(pdt.getSize())).get().getSizeName());
+            item.put("color",colorRepository.findById(pdt.getColor()).get().getColorName());
+            item.put("size",sizeRepository.findById(pdt.getSize()).get().getSizeName());
             item.put("product",res.getData());
             item.put("quantity",cart.getQuantity());
             resCart.add(item);

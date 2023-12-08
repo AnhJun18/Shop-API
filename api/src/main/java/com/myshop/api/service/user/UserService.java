@@ -7,6 +7,7 @@ import com.myshop.api.payload.request.user.UpdateProfileRequest;
 import com.myshop.api.payload.response.user.LoginResponse;
 import com.myshop.api.payload.response.user.UserResponse;
 import com.myshop.common.http.ApiResponse;
+import com.myshop.repositories.user.entities.Customer;
 
 public interface UserService {
 
@@ -33,5 +34,7 @@ public interface UserService {
 //    PasswordResponse resetPassword(ResetPasswordRequest resetPasswordRequest);
 //
 //    Iterable<UserInfo> getAllUser();
+
+    Iterable<Customer> getUsers();
 
 }

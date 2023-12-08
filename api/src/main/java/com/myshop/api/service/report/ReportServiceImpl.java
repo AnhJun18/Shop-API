@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -75,6 +76,40 @@ public class ReportServiceImpl implements ReportService {
         parameters.put("employeeCreated", employee.getFirstName()+" "+employee.getLastName());
         return JasperExportManager.exportReportToPdf(JasperFillManager.fillReport(jasperReport, parameters, dataSource));
     }
+    @Override
+    public byte[] reportProfitByDay(String fromDate,String toDate) throws IOException, JRException {
+        Employee employee = employeeRepository.findByEmail(auditorAware.getCurrentAuditor().get().toString()).get();
+        JasperReport jasperReport = JasperCompileManager.compileReport(new ClassPathResource("templates/report_profit_day.jrxml").getInputStream());
+        List<Map<String, Object>> list = (List<Map<String, Object>>) orderRepository.reportProfitByDay(fromDate,toDate);
+        if (list.size() == 0) {
+            Map empty = new HashMap();
+            empty.put("customerName", "không có dữ liệu");
+            list.add(empty);
+        }
+        JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(list);
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("fromDate", fromDate);
+        parameters.put("toDate", toDate);
+        parameters.put("employeeCreated", employee.getFirstName()+" "+employee.getLastName());
+        return JasperExportManager.exportReportToPdf(JasperFillManager.fillReport(jasperReport, parameters, dataSource));
+    }
+    @Override
+    public byte[] reportProfitByProduct(String fromDate,String toDate) throws IOException, JRException {
+        Employee employee = employeeRepository.findByEmail(auditorAware.getCurrentAuditor().get().toString()).get();
+        JasperReport jasperReport = JasperCompileManager.compileReport(new ClassPathResource("templates/report_profit_product.jrxml").getInputStream());
+        List<Map<String, Object>> list = (List<Map<String, Object>>) orderRepository.reportProfitByProduct(fromDate,toDate);
+        if (list.size() == 0) {
+            Map empty = new HashMap();
+            empty.put("customerName", "không có dữ liệu");
+            list.add(empty);
+        }
+        JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(list);
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("fromDate", fromDate);
+        parameters.put("toDate", toDate);
+        parameters.put("employeeCreated", employee.getFirstName()+" "+employee.getLastName());
+        return JasperExportManager.exportReportToPdf(JasperFillManager.fillReport(jasperReport, parameters, dataSource));
+    }
 
     @Override
     public byte[] printBill(Long orderId) throws IOException, JRException {
@@ -103,6 +138,22 @@ public class ReportServiceImpl implements ReportService {
         parameters.put("vnpIPN", dataOrder.get("billCode"));
         parameters.put("orderDate", dataOrder.get("orderDate"));
 
+        return JasperExportManager.exportReportToPdf(JasperFillManager.fillReport(jasperReport, parameters, dataSource));
+    }
+
+    @Override
+    public byte[] reportInventory() throws IOException, JRException {
+        JasperReport jasperReport = JasperCompileManager.compileReport(new ClassPathResource("templates/report_inventory.jrxml").getInputStream());
+        Employee employee = employeeRepository.findByEmail(auditorAware.getCurrentAuditor().get().toString()).get();
+        List<Map<String, Object>> list = (List<Map<String, Object>>) orderRepository.reportInventory();
+        if (list.size() == 0) {
+            Map empty = new HashMap();
+            empty.put("product", "không có dữ liệu");
+            list.add(empty);
+        }
+        JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(list);
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("employeeCreated", employee.getFirstName()+" "+employee.getLastName());
         return JasperExportManager.exportReportToPdf(JasperFillManager.fillReport(jasperReport, parameters, dataSource));
     }
 

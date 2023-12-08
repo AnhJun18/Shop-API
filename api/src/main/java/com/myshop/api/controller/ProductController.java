@@ -66,12 +66,9 @@ public class ProductController {
     public Mono<ApiResponse<?>> getListProductOnPromotion() {
         return Mono.just(productService.getListProductOnPromotion());
     }
-//
-//
-//    @PostMapping(value = "")
-//    public Mono<String> upload(@RequestBody ProductRequest productRequest) throws IOException {
-//        System.out.println("CSDSS");
-//        return Mono.just("productService.createProduct(product, filePart)");
-//    }
+    @GetMapping("/get-options")
+    public Mono<ApiResponse<?>> getOptionProduct() {
+        return Mono.just(productService.getOptionProduct());
+    }
 
 }

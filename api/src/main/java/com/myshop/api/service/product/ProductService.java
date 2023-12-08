@@ -22,6 +22,8 @@ public interface ProductService {
 
     ApiResponse<?> getBestSelling() ;
 
+    public ApiResponse<?> getOptionProduct();
+
 
 }
 

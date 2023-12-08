@@ -18,6 +18,7 @@ import com.myshop.repositories.user.entities.Account;
 import com.myshop.repositories.user.entities.Customer;
 import com.myshop.repositories.user.entities.Role;
 import com.myshop.repositories.user.entities.Token;
+import com.myshop.repositories.user.entities.User;
 import com.myshop.repositories.user.repos.*;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -51,172 +52,174 @@ import java.util.UUID;
 @Service
 public class UserServiceImpl extends CRUDBaseServiceImpl<Customer, UserResponse, Customer, Long> implements UserService {
 
-    private final long expireIn = Duration.ofHours(1).toSeconds();
-    private final long expireInRefresh = Duration.ofHours(48).toMillis();
+  private final long expireIn = Duration.ofHours(1).toSeconds();
+  private final long expireInRefresh = Duration.ofHours(48).toMillis();
 
-    @Autowired
-    private  CustomerRepository customerRepository;
-    @Autowired
-    private EmployeeRepository employeeRepository;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-    @Autowired
-    private TokenRepository tokenRepository;
-    @Autowired
-    private RoleRepository roleRepository;
-    @Autowired
-    private AccountRepository accountRepository;
-    private final EntityManager entityManager;
+  @Autowired
+  private CustomerRepository customerRepository;
+  @Autowired
+  private EmployeeRepository employeeRepository;
+  @Autowired
+  private PasswordEncoder passwordEncoder;
+  @Autowired
+  private TokenRepository tokenRepository;
+  @Autowired
+  private RoleRepository roleRepository;
+  @Autowired
+  private AccountRepository accountRepository;
+  private final EntityManager entityManager;
 
 
+  @Value("${jwkFile}")
+  private Resource jwkFile;
 
-    @Value("${jwkFile}")
-    private Resource jwkFile;
+  public UserServiceImpl(CustomerRepository customerRepository, EntityManager entityManager) {
+    super(Customer.class, UserResponse.class, Customer.class, customerRepository);
+    this.entityManager = entityManager;
+  }
 
-    public UserServiceImpl(CustomerRepository customerRepository, EntityManager entityManager) {
-        super(Customer.class, UserResponse.class, Customer.class, customerRepository);
-        this.entityManager=entityManager;
+  @Override
+  public LoginResponse login(LoginRequest loginRequest) {
+    Account account = accountRepository.findAccountByEmail(loginRequest.getEmail());
+    if (account == null || account.getEmail() == null) {
+      return LoginResponse.builder().message("Tài khoản hoặc mật khẩu không đúng").status(false).build();
     }
-
-    @Override
-    public LoginResponse login(LoginRequest loginRequest) {
-        Account account = accountRepository.findAccountByEmail(loginRequest.getEmail());
-        if (account == null || account.getEmail() == null) {
-            return LoginResponse.builder().message("Tài khoản hoặc mật khẩu không đúng").status(false).build();
-        }
-        if (account.isDeleted() == true) {
-            return LoginResponse.builder().message("Tài khoản của bạn đã bị khóa").status(false).build();
-        }
-        if (passwordEncoder.matches(loginRequest.getPassword() + Constants.SALT_DEFAULT, account.getPassword())) {
-            return _buildTokenResponse(account);
-        } else {
-            return LoginResponse.builder().message("Tài khoản hoặc mật khẩu không đúng.").status(false).build();
-        }
+    if (account.isDeleted() == true) {
+      return LoginResponse.builder().message("Tài khoản của bạn đã bị khóa").status(false).build();
     }
+    if (passwordEncoder.matches(loginRequest.getPassword() + Constants.SALT_DEFAULT, account.getPassword())) {
+      return _buildTokenResponse(account);
+    } else {
+      return LoginResponse.builder().message("Tài khoản hoặc mật khẩu không đúng.").status(false).build();
+    }
+  }
 
-    private LoginResponse _buildTokenResponse(Account account) {
-        Optional<Customer> customer= customerRepository.findByEmail(account.getEmail());
-        if(!customer.isPresent())
-            return LoginResponse.builder().message("Không có thông tin tài khoản").status(false).build();
-        Optional<Role> role= roleRepository.findById(account.getRoleId());
-        if(!role.isPresent())
-            return LoginResponse.builder().message("Tài khoản không có quyền truy cập tài khoản").status(false).build();
+  private LoginResponse _buildTokenResponse(Account account) {
+    Optional<Role> role = roleRepository.findById(account.getRoleId());
+    if (!role.isPresent())
+      return LoginResponse.builder().message("Tài khoản không có quyền truy cập tài khoản").status(false).build();
+    User userLogin = null;
+    if (role.get().getName().trim().equals("ROLE_ADMIN") )
+      userLogin = employeeRepository.findByEmail(account.getEmail()).orElse(null);
+    else
+      userLogin = customerRepository.findByEmail(account.getEmail()).orElse(null);
+    if (userLogin == null)
+      return LoginResponse.builder().message("Không có thông tin tài khoản").status(false).build();
+    String jti = UUID.randomUUID().toString();
+    JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+            .subject(userLogin.getEmail())
+            .jwtID(jti)
+            .claim("authorities", role.get().getName())
+            .expirationTime(new Date(Instant.now().plusSeconds(expireIn).toEpochMilli()))
+            .build();
+    String accessToken;
+    try {
+      RSAKey rsaJWK = RSAKey.parse(new String(jwkFile.getInputStream().readAllBytes()));
+      JWSSigner signer = new RSASSASigner(rsaJWK);
+      SignedJWT signedJWT = new SignedJWT(
+              new JWSHeader.Builder(JWSAlgorithm.RS256).keyID(rsaJWK.getKeyID()).build(),
+              claimsSet);
+      signedJWT.sign(signer);
+      accessToken = signedJWT.serialize();
+    } catch (Exception e) {
+      throw new ServiceException(CodeStatus.INTERNAL_ERROR);
+    }
+    tokenRepository.save(Token.builder().account(account.getEmail()).tokenId(jti).expiredTime(System.currentTimeMillis() + expireInRefresh).build());
+    return LoginResponse.builder().userInfo(userLogin).accessToken(accessToken).expiresIn(System.currentTimeMillis() + expireInRefresh).refreshToken(jti).status(true).build();
+  }
+
+  @Override
+  @Transactional
+  public UserResponse registerUser(CustomerRequest customerRequest) {
+    boolean isExistsEmail = accountRepository.existsByEmail(customerRequest.getEmail());
+    if (isExistsEmail) {
+      return UserResponse.builder().status(false).message("Email đã tồn tại! Vui lòng thử lại!").build();
+    }
+    if (customerRepository.existsByPhone(customerRequest.getPhone())) {
+      return UserResponse.builder().status(false).message("SĐT đã tồn tại! Vui lòng thử lại!").build();
+    }
+    Account newAccount = Account.builder()
+            .roleId(roleRepository.findByName("ROLE_CUSTOMER").getId())
+            .email(customerRequest.getEmail())
+            .password(passwordEncoder.encode(customerRequest.getPassword() + Constants.SALT_DEFAULT))
+            .build();
+    accountRepository.save(newAccount);
+    Customer customerInfo = Customer.builder().firstName(customerRequest.getFirstName())
+            .lastName(customerRequest.getLastName())
+            .gender(customerRequest.getGender())
+            .phone(Utils.normalPhone(customerRequest.getPhone()))
+            .email(customerRequest.getEmail())
+            .build();
+    customerRepository.save(customerInfo);
+    return UserResponse.builder().status(true).message("Tài khoản đã tạo thành công!").data(customerInfo).build();
+  }
+
+
+  @Override
+  public LoginResponse refreshToken(String refreshToken) {
+    Token token = tokenRepository.findByTokenId(refreshToken);
+    if (token == null) {
+      return LoginResponse.builder().message("Refresh token không tồn tại").status(false).build();
+    } else {
+      if (System.currentTimeMillis() > token.getExpiredTime()) {
+        return LoginResponse.builder().message("Token đã hết hạn lúc " + new DateTime(token.getExpiredTime())).status(false).build();
+      }
+      Account accountInfo = accountRepository.findAccountByEmail(token.getAccount());
+      if (accountInfo.isDeleted()) {
+        return LoginResponse.builder().message("Tài khoản đã bị khóa tạm thời, vui lòng liên hệ admin để hỗ trợ").status(false).build();
+      } else {
+        Optional<Role> role = roleRepository.findById(accountInfo.getRoleId());
+        if (!role.isPresent())
+          return LoginResponse.builder().message("Tài khoản không có quyền truy cập tài khoản").status(false).build();
         String jti = UUID.randomUUID().toString();
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
-                .subject(customer.get().getEmail())
+                .subject(accountInfo.getEmail())
                 .jwtID(jti)
                 .claim("authorities", role.get().getName())
                 .expirationTime(new Date(Instant.now().plusSeconds(expireIn).toEpochMilli()))
                 .build();
         String accessToken;
         try {
-            RSAKey rsaJWK = RSAKey.parse(new String(jwkFile.getInputStream().readAllBytes()));
-            JWSSigner signer = new RSASSASigner(rsaJWK);
-            SignedJWT signedJWT = new SignedJWT(
-                    new JWSHeader.Builder(JWSAlgorithm.RS256).keyID(rsaJWK.getKeyID()).build(),
-                    claimsSet);
-            signedJWT.sign(signer);
-            accessToken = signedJWT.serialize();
+          RSAKey rsaJWK = RSAKey.parse(new String(jwkFile.getInputStream().readAllBytes()));
+          JWSSigner signer = new RSASSASigner(rsaJWK);
+          SignedJWT signedJWT = new SignedJWT(
+                  new JWSHeader.Builder(JWSAlgorithm.RS256).keyID(rsaJWK.getKeyID()).build(),
+                  claimsSet);
+          signedJWT.sign(signer);
+          accessToken = signedJWT.serialize();
         } catch (Exception e) {
-            throw new ServiceException(CodeStatus.INTERNAL_ERROR);
+          throw new ServiceException(CodeStatus.INTERNAL_ERROR);
         }
-        tokenRepository.save(Token.builder().account(account.getEmail()).tokenId(jti).expiredTime(System.currentTimeMillis() + expireInRefresh).build());
-        return LoginResponse.builder().userInfo(customer).accessToken(accessToken).expiresIn(System.currentTimeMillis() +expireInRefresh).refreshToken(jti).status(true).build();
+        return LoginResponse.builder().accessToken(accessToken).status(true).refreshToken(refreshToken).build();
+      }
     }
-
-    @Override
-    @Transactional
-    public UserResponse registerUser(CustomerRequest customerRequest) {
-        boolean isExistsEmail = accountRepository.existsByEmail(customerRequest.getEmail());
-        if (isExistsEmail) {
-            return UserResponse.builder().status(false).message("Email đã tồn tại! Vui lòng thử lại!").build();
-        }
-        if (customerRepository.existsByPhone(customerRequest.getPhone())) {
-            return UserResponse.builder().status(false).message("SĐT đã tồn tại! Vui lòng thử lại!").build();
-        }
-        Account newAccount = Account.builder()
-                .roleId(roleRepository.findByName("ROLE_CUSTOMER").getId())
-                .email(customerRequest.getEmail())
-                .password(passwordEncoder.encode(customerRequest.getPassword() + Constants.SALT_DEFAULT))
-                .build();
-        accountRepository.save(newAccount);
-        Customer customerInfo = Customer.builder().firstName(customerRequest.getFirstName())
-                .lastName(customerRequest.getLastName())
-                .gender(customerRequest.getGender())
-                .phone(Utils.normalPhone(customerRequest.getPhone()))
-                .email(customerRequest.getEmail())
-                .build();
-        customerRepository.save(customerInfo);
-        return UserResponse.builder().status(true).message("Tài khoản đã tạo thành công!").data(customerInfo).build();
-    }
+  }
 
 
-    @Override
-    public LoginResponse refreshToken(String refreshToken) {
-        Token token = tokenRepository.findByTokenId(refreshToken);
-        if (token == null){
-            return LoginResponse.builder().message("Refresh token không tồn tại").status(false).build();
-        }
-        else  {
-            if(System.currentTimeMillis() > token.getExpiredTime()){
-                return LoginResponse.builder().message("Token đã hết hạn lúc "+new DateTime(token.getExpiredTime())).status(false).build();
-            }
-            Account accountInfo = accountRepository.findAccountByEmail(token.getAccount());
-            if (accountInfo.isDeleted()) {
-                return LoginResponse.builder().message("Tài khoản đã bị khóa tạm thời, vui lòng liên hệ admin để hỗ trợ").status(false).build();
-            } else{
-                Optional<Role> role= roleRepository.findById(accountInfo.getRoleId());
-                if(!role.isPresent())
-                    return LoginResponse.builder().message("Tài khoản không có quyền truy cập tài khoản").status(false).build();
-                String jti = UUID.randomUUID().toString();
-                JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
-                        .subject(accountInfo.getEmail())
-                        .jwtID(jti)
-                        .claim("authorities", role.get().getName())
-                        .expirationTime(new Date(Instant.now().plusSeconds(expireIn).toEpochMilli()))
-                        .build();
-                String accessToken;
-                try {
-                    RSAKey rsaJWK = RSAKey.parse(new String(jwkFile.getInputStream().readAllBytes()));
-                    JWSSigner signer = new RSASSASigner(rsaJWK);
-                    SignedJWT signedJWT = new SignedJWT(
-                            new JWSHeader.Builder(JWSAlgorithm.RS256).keyID(rsaJWK.getKeyID()).build(),
-                            claimsSet);
-                    signedJWT.sign(signer);
-                    accessToken = signedJWT.serialize();
-                } catch (Exception e) {
-                    throw new ServiceException(CodeStatus.INTERNAL_ERROR);
-                }
-                return  LoginResponse.builder().accessToken(accessToken).status(true).refreshToken(refreshToken).build();
-            }
-        }
-    }
+  @Transactional
+  @Override
+  public ApiResponse<?> getOptsEmployee() {
+    StoredProcedureQuery query = entityManager.createStoredProcedureQuery("CBO_GetOption", GlobalOption.class);
+    query.registerStoredProcedureParameter("TABLENAME", String.class, ParameterMode.IN);
+    query.registerStoredProcedureParameter("COLUMNID", String.class, ParameterMode.IN);
+    query.registerStoredProcedureParameter("COLUMNNAME", String.class, ParameterMode.IN);
+    query.setParameter("TABLENAME", "EMPLOYEE");
+    query.setParameter("COLUMNID", "EMPLOYEEID");
+    query.setParameter("COLUMNNAME", "FULLNAME");
+
+    query.execute();
+    List<GlobalOption> options = query.getResultList();
+    return ApiResponse.of(options);
+  }
+
+  @Override
+  public UserResponse getUserProfile(String email) {
+    Map<String, Object> dataUser = accountRepository.getProfileByEmail(email);
+    return UserResponse.builder().status(true).data(dataUser).build();
+  }
 
 
-    @Transactional
-    @Override
-    public ApiResponse<?> getOptsEmployee() {
-            StoredProcedureQuery query = entityManager.createStoredProcedureQuery("CBO_GetOption", GlobalOption.class);
-            query.registerStoredProcedureParameter("TABLENAME", String.class, ParameterMode.IN);
-            query.registerStoredProcedureParameter("COLUMNID", String.class, ParameterMode.IN);
-            query.registerStoredProcedureParameter("COLUMNNAME", String.class, ParameterMode.IN);
-            query.setParameter("TABLENAME", "EMPLOYEE");
-            query.setParameter("COLUMNID", "EMPLOYEEID");
-            query.setParameter("COLUMNNAME", "FULLNAME");
-
-            query.execute();
-            List<GlobalOption> options = query.getResultList();
-            return ApiResponse.of(options);
-    }
-
-    @Override
-    public UserResponse getUserProfile(String email) {
-        Map<String,Object> dataUser =accountRepository.getProfileByEmail(email);
-        return UserResponse.builder().status(true).data(dataUser).build();
-    }
-
-
-//
+  //
 //    @Override
 //    public ApiResponse<Object> deleteAccountUser(long userID) {
 //        Account account = accountRepository.findById(userID).orElseThrow();
@@ -225,22 +228,27 @@ public class UserServiceImpl extends CRUDBaseServiceImpl<Customer, UserResponse,
 //        return ApiResponse.builder().status(200).message("Account is blocked").data(Mono.just(account)).build();
 //    }
 //
-    @Override
-    public ApiResponse<Object> updateProfile(String userID, UpdateProfileRequest updateRequest){
-        Optional<Customer> userInfo = customerRepository.findByEmail(userID);
-        if(userInfo.isPresent()){
-            BeanUtilsBean notNull=new NullAwareBeanUtilsBean();
-            try {
-                notNull.copyProperties(userInfo.get(),updateRequest);
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            } catch (InvocationTargetException e) {
-                e.printStackTrace();
-            }
-            customerRepository.save(userInfo.get());
-        }
-        return ApiResponse.builder().status(200).data(userInfo).build();
+  @Override
+  public ApiResponse<Object> updateProfile(String userID, UpdateProfileRequest updateRequest) {
+    Optional<Customer> userInfo = customerRepository.findByEmail(userID);
+    if (userInfo.isPresent()) {
+      BeanUtilsBean notNull = new NullAwareBeanUtilsBean();
+      try {
+        notNull.copyProperties(userInfo.get(), updateRequest);
+      } catch (IllegalAccessException e) {
+        e.printStackTrace();
+      } catch (InvocationTargetException e) {
+        e.printStackTrace();
+      }
+      customerRepository.save(userInfo.get());
     }
+    return ApiResponse.builder().status(200).data(userInfo).build();
+  }
+
+  @Override
+  public Iterable<Customer> getUsers() {
+    return customerRepository.findAll();
+  }
 //
 //
 //    @Override
