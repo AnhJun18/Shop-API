@@ -13,7 +13,7 @@ import javax.persistence.*;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-public class Employee {
+public class Employee implements User{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "EMPLOYEEID")

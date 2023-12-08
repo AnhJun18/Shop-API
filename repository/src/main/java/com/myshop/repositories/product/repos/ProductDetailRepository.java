@@ -8,6 +8,8 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface ProductDetailRepository extends CrudRepository<ProductDetail, Long> , JpaSpecificationExecutor<ProductDetail> {
-    Optional<ProductDetail> findById(Long id);
+public interface ProductDetailRepository extends CrudRepository<ProductDetail, Long>, JpaSpecificationExecutor<ProductDetail> {
+  Optional<ProductDetail> findById(Long id);
+
+  Optional<ProductDetail> findByProductAndColorAndSize(Long productId, Long colorId, Long sizeId);
 }

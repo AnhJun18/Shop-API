@@ -24,10 +24,10 @@ public class ProductDetail {
     private Long product;
 
     @Column(name = "SIZEID")
-    private String size;
+    private Long size;
 
     @Column(name = "COLORID")
-    private String color;
+    private Long color;
 
     @Column(name = "QUANTITY")
     private Long quantity;

@@ -13,23 +13,24 @@ import java.time.Instant;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "promotion")
+@Table(name = "PROMOTION")
 @Entity
-public class Promotion extends Auditing {
+public class Promotion {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "PROMOTIONID")
     private Long id;
 
-    @Column(columnDefinition = "nvarchar(255)")
+    @Column(name = "PROMOTIONNAME")
     private String name;
 
-    private Integer value;
-
-    @Column(columnDefinition = "nvarchar(255)")
+    @Column(name = "DESCRIBE")
     private String description;
 
+    @Column(name = "STARTDATE")
     private Instant startDate;
 
+    @Column(name = "ENDDATE")
     private Instant endDate;
 
 }

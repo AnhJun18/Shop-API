@@ -23,4 +23,7 @@ public class Color {
     @Column(name = "COLORNAME")
     private String colorName;
 
+    @Column(name = "COLORCODE")
+    private String colorCode;
+
 }

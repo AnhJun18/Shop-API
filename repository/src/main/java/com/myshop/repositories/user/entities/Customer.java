@@ -13,7 +13,7 @@ import javax.persistence.*;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-public class Customer {
+public class Customer implements User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "CUSTOMERID")
@@ -30,7 +30,6 @@ public class Customer {
 
     @Column(name = "PHONE")
     private String phone;
-
 
     @Column(name = "GENDER")
     private String gender;
