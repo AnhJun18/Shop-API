@@ -4,18 +4,24 @@ import com.google.api.client.util.DateTime;
 import com.myshop.api.base.CRUDBaseServiceImpl;
 import com.myshop.api.config.NullAwareBeanUtilsBean;
 import com.myshop.api.payload.request.user.CustomerRequest;
+import com.myshop.api.payload.request.user.ForgotPasswordRequest;
 import com.myshop.api.payload.request.user.LoginRequest;
+import com.myshop.api.payload.request.user.ResetPasswordRequest;
 import com.myshop.api.payload.request.user.UpdateProfileRequest;
 import com.myshop.api.payload.response.user.LoginResponse;
+import com.myshop.api.payload.response.user.PasswordResponse;
 import com.myshop.api.payload.response.user.UserResponse;
+import com.myshop.api.service.email.EmailSenderService;
 import com.myshop.common.Constants;
 import com.myshop.common.http.ApiResponse;
 import com.myshop.common.http.CodeStatus;
 import com.myshop.common.http.ServiceException;
+import com.myshop.common.utils.RandomUtils;
 import com.myshop.common.utils.Utils;
 import com.myshop.repositories.common.GlobalOption;
 import com.myshop.repositories.user.entities.Account;
 import com.myshop.repositories.user.entities.Customer;
+import com.myshop.repositories.user.entities.ForgotPassword;
 import com.myshop.repositories.user.entities.Role;
 import com.myshop.repositories.user.entities.Token;
 import com.myshop.repositories.user.entities.User;
@@ -35,6 +41,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import javax.persistence.EntityManager;
 import javax.persistence.ParameterMode;
@@ -67,6 +74,10 @@ public class UserServiceImpl extends CRUDBaseServiceImpl<Customer, UserResponse,
   private RoleRepository roleRepository;
   @Autowired
   private AccountRepository accountRepository;
+  @Autowired
+  private ForgotPasswordRepository forgotPasswordRepository;
+  @Autowired
+  private EmailSenderService emailSenderService;
   private final EntityManager entityManager;
 
 
@@ -251,80 +262,80 @@ public class UserServiceImpl extends CRUDBaseServiceImpl<Customer, UserResponse,
   }
 //
 //
-//    @Override
-//    public PasswordResponse forgotPassword(ForgotPasswordRequest forgotPasswordRequest) {
-//        boolean result = false;
-//        String message = "";
-//        int errorCode = 0;
-//        Account account = accountRepository.findAccountByEmail(forgotPasswordRequest.getEmail());
-//        if (account != null && account.getId() > 0) {
-//            result = true;
-//            String verifyCode= RandomUtils.getAlphaNumericString(20);
-//            ForgotPassword forgotPassword = forgotPasswordRepository.findForgotPasswordByAccount(account);
-//            if (forgotPassword == null || forgotPassword.getId() == null) {
-//                forgotPasswordRepository.save(
-//                        ForgotPassword.builder().
-//                                account(account).
-//                                verifyCode(verifyCode).
-//                                useCode(true).
-//                                expiryDate(System.currentTimeMillis()+Duration.ofHours(8).toMillis()).
-//                                build());
-//            }else{
-//                forgotPassword.setVerifyCode(verifyCode);
-//                forgotPassword.setUseCode(true);
-//                forgotPassword.setExpiryDate(System.currentTimeMillis()+Duration.ofHours(8).toMillis());
-//                forgotPasswordRepository.save(forgotPassword);
-//            }
-//            emailSenderService.sendEmail(account,verifyCode);
-//            message = "Kiểm tra email để lấy lại mật khẩu!";
-//        } else {
-//            errorCode = 21;
-//            message = "Email không tồn tại trong hệ thống! Vui lòng thử lại";
-//        }
-//        return PasswordResponse.builder().status(result).message(message).errorCode(errorCode).build();
-//    }
-//
-//    @Override
-//    public PasswordResponse verifyCode(String codeRequest) {
-//        ForgotPassword forgotPassword = forgotPasswordRepository.findByVerifyCode(codeRequest);
-//        if (forgotPassword == null || forgotPassword.getId() == null) {
-//           return PasswordResponse.builder().message("Verify code does not exist").status(false).build();
-//        }
-//        else if(!forgotPassword.isUseCode() || forgotPassword.getExpiryDate()<System.currentTimeMillis()){
-//            return PasswordResponse.builder().message("Verify code has been used or has expired").status(false).build();
-//        }
-//        return PasswordResponse.builder().message("Valid verify code").status(true).build();
-//    }
-//
-//    @Override
-//    public PasswordResponse resetPassword(ResetPasswordRequest resetPasswordRequest) {
-//        boolean result = false;
-//        String message = "";
-//        int errorCode = 0;
-//        ForgotPassword forgotPassword = forgotPasswordRepository.findByVerifyCode(resetPasswordRequest.getVerifyCode());
-//        if (forgotPassword != null && forgotPassword.getId() >= 0) {
-//            if (!forgotPassword.isUseCode()) {
-//                return PasswordResponse.builder().status(false).message("Please resubmit a new request, the link has been activated successfully!").build();
-//            }
-//            Account account = forgotPassword.getAccount();
-//            if (account != null && account.getId() > 0) {
-//                account.setPassword(passwordEncoder.encode(resetPasswordRequest.getPassword()+ Constants.SALT_DEFAULT));
-//                accountRepository.save(account);
-//                forgotPassword.setUseCode(false);
-//                forgotPasswordRepository.save(forgotPassword);
-//                result = true;
-//                message = "You can now use your password to login to Shop!";
-//            } else {
-//                message = "Not find an account with your email, please check again!";
-//                errorCode = 31;
-//            }
-//        } else {
-//            message = "Reset code not valid, please check the reset password link";
-//            errorCode = 32;
-//        }
-//        return PasswordResponse.builder().status(result).message(message).errorCode(errorCode).build();
-//    }
-//
+    @Override
+    public PasswordResponse forgotPassword(ForgotPasswordRequest forgotPasswordRequest) {
+        boolean result = false;
+        String message = "";
+        int errorCode = 0;
+        Account account = accountRepository.findAccountByEmail(forgotPasswordRequest.getEmail());
+        if (account != null && !StringUtils.isEmpty(account.getEmail())) {
+            result = true;
+            String verifyCode= RandomUtils.getAlphaNumericString(20);
+            ForgotPassword forgotPassword = forgotPasswordRepository.findForgotPasswordByEmail(account.getEmail());
+            if (forgotPassword == null || forgotPassword.getId() == null) {
+                forgotPasswordRepository.save(
+                        ForgotPassword.builder().
+                                email(account.getEmail()).
+                                verifyCode(verifyCode).
+                                usedCode(false).
+                                expiryDate(System.currentTimeMillis()+Duration.ofHours(8).toMillis()).
+                                build());
+            }else{
+                forgotPassword.setVerifyCode(verifyCode);
+                forgotPassword.setUsedCode(false);
+                forgotPassword.setExpiryDate(System.currentTimeMillis()+Duration.ofHours(8).toMillis());
+                forgotPasswordRepository.save(forgotPassword);
+            }
+            emailSenderService.sendEmail(account,verifyCode);
+            message = "Kiểm tra email để lấy lại mật khẩu!";
+        } else {
+            errorCode = 21;
+            message = "Email không tồn tại trong hệ thống! Vui lòng thử lại";
+        }
+        return PasswordResponse.builder().status(result).message(message).errorCode(errorCode).build();
+    }
+
+    @Override
+    public PasswordResponse verifyCode(String codeRequest) {
+        ForgotPassword forgotPassword = forgotPasswordRepository.findByVerifyCode(codeRequest);
+        if (forgotPassword == null || forgotPassword.getId() == null) {
+           return PasswordResponse.builder().message("Mã xác thực  không hợp lệ").status(false).build();
+        }
+        else if(forgotPassword.isUsedCode() || forgotPassword.getExpiryDate()<System.currentTimeMillis()){
+            return PasswordResponse.builder().message("Mã xác thực đã hết hạn hoặc được sử dụng").status(false).build();
+        }
+        return PasswordResponse.builder().message("Mã hợp lệ").status(true).build();
+    }
+
+    @Override
+    public PasswordResponse resetPassword(ResetPasswordRequest resetPasswordRequest) {
+        boolean result = false;
+        String message = "";
+        int errorCode = 0;
+        ForgotPassword forgotPassword = forgotPasswordRepository.findByVerifyCode(resetPasswordRequest.getVerifyCode());
+        if (forgotPassword != null && forgotPassword.getId() >= 0) {
+            if (forgotPassword.isUsedCode()) {
+                return PasswordResponse.builder().status(false).message("Token này đã được sử dụng!").build();
+            }
+            Account account = accountRepository.findAccountByEmail(forgotPassword.getEmail());
+            if (account != null ) {
+                account.setPassword(passwordEncoder.encode(resetPasswordRequest.getPassword()+ Constants.SALT_DEFAULT));
+                accountRepository.save(account);
+                forgotPassword.setUsedCode(true);
+                forgotPasswordRepository.save(forgotPassword);
+                result = true;
+                message = "Mật khẩu đã được thay đổi! Vui lòng đăng nhập lại";
+            } else {
+                message = "Không tìm thấy email cần đổi mật khẩu, vui lòng thử laị!";
+                errorCode = 31;
+            }
+        } else {
+            message = "Mã yêu cầu không hợp lệ";
+            errorCode = 32;
+        }
+        return PasswordResponse.builder().status(result).message(message).errorCode(errorCode).build();
+    }
+
 //
 //    @Override
 //    public Iterable<UserInfo> getAllUser() {

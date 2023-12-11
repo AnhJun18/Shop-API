@@ -45,4 +45,6 @@ public interface OrderRepository extends CrudRepository<Order, Long>, JpaSpecifi
 
     Optional<Order> findOrderByCustomerIdAndOrderId(Long customerId, Long orderId);
 
+    Optional<Order> findOrderByOrderId(Long orderId);
+
 }

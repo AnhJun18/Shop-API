@@ -4,6 +4,8 @@ import com.myshop.api.base.CRUDBaseServiceImpl;
 import com.myshop.api.base.ProcedureNames;
 import com.myshop.api.payload.request.order.OrderDetailRequest;
 import com.myshop.api.payload.request.order.OrderRequest;
+import com.myshop.api.payload.request.order.OrderReturnDetailRequest;
+import com.myshop.api.payload.request.order.OrderReturnRequest;
 import com.myshop.api.payload.response.order.OrderResponse;
 import com.myshop.common.EnumCommon;
 import com.myshop.common.http.ApiResponse;
@@ -13,9 +15,11 @@ import com.myshop.common.utils.JsonUtils;
 import com.myshop.repositories.common.GlobalOption;
 import com.myshop.repositories.order.entities.Order;
 import com.myshop.repositories.order.entities.OrderDetail;
+import com.myshop.repositories.order.entities.ReturnForm;
 import com.myshop.repositories.order.entities.Status;
 import com.myshop.repositories.order.repos.OrderDetailRepository;
 import com.myshop.repositories.order.repos.OrderRepository;
+import com.myshop.repositories.order.repos.ReturnOrderRepository;
 import com.myshop.repositories.order.repos.StatusRepository;
 import com.myshop.repositories.product.entities.ProductDetail;
 import com.myshop.repositories.product.repos.ProductDetailRepository;
@@ -28,6 +32,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.webjars.NotFoundException;
 
 import javax.persistence.EntityManager;
@@ -56,6 +62,9 @@ public class OrderServiceImpl extends CRUDBaseServiceImpl<Order, OrderRequest, O
 
     @Autowired
     private StatusRepository statusRepository;
+
+    @Autowired
+    private ReturnOrderRepository returnOrderRepository;
 
 
     public OrderServiceImpl(OrderRepository orderRepository, EntityManager entityManager) {
@@ -257,6 +266,7 @@ public class OrderServiceImpl extends CRUDBaseServiceImpl<Order, OrderRequest, O
         resMap.put("employeeDeliver",order[9]);
         resMap.put("billCode",order[10]);
         resMap.put("orderDate",order[11]);
+        resMap.put("returnFormId",order[12]);
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery("SP_ORDER_GetDetailOrder")
                 .registerStoredProcedureParameter("ORDERID", Long.class, ParameterMode.IN);
         query.setParameter("ORDERID", orderId);
@@ -332,6 +342,29 @@ public class OrderServiceImpl extends CRUDBaseServiceImpl<Order, OrderRequest, O
             return  ApiResponse.builder().status(505).data(e.getMessage()).build();
         }
 
+    }
+
+    @Transactional
+    @Override
+    public ApiResponse<?> returnOrder(String userOrder, OrderReturnRequest orderReturnRequest) throws Exception {
+        Employee employee = employeeRepository.findByEmail(userOrder).get();
+        Optional<Order> orderOptional = orderRepository.findOrderByOrderId(orderReturnRequest.getOrderReturn());
+        if (!orderOptional.isPresent())
+            throw new NotFoundException("Không tìm thấy đơn hàng");
+        if (!StringUtils.isEmpty(orderOptional.get().getReturnForm()))
+            throw new Exception("Đơn hàng này đã được nhập trả trươc đo");
+        if(CollectionUtils.isEmpty(orderReturnRequest.getReturnItems()))
+            throw new Exception("Vui lòng chọn sản phẩm cần nhập trả");
+        ReturnForm returnForm = ReturnForm.builder().employee(employee).orderId(orderOptional.get()).build();
+        returnOrderRepository.save(returnForm);
+        for (OrderReturnDetailRequest orderReturnDetail: orderReturnRequest.getReturnItems()) {
+            OrderDetail orderDetail = orderDetailRepository.findOrderDetailByOrder_OrderIdAndProductDetail_Id(orderReturnRequest.getOrderReturn(),orderReturnDetail.getProductDetailId());
+            orderDetail.setReturnFormId(returnForm.getReturnFormId());
+            orderDetail.setQuantityReturn(orderReturnDetail.getQuantityReturn());
+            orderDetailRepository.save(orderDetail);
+        }
+        orderRepository.save(orderOptional.get());
+        return ApiResponse.builder().status(200).data(orderOptional.get()).build();
     }
 
 }

@@ -32,6 +32,12 @@ public class OrderDetail {
     @Column(name = "QUANTITYORDER")
     private Long quantityOrder;
 
+    @Column(name = "QUANTITYRETURN")
+    private Long quantityReturn;
+
+    @Column(name = "RETURNFORMID")
+    private Long returnFormId;
+
     @Column(name = "SALEPRICE")
     private Long priceSale;
 

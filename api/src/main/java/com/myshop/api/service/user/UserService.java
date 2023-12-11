@@ -2,9 +2,12 @@ package com.myshop.api.service.user;
 
 
 import com.myshop.api.payload.request.user.CustomerRequest;
+import com.myshop.api.payload.request.user.ForgotPasswordRequest;
 import com.myshop.api.payload.request.user.LoginRequest;
+import com.myshop.api.payload.request.user.ResetPasswordRequest;
 import com.myshop.api.payload.request.user.UpdateProfileRequest;
 import com.myshop.api.payload.response.user.LoginResponse;
+import com.myshop.api.payload.response.user.PasswordResponse;
 import com.myshop.api.payload.response.user.UserResponse;
 import com.myshop.common.http.ApiResponse;
 import com.myshop.repositories.user.entities.Customer;
@@ -27,11 +30,11 @@ public interface UserService {
 //
     ApiResponse<Object>  updateProfile(String userID, UpdateProfileRequest profileRequest) ;
 //
-//    PasswordResponse forgotPassword(ForgotPasswordRequest forgotPasswordRequest);
+    PasswordResponse forgotPassword(ForgotPasswordRequest forgotPasswordRequest);
 //
-//    PasswordResponse verifyCode(String codeRequest);
-//
-//    PasswordResponse resetPassword(ResetPasswordRequest resetPasswordRequest);
+    PasswordResponse verifyCode(String codeRequest);
+
+    PasswordResponse resetPassword(ResetPasswordRequest resetPasswordRequest);
 //
 //    Iterable<UserInfo> getAllUser();
 

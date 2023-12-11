@@ -11,4 +11,6 @@ import java.util.List;
 public interface OrderDetailRepository extends CrudRepository<OrderDetail, Long> , JpaSpecificationExecutor<OrderDetail> {
 
     List<OrderDetail> findAllByOrder_OrderId(Long orderId);
+
+    OrderDetail findOrderDetailByOrder_OrderIdAndProductDetail_Id(Long orderId,Long productDetailId);
 }

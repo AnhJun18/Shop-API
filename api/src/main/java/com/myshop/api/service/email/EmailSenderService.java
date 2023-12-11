@@ -46,7 +46,7 @@ public class EmailSenderService {
             Mustache mustache = mf.compile(reader, "forgot-password");
             StringWriter htmlContent = new StringWriter();
 
-            String link = "http://localhost:3000/change-pass/verify-code="+verifyCode;
+            String link = "http://localhost:3000/reset-pass/"+verifyCode;
             mustache.execute(htmlContent, Map.of("link", link,"name",account.getEmail())).flush();
 
             helper.setText(htmlContent.toString(), true);

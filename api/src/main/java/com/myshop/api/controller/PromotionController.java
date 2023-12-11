@@ -38,6 +38,14 @@ public class PromotionController {
   }
   @PostMapping("")
   public ApiResponse<?>  createPromotion(@RequestBody PromotionRequest promotionRequest){
-    return promotionService.createPromotion(promotionRequest);
+    try {
+      return promotionService.createPromotion(promotionRequest);
+    } catch (Exception ex) {
+      String msg = "";
+      if (ex.getCause() != null && ex.getCause().getCause() != null && ex.getCause().getMessage() != null)
+        msg = ex.getCause().getCause().getMessage();
+      else msg = ex.getMessage();
+      return ApiResponse.builder().status(505).message(msg).build();
+    }
   }
 }

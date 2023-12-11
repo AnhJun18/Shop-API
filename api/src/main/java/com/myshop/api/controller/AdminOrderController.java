@@ -1,5 +1,6 @@
 package com.myshop.api.controller;
 
+import com.myshop.api.payload.request.order.OrderReturnRequest;
 import com.myshop.api.service.order.OrderService;
 import com.myshop.common.http.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -54,5 +55,13 @@ public class AdminOrderController {
     @PostMapping("/{orderId}/done")
     public Mono<ApiResponse<?>> confirmDeliveryOrder(@PathVariable Long orderId) {
         return Mono.just(orderService.confirmDeliveryOrder(orderId));
+    }
+    @PostMapping("/return")
+    public ApiResponse<?> order(@RequestBody OrderReturnRequest orderRequest)  {
+        try {
+            return orderService.returnOrder(auditorProvider.getCurrentAuditor().get().toString(),orderRequest);
+        } catch (Exception e) {
+            return ApiResponse.builder().message(e.getMessage()).status(500).build();
+        }
     }
 }

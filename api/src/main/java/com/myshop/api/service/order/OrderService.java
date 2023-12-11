@@ -1,6 +1,7 @@
 package com.myshop.api.service.order;
 
 import com.myshop.api.payload.request.order.OrderRequest;
+import com.myshop.api.payload.request.order.OrderReturnRequest;
 import com.myshop.api.payload.response.order.OrderResponse;
 import com.myshop.common.http.ApiResponse;
 
@@ -25,6 +26,7 @@ public interface OrderService {
 
     ApiResponse<?> cancelOrderById(String user,Long orderId);
 
+    ApiResponse<?> returnOrder(String userOrder, OrderReturnRequest orderRequest) throws Exception;
 
 
 }

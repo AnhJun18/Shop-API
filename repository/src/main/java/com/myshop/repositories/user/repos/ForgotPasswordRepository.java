@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ForgotPasswordRepository extends CrudRepository<ForgotPassword, Long> {
     ForgotPassword findByVerifyCode(String verifyCode);
-    ForgotPassword findForgotPasswordByAccount(Account account);
+    ForgotPassword findForgotPasswordByEmail(String email);
 }

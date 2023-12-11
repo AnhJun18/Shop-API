@@ -49,4 +49,8 @@ public class Order {
     @OneToOne(mappedBy = "orderId",fetch = FetchType.EAGER)
     @JsonManagedReference
     private Bill bill;
+
+    @OneToOne(mappedBy = "orderId",fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private ReturnForm returnForm;
 }

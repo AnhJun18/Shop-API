@@ -9,16 +9,21 @@ import javax.persistence.*;
 
 @Builder
 @Data
+@Table(name = "FORGOT_PASSWORD")
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
 public class ForgotPassword {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID")
     private Long id;
-    @OneToOne
-    private Account account;
+    @Column(name = "EMAIL")
+    private String email;
+    @Column(name = "VERIFYCODE")
     private String verifyCode;
-    private boolean useCode;
+    @Column(name = "USEDCODE")
+    private boolean usedCode;
+    @Column(name = "EXPIRYDATE")
     private Long expiryDate;
 }

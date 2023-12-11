@@ -31,7 +31,7 @@ public class PromotionService {
             .description(promotionRequest.getDescription()).build();
     promotionRepository.save(promotion);
     for (ValuePromotionInPr valuePrApply : promotionRequest.getListApply()) {
-      promotionRepository.createPromo(valuePrApply.getProductId(), promotion.getId(), valuePrApply.getValue());
+      promotionRepository.createPromo(valuePrApply.getProductId(), promotion.getId(), valuePrApply.getPercentApply());
     }
     return ApiResponse.of(PromotionResponse.builder().status(true).promotion(promotion).build());
   }

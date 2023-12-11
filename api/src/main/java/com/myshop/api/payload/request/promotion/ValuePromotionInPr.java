@@ -14,5 +14,6 @@ public class ValuePromotionInPr {
   private Long productId;
   @Min(1)
   @Max(100)
-  private Integer value;
+  private Integer percentApply;
+
 }
