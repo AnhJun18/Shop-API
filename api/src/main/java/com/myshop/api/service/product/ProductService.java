@@ -9,6 +9,8 @@ import java.util.List;
 public interface ProductService {
 
     ApiResponse<?> createProduct(ProductRequest productRequest) ;
+    ApiResponse<?> updateProduct(Long id,ProductRequest productRequest) ;
+    ApiResponse<?> lockProduct(Long id) ;
 
     ApiResponse<?> getListProduct(String search, Integer page, Integer itemsPerPage, Long fromPrice, Long toPrice, List<String> types) ;
 

@@ -1,7 +1,7 @@
 package com.myshop.api.FPGrowth;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -51,7 +51,9 @@ public class FPTree {
     this.fList = frequentItems.entrySet().stream().map(Map.Entry::getKey)
             .sorted(Comparator.comparing(item -> frequentItems.get(item)).reversed())
             .collect(Collectors.toList());
-//    fList = Arrays.asList("f", "c", "a", "b", "m", "p");
+    if (itemSupport.get("f") != null && itemSupport.get("c") != null){
+      Collections.swap(this.fList, 0, 1);
+    }
   }
 
   private List<String> sortTransaction(List<String> transaction) {

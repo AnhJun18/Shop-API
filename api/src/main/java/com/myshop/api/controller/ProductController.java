@@ -41,6 +41,15 @@ public class ProductController {
     public Mono<ApiResponse<?>> upload(@RequestBody ProductRequest productRequest) {
         return Mono.just(productService.createProduct(productRequest));
     }
+    @PostMapping(value = "/update/{productID}")
+    public Mono<ApiResponse<?>> upload(@PathVariable(name = "productID") Long id,@RequestBody ProductRequest productRequest) {
+        return Mono.just(productService.updateProduct(id,productRequest));
+    }
+
+    @DeleteMapping(value = "/{productID}")
+    public Mono<ApiResponse<?>> lockProduct(@PathVariable(name = "productID") Long id) {
+        return Mono.just(productService.lockProduct(id));
+    }
 
     @GetMapping("/{productID}")
     public Mono<ApiResponse<?>> getById(@PathVariable(name = "productID") Long id) {

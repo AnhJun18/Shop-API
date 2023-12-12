@@ -81,6 +81,54 @@ public class ProductServiceImpl extends CRUDBaseServiceImpl<Product, ProductRequ
         }
     }
 
+    @Transactional
+    @Override
+    public ApiResponse<?> updateProduct(Long id, ProductRequest productRequest) {
+        String imagePr;
+        try {
+            Optional<Product> productSt = productRepository.findById(id);
+            if(productSt.isPresent()){
+                imagePr = productRequest.getPictures().startsWith("http") ? productRequest.getPictures() : imageService.saveBase64String(productRequest.getPictures());
+                productSt.get().setDescription(productRequest.getDescription());
+                productSt.get().setName(productRequest.getName());
+                productSt.get().setLinkImg(imagePr);
+                productRepository.save(productSt.get());
+                for (String categoryCode : productRequest.getCategories()) {
+                    Category category = categoryRepository.findByCategoryCode(categoryCode);
+                    if (category == null)
+                        throw new Exception("Danh mục không tồn tại");
+                    else {
+                        productCategoryRepository.save(ProductCategory.builder()
+                                .category(category)
+                                .product(productSt.get())
+                                .build());
+                    }
+
+                }
+                return ApiResponse.builder().message("Tạo sản phẩm thành công!").status(200).data(null).build();
+
+            }else {
+                return ApiResponse.builder().message("Không tìm thấy sản phẩm!").status(504).data(null).build();
+            }
+        } catch (Exception e) {
+            return ApiResponse.builder().status(500).data(null).message("Lỗi upload file").build();
+        }
+    }
+
+    @Transactional
+    @Override
+    public ApiResponse<?> lockProduct(Long id) {
+        Optional<Product> productSt = productRepository.findById(id);
+        if(productSt.isPresent()){
+            productSt.get().setDeleted(true);
+            productRepository.save(productSt.get());
+            return ApiResponse.builder().message("Khóa sản phẩm thành công!").status(200).data(null).build();
+
+        }else {
+            return ApiResponse.builder().message("Không tìm thấy sản phẩm!").status(504).data(null).build();
+        }
+    }
+
     @Override
     public ApiResponse<?> getListProduct(String search, Integer page, Integer itemsPerPage, Long fromPrice, Long toPrice, List<String> types) {
 
