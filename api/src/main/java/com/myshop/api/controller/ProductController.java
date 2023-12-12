@@ -1,12 +1,14 @@
 package com.myshop.api.controller;
 
 
+import com.myshop.api.payload.request.product.ProductPriceRequest;
 import com.myshop.api.payload.request.product.ProductRequest;
 import com.myshop.api.service.product.ProductService;
 import com.myshop.common.http.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
@@ -22,7 +24,8 @@ import java.util.List;
 @SecurityRequirement(name = "bearerAuth")
 @RequestMapping("/api/product")
 public class ProductController {
-
+    @Autowired
+    AuditorAware auditorProvider;
 
     @Autowired
     ProductService productService;
@@ -59,6 +62,11 @@ public class ProductController {
     @GetMapping("/detail/{productID}")
     public Mono<ApiResponse<?>> getDetailInventory(@PathVariable(name = "productID") Long id) {
         return Mono.just(productService.getDetailInventory(id));
+    }
+
+    @PostMapping("/update/price")
+    public Mono<ApiResponse<?>> updatePrice(@RequestBody ProductPriceRequest productPriceRequest) {
+        return Mono.just(productService.updatePrice(auditorProvider.getCurrentAuditor().get().toString(),productPriceRequest));
     }
 
     @GetMapping("/top-viewed")

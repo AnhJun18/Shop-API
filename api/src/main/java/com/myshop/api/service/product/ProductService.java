@@ -1,6 +1,7 @@
 package com.myshop.api.service.product;
 
 
+import com.myshop.api.payload.request.product.ProductPriceRequest;
 import com.myshop.api.payload.request.product.ProductRequest;
 import com.myshop.common.http.ApiResponse;
 
@@ -17,6 +18,8 @@ public interface ProductService {
     ApiResponse<?> getById(Long id) ;
 
     ApiResponse<?> getDetailInventory(Long id) ;
+
+    ApiResponse<?> updatePrice(String emailEmployee,ProductPriceRequest productPriceRequest);
 
     ApiResponse<?> getTopViewed() ;
 
