@@ -83,9 +83,10 @@ public class JWTSecurityConfig {
                 .pathMatchers(HttpMethod.OPTIONS).permitAll()
                 .pathMatchers("/api/auth/**","/api/**/**","/api/payment/**","/api/fpgrowth/**", "/api/address+" +
                         "/**" ,"/api/common/**", "/swagger-ui.html", "/webjars/**", "/api-docs/**", "/uploads/**", "/api/upload/**").permitAll()
-//                .pathMatchers(HttpMethod.GET,"/api/category/**","/api/product/**").permitAll()
-//                .pathMatchers("/api/admin/**","/api/report/**","/api/category/**","/api/product/**","/api/warehouse/**","/api/user/all").hasAuthority("ROLE_ADMIN")
-//                .pathMatchers("/api/cart/**","/api/order/**").hasAuthority("ROLE_USER")
+//                .pathMatchers(HttpMethod.GET,"/api/category/**","/api/product/**","/api/payment/**").permitAll()
+//                .pathMatchers("/api/admin-order/**","/api/report/**","/api/category/**","/api/product/**","/api/import/**","/api/supplier/**","/api/fp-growth/**","/api/user/**").hasAuthority("ROLE_ADMIN")
+//                .pathMatchers("/api/admin-order/**","/api/category/**","/api/product/**","/api/import/**","/api/supplier/**","/api/fp-growth/**").hasAuthority("ROLE_EMPLOYEE")
+                .pathMatchers("/api/cart/**","/api/order/**","/api/user/**").hasAuthority("ROLE_USER")
                 .anyExchange().authenticated()
                 .and().build();
     }

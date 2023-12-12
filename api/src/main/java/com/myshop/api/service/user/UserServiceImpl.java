@@ -110,7 +110,7 @@ public class UserServiceImpl extends CRUDBaseServiceImpl<Customer, UserResponse,
     if (!role.isPresent())
       return LoginResponse.builder().message("Tài khoản không có quyền truy cập tài khoản").status(false).build();
     User userLogin = null;
-    if (role.get().getName().trim().equals("ROLE_ADMIN") )
+    if (role.get().getName().trim().equals("ROLE_ADMIN") || role.get().getName().trim().equals("ROLE_EMPLOYEE")  )
       userLogin = employeeRepository.findByEmail(account.getEmail()).orElse(null);
     else
       userLogin = customerRepository.findByEmail(account.getEmail()).orElse(null);
