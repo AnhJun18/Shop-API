@@ -33,4 +33,7 @@ public class Promotion {
     @Column(name = "ENDDATE")
     private Instant endDate;
 
+    @Column(name = "ISSTOPED")
+    private Boolean isStoped;
+
 }

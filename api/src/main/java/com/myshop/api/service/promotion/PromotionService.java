@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Transactional
 @Service
@@ -20,14 +21,16 @@ public class PromotionService {
   PromotionRepository promotionRepository;
 
   public List<Promotion> getListPromotion() {
-    return promotionRepository.findAll();
+    return promotionRepository.findAllByIsStoped(false);
   }
 
+  @Transactional
   public ApiResponse<PromotionResponse> createPromotion(PromotionRequest promotionRequest) {
     Promotion promotion = Promotion.builder().description(promotionRequest.getDescription())
             .startDate(promotionRequest.getStartDate())
             .endDate(promotionRequest.getEndDate())
             .name(promotionRequest.getPromotionName())
+            .isStoped(false)
             .description(promotionRequest.getDescription()).build();
     promotionRepository.save(promotion);
     for (ValuePromotionInPr valuePrApply : promotionRequest.getListApply()) {
@@ -36,4 +39,14 @@ public class PromotionService {
     return ApiResponse.of(PromotionResponse.builder().status(true).promotion(promotion).build());
   }
 
+  @Transactional
+  public ApiResponse<?> stopPromotion(Long promotionId) {
+    Optional<Promotion> promotion = promotionRepository.findPromotionById(promotionId);
+    if(promotion.isPresent()){
+      promotion.get().setIsStoped(true);
+      promotionRepository.save(promotion.get());
+      return ApiResponse.of(PromotionResponse.builder().status(true).message("Khuyến mãi đã được khóa").build());
+    }else
+      return ApiResponse.of(PromotionResponse.builder().status(false).message("Không tìm thấy thông tin khuyến mãi").build());
+  }
 }

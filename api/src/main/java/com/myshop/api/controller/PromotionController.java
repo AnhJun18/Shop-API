@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -40,6 +41,18 @@ public class PromotionController {
   public ApiResponse<?>  createPromotion(@RequestBody PromotionRequest promotionRequest){
     try {
       return promotionService.createPromotion(promotionRequest);
+    } catch (Exception ex) {
+      String msg = "";
+      if (ex.getCause() != null && ex.getCause().getCause() != null && ex.getCause().getMessage() != null)
+        msg = ex.getCause().getCause().getMessage();
+      else msg = ex.getMessage();
+      return ApiResponse.builder().status(505).message(msg).build();
+    }
+  }
+  @PostMapping("stop/{promotionId}")
+  public ApiResponse<?>  stopPromotion(@PathVariable Long promotionId){
+    try {
+      return promotionService.stopPromotion(promotionId);
     } catch (Exception ex) {
       String msg = "";
       if (ex.getCause() != null && ex.getCause().getCause() != null && ex.getCause().getMessage() != null)

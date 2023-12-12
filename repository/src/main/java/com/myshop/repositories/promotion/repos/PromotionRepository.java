@@ -9,10 +9,14 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface PromotionRepository extends JpaRepository<Promotion, Long> {
 
+    List<Promotion> findAllByIsStoped(Boolean isStopped);
+
+    Optional<Promotion> findPromotionById(Long promotionID);
 
     @Modifying
     @Transactional
