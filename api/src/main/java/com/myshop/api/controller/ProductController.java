@@ -24,68 +24,78 @@ import java.util.List;
 @SecurityRequirement(name = "bearerAuth")
 @RequestMapping("/api/product")
 public class ProductController {
-    @Autowired
-    AuditorAware auditorProvider;
+  @Autowired
+  AuditorAware auditorProvider;
 
-    @Autowired
-    ProductService productService;
+  @Autowired
+  ProductService productService;
 
-    @GetMapping("")
-    public Mono<ApiResponse<?>> getListCategory(@RequestParam(required = false, defaultValue = "") String search,
-                                                @RequestParam(required = false, defaultValue = "1") Integer page,
-                                                @RequestParam(required = false, defaultValue = "10") Integer itemsPerPage,
-                                                @RequestParam(required = false) Long fromPrice,
-                                                @RequestParam(required = false) Long toPrice,
-                                                @RequestParam(required = false,name = "type[]") List<String> types ) {
-        return Mono.just(productService.getListProduct(search, page, itemsPerPage, fromPrice, toPrice,types));
-    }
+  @GetMapping("")
+  public Mono<ApiResponse<?>> getListCategory(@RequestParam(required = false, defaultValue = "") String search,
+                                              @RequestParam(required = false, defaultValue = "1") Integer page,
+                                              @RequestParam(required = false, defaultValue = "10") Integer itemsPerPage,
+                                              @RequestParam(required = false) Long fromPrice,
+                                              @RequestParam(required = false) Long toPrice,
+                                              @RequestParam(required = false, name = "type[]") List<String> types) {
+    return Mono.just(productService.getListProduct(search, page, itemsPerPage, fromPrice, toPrice, types));
+  }
 
-    @PostMapping(value = "")
-    public Mono<ApiResponse<?>> upload(@RequestBody ProductRequest productRequest) {
-        return Mono.just(productService.createProduct(productRequest));
-    }
-    @PostMapping(value = "/update/{productID}")
-    public Mono<ApiResponse<?>> upload(@PathVariable(name = "productID") Long id,@RequestBody ProductRequest productRequest) {
-        return Mono.just(productService.updateProduct(id,productRequest));
-    }
+  @PostMapping(value = "")
+  public Mono<ApiResponse<?>> upload(@RequestBody ProductRequest productRequest) {
+    return Mono.just(productService.createProduct(productRequest));
+  }
 
-    @DeleteMapping(value = "/{productID}")
-    public Mono<ApiResponse<?>> lockProduct(@PathVariable(name = "productID") Long id) {
-        return Mono.just(productService.lockProduct(id));
-    }
+  @PostMapping(value = "/update/{productID}")
+  public Mono<ApiResponse<?>> upload(@PathVariable(name = "productID") Long id, @RequestBody ProductRequest productRequest) {
+    return Mono.just(productService.updateProduct(id, productRequest));
+  }
 
-    @GetMapping("/{productID}")
-    public Mono<ApiResponse<?>> getById(@PathVariable(name = "productID") Long id) {
-        return Mono.just(productService.getById(id));
-    }
+  @DeleteMapping(value = "/{productID}")
+  public Mono<ApiResponse<?>> lockProduct(@PathVariable(name = "productID") Long id) {
+    return Mono.just(productService.lockProduct(id));
+  }
 
-    @GetMapping("/detail/{productID}")
-    public Mono<ApiResponse<?>> getDetailInventory(@PathVariable(name = "productID") Long id) {
-        return Mono.just(productService.getDetailInventory(id));
-    }
+  @GetMapping("/{productID}")
+  public Mono<ApiResponse<?>> getById(@PathVariable(name = "productID") Long id) {
+    return Mono.just(productService.getById(id));
+  }
 
-    @PostMapping("/update/price")
-    public Mono<ApiResponse<?>> updatePrice(@RequestBody ProductPriceRequest productPriceRequest) {
-        return Mono.just(productService.updatePrice(auditorProvider.getCurrentAuditor().get().toString(),productPriceRequest));
-    }
+  @GetMapping("/detail/{productID}")
+  public Mono<ApiResponse<?>> getDetailInventory(@PathVariable(name = "productID") Long id) {
+    return Mono.just(productService.getDetailInventory(id));
+  }
 
-    @GetMapping("/top-viewed")
-    public Mono<ApiResponse<?>> getTopViewed() {
-        return Mono.just(productService.getTopViewed());
-    }
+  @PostMapping("/update/price")
+  public Mono<ApiResponse<?>> updatePrice(@RequestBody ProductPriceRequest productPriceRequest) {
+    try {
+      return Mono.just(productService.updatePrice(auditorProvider.getCurrentAuditor().get().toString(), productPriceRequest));
+    } catch (Exception ex) {
+      String msg = ex.getCause().getCause().getMessage();
+      if (msg.contains("The duplicate key value"))
+        msg = "Giá đã được khai báo cho thời gian này! Vui lòng kiểm tra lại";
+      return Mono.just(ApiResponse.builder().message(msg).status(505).data(null).build());
 
-    @GetMapping("/best-selling")
-    public Mono<ApiResponse<?>> getBestSelling() {
-        return Mono.just(productService.getBestSelling());
     }
+  }
 
-    @GetMapping("/list-promotion")
-    public Mono<ApiResponse<?>> getListProductOnPromotion() {
-        return Mono.just(productService.getListProductOnPromotion());
-    }
-    @GetMapping("/get-options")
-    public Mono<ApiResponse<?>> getOptionProduct() {
-        return Mono.just(productService.getOptionProduct());
-    }
+  @GetMapping("/top-viewed")
+  public Mono<ApiResponse<?>> getTopViewed() {
+    return Mono.just(productService.getTopViewed());
+  }
+
+  @GetMapping("/best-selling")
+  public Mono<ApiResponse<?>> getBestSelling() {
+    return Mono.just(productService.getBestSelling());
+  }
+
+  @GetMapping("/list-promotion")
+  public Mono<ApiResponse<?>> getListProductOnPromotion() {
+    return Mono.just(productService.getListProductOnPromotion());
+  }
+
+  @GetMapping("/get-options")
+  public Mono<ApiResponse<?>> getOptionProduct() {
+    return Mono.just(productService.getOptionProduct());
+  }
 
 }

@@ -242,19 +242,10 @@ public class ProductServiceImpl extends CRUDBaseServiceImpl<Product, ProductRequ
   @Override
   public ApiResponse<?> updatePrice(String emailEmp, ProductPriceRequest productPriceRequest) {
     Employee employee = employeeRepository.findByEmail(emailEmp).get();
-    try {
       for (ProductPriceDetailRequest priceDetail : productPriceRequest.getList_order()) {
         productRepository.updatePrice(priceDetail.getProductId(), employee.getId(), productPriceRequest.getFromDate(), Long.valueOf(priceDetail.getNewPrice()));
       }
       return ApiResponse.builder().message("Điều chỉnh giá thành công!").status(200).data(null).build();
-    } catch (Exception ex) {
-      String msg = ex.getCause().getCause().getMessage();
-      if (msg.contains("The duplicate key value"))
-        msg = "Giá đã được khai báo cho thời gian này! Vui lòng kiểm tra lại";
-      return ApiResponse.builder().message(msg).status(200).data(null).build();
-
-    }
-
   }
 
   @Override
