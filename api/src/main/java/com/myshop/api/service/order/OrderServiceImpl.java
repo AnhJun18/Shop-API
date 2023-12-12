@@ -1,5 +1,7 @@
 package com.myshop.api.service.order;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.myshop.api.base.CRUDBaseServiceImpl;
 import com.myshop.api.base.ProcedureNames;
 import com.myshop.api.payload.request.order.OrderDetailRequest;
@@ -28,6 +30,7 @@ import com.myshop.repositories.user.entities.Employee;
 import com.myshop.repositories.user.repos.CustomerRepository;
 import com.myshop.repositories.user.repos.EmployeeRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -309,14 +312,49 @@ public class OrderServiceImpl extends CRUDBaseServiceImpl<Order, OrderRequest, O
 
     @Override
     public ApiResponse<?> addDeliveryOrder(Long orderId, String employeeDelivery) {
-        Map<String,Object> data=JsonUtils.readToMap(employeeDelivery);
-        Long employeeId= Long.parseLong(data.get("employeeDelivery").toString()) ;
-        employeeRepository.findById(employeeId).get();
+        Gson gson = new Gson();
+        JsonObject object= gson.fromJson(employeeDelivery, JsonObject.class);
+        Optional<Employee> employee= employeeRepository.findById(object.get("employeeDelivery").getAsLong());
+        if(!employee.isPresent())
+            return ApiResponse.fromErrorCode(CodeStatus.CODE_NOT_EXIST);
         Order order = orderRepository.findById(orderId).get();
-        order.setEmployeeDelivery(employeeId);
+        order.setEmployeeDelivery(employee.get().getId());
         order.setStatus(statusRepository.findByName(EnumCommon.EStatus.DELIVERING.getName()));
         orderRepository.save(order);
         return ApiResponse.builder().status(200).message("Đơn hàng đã được phân công").build();
+    }
+
+    @Override
+    public ApiResponse<?> addDelayDeliveryOrder(Long orderId, String employeeDelivery) {
+        Optional<Employee> employee= employeeRepository.findByEmail(employeeDelivery);
+        if(!employee.isPresent())
+            return ApiResponse.fromErrorCode(CodeStatus.CODE_NOT_EXIST);
+        Order order = orderRepository.findById(orderId).get();
+        order.setStatus(statusRepository.findByName(EnumCommon.EStatus.DELAY1.getName()));
+        orderRepository.save(order);
+        return ApiResponse.builder().status(200).message("Xác nhận hoãn giao hàng lần 1 thành công").build();
+    }
+
+    @Override
+    public ApiResponse<?> addDelay2DeliveryOrder(Long orderId, String employeeDelivery) {
+        Optional<Employee> employee= employeeRepository.findByEmail(employeeDelivery);
+        if(!employee.isPresent())
+            return ApiResponse.fromErrorCode(CodeStatus.CODE_NOT_EXIST);
+        Order order = orderRepository.findById(orderId).get();
+        order.setStatus(statusRepository.findByName(EnumCommon.EStatus.DELAY2.getName()));
+        orderRepository.save(order);
+        return ApiResponse.builder().status(200).message("Xác nhận hoãn giao hàng lần 2 thành công").build();
+    }
+
+    @Override
+    public ApiResponse<?> addCancelDeliveryOrder(Long orderId, String employeeDelivery) {
+        Optional<Employee> employee= employeeRepository.findByEmail(employeeDelivery);
+        if(!employee.isPresent())
+            return ApiResponse.fromErrorCode(CodeStatus.CODE_NOT_EXIST);
+        Order order = orderRepository.findById(orderId).get();
+        order.setStatus(statusRepository.findByName(EnumCommon.EStatus.SHIPCANCEL.getName()));
+        orderRepository.save(order);
+        return ApiResponse.builder().status(200).message("Xác nhận hủy giao hàng thành công").build();
     }
 
     @Override

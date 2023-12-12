@@ -52,6 +52,20 @@ public class AdminOrderController {
         return Mono.just(orderService.addDeliveryOrder(orderId,employeeDelivery));
     }
 
+    @PostMapping("/{orderId}/delay")
+    public Mono<ApiResponse<?>> addDelayDeliveryOrder(@PathVariable Long orderId) {
+        return Mono.just(orderService.addDelayDeliveryOrder(orderId,auditorProvider.getCurrentAuditor().get().toString()));
+    }
+
+    @PostMapping("/{orderId}/delay2")
+    public Mono<ApiResponse<?>> addDelay2DeliveryOrder(@PathVariable Long orderId) {
+        return Mono.just(orderService.addDelay2DeliveryOrder(orderId,auditorProvider.getCurrentAuditor().get().toString()));
+    }
+
+    @PostMapping("/{orderId}/shipper-cancel")
+    public Mono<ApiResponse<?>> addCancelDeliveryOrder(@PathVariable Long orderId) {
+        return Mono.just(orderService.addCancelDeliveryOrder(orderId,auditorProvider.getCurrentAuditor().get().toString()));
+    }
     @PostMapping("/{orderId}/done")
     public Mono<ApiResponse<?>> confirmDeliveryOrder(@PathVariable Long orderId) {
         return Mono.just(orderService.confirmDeliveryOrder(orderId));

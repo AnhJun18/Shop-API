@@ -21,6 +21,9 @@ public interface OrderService {
     ApiResponse<?> confirmOrder(Long orderId, String employeeReview);
 
     ApiResponse<?> addDeliveryOrder(Long orderId, String employeeDelivery);
+    ApiResponse<?> addDelayDeliveryOrder(Long orderId, String employeeDelivery);
+    ApiResponse<?> addDelay2DeliveryOrder(Long orderId, String employeeDelivery);
+    ApiResponse<?> addCancelDeliveryOrder(Long orderId, String employeeDelivery);
 
     ApiResponse<?> confirmDeliveryOrder(Long orderId);
 
