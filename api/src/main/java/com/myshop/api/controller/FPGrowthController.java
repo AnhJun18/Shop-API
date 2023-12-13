@@ -5,6 +5,7 @@ import com.myshop.api.payload.request.fpgrowth.FPRequest;
 import com.myshop.api.service.fpgrowth.FPGrowthService;
 import com.myshop.common.http.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,6 +23,8 @@ import reactor.core.publisher.Mono;
 public class FPGrowthController {
   @Autowired
   FPGrowthService fpGrowthService;
+  @Autowired
+  AuditorAware auditorProvider;
 
   @GetMapping("/info")
   public Mono<ApiResponse<?>> initData(@RequestParam(defaultValue = "false") Boolean isTest) {
@@ -35,5 +38,10 @@ public class FPGrowthController {
   @GetMapping("/get-options")
   public Mono<ApiResponse<?>> getOptsCategory(@RequestParam(defaultValue = "false") Boolean isTest) {
     return Mono.just(fpGrowthService.getOptionItem(isTest));
+  }
+
+  @GetMapping("/suggest")
+  public Mono<ApiResponse<?>> getListSuggest() {
+    return Mono.just(fpGrowthService.getListSuggest(auditorProvider.getCurrentAuditor().get().toString()));
   }
 }

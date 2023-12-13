@@ -6,6 +6,7 @@ import com.myshop.api.payload.request.product.ProductRequest;
 import com.myshop.common.http.ApiResponse;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ProductService {
 
@@ -22,6 +23,7 @@ public interface ProductService {
     ApiResponse<?> updatePrice(String emailEmployee,ProductPriceRequest productPriceRequest);
 
     ApiResponse<?> getTopViewed() ;
+    List<Map<String, Object>> getSuggest(String infoList) ;
 
     ApiResponse<?> getListProductOnPromotion() ;
 

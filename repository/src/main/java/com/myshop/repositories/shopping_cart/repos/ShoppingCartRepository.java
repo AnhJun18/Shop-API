@@ -13,5 +13,7 @@ import java.util.Optional;
 public interface ShoppingCartRepository extends CrudRepository<ShoppingCart, ShoppingCartKey> , JpaSpecificationExecutor<ShoppingCart> {
     Optional<ShoppingCart> findShoppingCartByCustomerIdAndProductDetailId(Long customerId,Long productDetailId);
     List<ShoppingCart> findAllByCustomerId(Long customerId);
+//    Optional<ShoppingCart> findShoppingCartByCustomerIdAndAndProductDetailId(Long customerId,Long productDetailId);
+
 
 }

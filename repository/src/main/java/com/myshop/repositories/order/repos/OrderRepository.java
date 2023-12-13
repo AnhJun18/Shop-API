@@ -47,4 +47,7 @@ public interface OrderRepository extends CrudRepository<Order, Long>, JpaSpecifi
 
     Optional<Order> findOrderByOrderId(Long orderId);
 
+  @Query(value = "exec SP_ORDER_ListBought :customerId", nativeQuery = true)
+  List<Long> getListProductBought(Long customerId);
+
 }

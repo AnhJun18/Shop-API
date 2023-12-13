@@ -290,6 +290,28 @@ public class ProductServiceImpl extends CRUDBaseServiceImpl<Product, ProductRequ
     return ApiResponse.of(resMap);
   }
 
+  public List<Map<String, Object>> getSuggest(String infoProduct) {
+    StoredProcedureQuery query = entityManager.createStoredProcedureQuery(ProcedureNames.SP_PRODUCT_GetSuggest)
+            .registerStoredProcedureParameter("PRODUCTIDS", String.class, ParameterMode.IN);
+    query.setParameter("PRODUCTIDS", infoProduct);
+    query.execute();
+    List<Object[]> results = query.getResultList();
+    List<Map<String, Object>> resMap = new ArrayList<>();
+    for (Object[] it : results) {
+      Map<String, Object> mapIt = new HashMap<>();
+      mapIt.put("id", it[0]);
+      mapIt.put("description", it[1]);
+      mapIt.put("linkImg", it[2]);
+      mapIt.put("name", it[3]);
+      mapIt.put("viewed", it[4]);
+      mapIt.put("isDeleted", it[5]);
+      mapIt.put("price", it[6]);
+      mapIt.put("promotionValue", it[7]);
+      resMap.add(mapIt);
+    }
+    return resMap ;
+  }
+
   @Override
   public ApiResponse<?> getListProductOnPromotion() {
     StoredProcedureQuery query = entityManager.createStoredProcedureQuery(ProcedureNames.SP_PRODUCT_GetListOnPromotion);

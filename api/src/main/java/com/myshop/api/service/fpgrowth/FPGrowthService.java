@@ -4,20 +4,18 @@ import com.myshop.api.FPGrowth.FPTree;
 import com.myshop.api.FPGrowth.SubarrayGenerator;
 import com.myshop.api.payload.request.fpgrowth.FPRequest;
 import com.myshop.api.payload.response.fp_growth.FPResponse;
+import com.myshop.api.service.product.ProductService;
 import com.myshop.common.http.ApiResponse;
 import com.myshop.repositories.order.repos.OrderRepository;
+import com.myshop.repositories.user.entities.Customer;
+import com.myshop.repositories.user.repos.CustomerRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.thymeleaf.cache.ICache;
-import org.thymeleaf.cache.ICacheEntryValidityChecker;
-import reactor.core.publisher.Flux;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,8 +26,13 @@ import java.util.stream.Collectors;
 public class FPGrowthService {
   @Autowired
   OrderRepository orderRepository;
+  @Autowired
+  CustomerRepository customerRepository;
 
-  private Map<String,String> hashCache = new HashMap<>();
+  @Autowired
+  ProductService productService;
+
+  public static Map<String,List<String>> hashCache = new HashMap<>();
   public Map<String, Object> infoInit(Boolean isTest) {
     return isTest ? orderRepository.getInfoInitTest() : orderRepository.getInfoInit();
   }
@@ -43,10 +46,11 @@ public class FPGrowthService {
     listHeader.add(0,"SODH");
     String header="|";
     SubarrayGenerator.responseTransaction.clear();
+    FPGrowthService.hashCache.clear();
     for(String key: listHeader){
       header +=String.format("%7s|",key);
     }
-    System.out.println(header);
+//    System.out.println(header);
     SubarrayGenerator.responseTransaction.add(header);
     for(Map<String,Object> mapItem: listTransaction){
       String newList = "|";
@@ -54,7 +58,7 @@ public class FPGrowthService {
         newList +=String.format("%7s|",mapItem.get(key));
       }
       SubarrayGenerator.responseTransaction.add(newList);
-      System.out.println(newList);
+//      System.out.println(newList);
     }
     Double minSup = listTransaction.size() * fpRequest.getMinSup() * 1.0 / (100);
     List<List<String>> transactions = new ArrayList<>();
@@ -78,5 +82,22 @@ public class FPGrowthService {
 
   public ApiResponse<?> getOptionItem(Boolean isTest) {
     return ApiResponse.of(isTest ? orderRepository.getOptsItemTest() : orderRepository.getOptsItem());
+  }
+
+  public ApiResponse<?> getListSuggest(String email) {
+    Customer customer = customerRepository.findByEmail(email).get();
+    Set<String> listSuggest = new HashSet<>();
+    List<Long> listProductBought= orderRepository.getListProductBought(customer.getId());
+    for (Long product:listProductBought) {
+      String productCodeGet = "_"+product+"_";
+      for (String cacheKey:hashCache.keySet()) {
+          if(cacheKey.contains(productCodeGet)){
+            listSuggest.addAll(hashCache.get(cacheKey));
+          }
+      }
+    }
+    String infoProduct = String.join(",",listSuggest);
+    List<Map<String, Object>> resMap =productService.getSuggest(infoProduct);
+    return ApiResponse.of(resMap);
   }
 }

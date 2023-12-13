@@ -1,4 +1,5 @@
 package com.myshop.api.FPGrowth;
+import com.myshop.api.service.fpgrowth.FPGrowthService;
 import org.apache.commons.math3.util.Precision;
 
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ public class SubarrayGenerator {
         if(kq>=minConf){
           response.add(String.format("%30s - %5s",genSpace("Luật: "+currentSubarray + " -> " + remainingElements) ," (Conf = "+ Precision.round(kq,3)+")"));
           System.out.println(String.format("%30s - %5s",genSpace("Luật: "+currentSubarray + " -> " + remainingElements) ," (Conf = "+ Precision.round(kq,3)+")"));
+          FPGrowthService.hashCache.put( "_" + String.join("_", currentSubarray) + "_",remainingElements);
         }
 //          response.add(String.format("%30s - %5s",genSpace("Luật: "+currentSubarray + " -> " + remainingElements) ," (Conf = "+ Precision.round(kq,3)+")"));
         System.out.println("//////////////////////////////////////");

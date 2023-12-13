@@ -15,7 +15,6 @@ public class CustomerRequest {
     @Email(message = "Email sai định dạng")
     private String email;
 
-    @NotNull(message = "Số điện thoại là bắt buộc")
     private String phone;
 
     @NotNull(message = "Mật khẩu là bắt buộc")

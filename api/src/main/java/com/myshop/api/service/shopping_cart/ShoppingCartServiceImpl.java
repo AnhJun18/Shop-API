@@ -77,7 +77,9 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
 
 //    @Override
-//    public ApiResponse<Object> deleteItem(Long userId, Long productID) {
+//    public ApiResponse<Object> deleteItem(Long userId, Long productID,Str) {
+//    Color color = colorRepository.findById(colorName)
+//    ProductDetail productDetail = productDetailRepository.findByProductAndColorAndSize()
 ////        ShoppingCart shoppingCart = shoppingCartRepository.findShoppingCartByUserInfo_IdAndProductDetail_Id(userId, productID);
 ////        if (shoppingCart == null || shoppingCart.getId() <= 0)
 ////            return ApiResponse.builder().status(101).message("cannot find this item in your cart").data(null).build();
