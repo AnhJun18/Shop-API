@@ -10,6 +10,7 @@ import com.myshop.repositories.order.repos.OrderRepository;
 import com.myshop.repositories.user.entities.Customer;
 import com.myshop.repositories.user.repos.CustomerRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -85,6 +86,9 @@ public class FPGrowthService {
   }
 
   public ApiResponse<?> getListSuggest(String email) {
+    if(StringUtils.isEmpty(email)){
+      return ApiResponse.of(new ArrayList<>());
+    }
     Customer customer = customerRepository.findByEmail(email).get();
     Set<String> listSuggest = new HashSet<>();
     List<Long> listProductBought= orderRepository.getListProductBought(customer.getId());
