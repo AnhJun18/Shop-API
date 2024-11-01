@@ -16,7 +16,6 @@ import com.myshop.api.service.notify.INotifyService;
 import com.myshop.common.http.ApiResponse;
 
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
-import reactor.core.publisher.Mono;
 
 /**
  * @author Anh Jun
@@ -32,8 +31,8 @@ public class NotifyController {
 
 
     @PostMapping("/push")
-    public Mono<ApiResponse<Boolean>> login(@Valid @RequestBody NotifyRequest notifyRequest) {
-        return Mono.just(ApiResponse.of(notifyService.sendNotify(notifyRequest.getToken(), notifyRequest.getMessage())));
+    public ApiResponse<Boolean> login( @RequestBody NotifyRequest notifyRequest) {
+        return ApiResponse.of(notifyService.sendNotify(notifyRequest.getToken(), notifyRequest.getMessage()));
     }
 
 }
