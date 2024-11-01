@@ -1,6 +1,7 @@
 package com.myshop.api.service.notify;
 
 import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -20,16 +21,14 @@ public class NotifyServiceImpl implements INotifyService {
             HttpURLConnection connection = (HttpURLConnection) new URL(lineHost).openConnection();
     
             connection.setRequestMethod("POST");
-            connection.setRequestProperty("Authorization", "Bearer " + token != null ? token : TK_GR);
+            connection.setRequestProperty("Authorization", "Bearer "+ token);
             connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
             connection.setDoOutput(true);
 
 
-            /////////////////////////////////////////////////////////////////////
             try (OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream(), StandardCharsets.UTF_8)) {
                 writer.write("message=" + encodedMessage);
             }
-    
             return connection.getResponseCode() == 200;
         } catch (Exception e) {
             e.printStackTrace();
