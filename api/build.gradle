@@ -10,6 +10,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-mail'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+    implementation 'org.postgresql:postgresql:42.2.20'
     implementation 'com.nimbusds:nimbus-jose-jwt:8.19'
     implementation 'org.bouncycastle:bcprov-jdk15on:1.66'
     implementation 'commons-beanutils:commons-beanutils:1.9.4'
