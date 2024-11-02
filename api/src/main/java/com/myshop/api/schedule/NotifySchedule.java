@@ -12,8 +12,10 @@ public class NotifySchedule {
     INotifyService notifyService;
     private final static String TK_GR_QC = "Y5OKJTawfVbMoOfMfKtFbXO6wq3QJo6qE1ocde1YvKE";
 
-    @Scheduled(cron = "0 0,30 7,8,16,17 * * 1-7")
+    @Scheduled(cron = "0 0,30 7,8,10,16,17 * * 1-7")
     public void scheduleTaskWithFixedRate() {
         notifyService.sendNotify(TK_GR_QC, "Chấm công đê bà con");
     }
+
+   
 }
