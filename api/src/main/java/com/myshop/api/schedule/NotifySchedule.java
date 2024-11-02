@@ -20,7 +20,7 @@ public class NotifySchedule {
     @Scheduled(cron = "0 45 16 * * 1-4")
     @Scheduled(cron = "0 0,30 17 * * 1-4")
     @Scheduled(cron = "0 0 18 * * 1-4")
-    @Scheduled(cron = "0 10 11 * * 1-6")
+    @Scheduled(cron = "0 30 11 * * 1-6")
     public void checkOutJob() {
         System.out.println("checkOutJob");
         notifyService.sendNotify(TK_GR_QC, "CheckOut đê bà con ơi!");
