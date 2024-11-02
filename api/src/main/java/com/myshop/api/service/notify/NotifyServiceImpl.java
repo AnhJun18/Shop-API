@@ -1,7 +1,6 @@
 package com.myshop.api.service.notify;
 
 import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -11,8 +10,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class NotifyServiceImpl implements INotifyService {
 	private static final String lineHost = "https://notify-api.line.me/api/notify";
-    private static final String TK_GR= "IPutWI6W5VvDKGY2WMnN92iRzN7ngk2kxHv7BziIWNL";
-
 
     @Override
     public boolean sendNotify(String token, String message) {
