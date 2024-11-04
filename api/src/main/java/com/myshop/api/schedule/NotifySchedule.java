@@ -34,7 +34,7 @@ public class NotifySchedule {
     @Autowired
     DataSource dataSource;
 
-    private final static String TK_GR_QC = "Pj7DAmdMKAJzUdLc5Meqwa1jqytAuDJkcHAicrq3TZj";
+    private final static String TK_GR_QC = "O6H2ZjWqLJmSI891Nqo2DdjcWsWV8R5ydt0NXJIebQu";
     private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
     private static Map<String, String> mapcronJob = new HashMap();
     public static final Gson gson = new GsonBuilder().disableHtmlEscaping().serializeNulls()
@@ -73,23 +73,26 @@ public class NotifySchedule {
             
         }
     }
-    @Scheduled(cron = "0 0,30,50 8 * * 1-5")
+    @Scheduled(cron = "0 30-59/10,0-50/10 7-8 * * 1-5")
+
     public void checkInJob() {
-        notifyService.sendNotify(TK_GR_QC, "CheckIn đê bà con ơi!");
+        notifyService.sendNotify(TK_GR_QC, " `CHECKIN` ĐÊ CẢ NHÀ ƠI!");
     }
 
-    @Scheduled(cron = "0 45 16 * * 1-4")
-    @Scheduled(cron = "0 0,30 17 * * 1-4")
-    @Scheduled(cron = "0 0 18 * * 1-4")
-    @Scheduled(cron = "0 10 11 * * 1-6")
+    @Scheduled(cron = "0 50-59/10,0-50/10 16-17 * * 1-5")
     public void checkOutJob() {
-        System.out.println("checkOutJob");
-        notifyService.sendNotify(TK_GR_QC, "Checkout zề bà con ơi!");
+        notifyService.sendNotify(TK_GR_QC, " `CHECKOUT` ZỀ ĐI BÀ CON!");
     }
 
-    @Scheduled(cron = "0 0 17 * * 5")
-    public void checkOutT6() {
-        System.out.println("checkOutT6");
-        notifyService.sendNotify(TK_GR_QC, "T6 rồi! Bung xõa đi, về sớm thoi bà con");
+
+    @Scheduled(cron = "0 0 9-12,13-17 * * 1-5")
+    public void c() {
+        notifyService.sendNotify(TK_GR_QC, " `UỐNG NƯỚC ĐÊ! `");
     }
+
+    @Scheduled(cron = "0 10 9,13,15 * * 1-5")
+    public void diDai() {
+        notifyService.sendNotify(TK_GR_QC, "` CÓ AI ĐI >>> CHUNG HEM! `");
+    }
+  
 }
