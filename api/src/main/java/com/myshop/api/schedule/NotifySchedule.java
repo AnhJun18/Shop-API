@@ -84,7 +84,7 @@ public class NotifySchedule {
     @Scheduled(cron = "0 10 11 * * 1-6")
     public void checkOutJob() {
         System.out.println("checkOutJob");
-        notifyService.sendNotify(TK_GR_QC, "CheckOut đê bà con ơi!");
+        notifyService.sendNotify(TK_GR_QC, "Checkout zề bà con ơi!");
     }
 
     @Scheduled(cron = "0 0 17 * * 5")
