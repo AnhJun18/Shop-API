@@ -1,5 +1,6 @@
 package com.myshop.api.schedule;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -12,10 +13,12 @@ import java.sql.SQLException;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import javax.sql.DataSource;
 
@@ -43,6 +46,13 @@ public class NotifySchedule {
     private static Map<String, String> mapcronJob = new HashMap();
     public static final Gson gson = new GsonBuilder().disableHtmlEscaping().serializeNulls()
             .setDateFormat("HH:mm:ss").create();
+    List<String> listN=Arrays.asList(
+        "`Thùy Na! ` UỐNG NƯỚC ĐI KÌA:>",
+        "`Thùy Na! ` ĐẾN H UỐNG NƯỚC RỒI:>",
+        "`Thùy Na! ` NƯỚC ĐANG CẦN ĐƯỢC UỐNG:>",
+        "`Thùy Na! ` NƯỚC ĐƯỢC UỐNG CHƯA?:>",
+        "`Thùy Na! ` HẤP THỤ NƯỚC ĐI:>"
+        );
 
     private static final String HEALTH_CHECK_URL = "https://shop-api-k4ef.onrender.com/api/notify/health";
 
@@ -96,12 +106,6 @@ public class NotifySchedule {
     public void c() {
         notifyService.sendNotify(TK_GR_QC, " `UỐNG NƯỚC ĐÊ! `");
     }
-
-    @Scheduled(cron = "0 10 9,13,15 * * 1-5")
-    public void diDai() {
-        notifyService.sendNotify(TK_GR_QC, "` CÓ AI ĐI >>> CHUNG HEM! `");
-    }
-
     
     @Scheduled(cron = "0 30 8-17 * * 1-5")
     public void drinkWater() {
@@ -109,11 +113,13 @@ public class NotifySchedule {
         if (hour == 12) {
             return;
         }
-        notifyService.sendNotify(TK_GR_QC, "`Thùy Na! ` UỐNG NƯỚC ĐI KÌA:>");
+        Random rand = new Random();
+        int randomIndex = rand.nextInt(listN.size());
+        notifyService.sendNotify(TK_GR_QC, listN.get(randomIndex));
     }
   
 
-    @Scheduled(fixedRate = 60000) // 600,000 milliseconds = 10 phút
+    @Scheduled(fixedRate = 600000) // 600,000 milliseconds = 10 phút
     public void performHealthCheck() {
         try {
             HttpClient httpClient = HttpClient.newHttpClient();
