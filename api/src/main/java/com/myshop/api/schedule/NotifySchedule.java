@@ -45,7 +45,6 @@ public class NotifySchedule {
             .setDateFormat("HH:mm:ss").create();
 
     private static final String HEALTH_CHECK_URL = "https://shop-api-k4ef.onrender.com/api/notify/health";
-    private static final HttpClient httpClient = HttpClient.newHttpClient();
 
 
     public NotifySchedule(DataSource dataSource) throws SQLException {
@@ -114,9 +113,11 @@ public class NotifySchedule {
     }
   
 
-    @Scheduled(fixedRate = 600000) // 600,000 milliseconds = 10 phút
+    @Scheduled(fixedRate = 60000) // 600,000 milliseconds = 10 phút
     public void performHealthCheck() {
         try {
+            HttpClient httpClient = HttpClient.newHttpClient();
+
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(HEALTH_CHECK_URL))
                     .GET()
