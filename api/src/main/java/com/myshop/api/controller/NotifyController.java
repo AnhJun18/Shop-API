@@ -1,9 +1,6 @@
 package com.myshop.api.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 import com.myshop.api.payload.request.datacollect.NotifyRequest;
 import com.myshop.api.service.notify.INotifyService;
@@ -25,6 +22,12 @@ public class NotifyController {
     @PostMapping("/push")
     public ApiResponse<Boolean> login( @RequestBody NotifyRequest notifyRequest) {
         return ApiResponse.of(notifyService.sendNotify(notifyRequest.getToken(), notifyRequest.getMessage()));
+    }
+
+    
+    @GetMapping("/health")
+    public ApiResponse<String> healthCheck() {
+        return ApiResponse.of("Ok");
     }
 
 }

@@ -1,6 +1,10 @@
 package com.myshop.api.schedule;
 
 import java.lang.reflect.Type;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -39,6 +43,10 @@ public class NotifySchedule {
     private static Map<String, String> mapcronJob = new HashMap();
     public static final Gson gson = new GsonBuilder().disableHtmlEscaping().serializeNulls()
             .setDateFormat("HH:mm:ss").create();
+
+    private static final String HEALTH_CHECK_URL = "https://shop-api-k4ef.onrender.com/api/notify/health";
+    private static final HttpClient httpClient = HttpClient.newHttpClient();
+
 
     public NotifySchedule(DataSource dataSource) throws SQLException {
         this.dataSource = dataSource;
@@ -95,4 +103,24 @@ public class NotifySchedule {
         notifyService.sendNotify(TK_GR_QC, "` CÓ AI ĐI >>> CHUNG HEM! `");
     }
   
+
+    @Scheduled(fixedRate = 600000) // 600,000 milliseconds = 10 phút
+    public void performHealthCheck() {
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(HEALTH_CHECK_URL))
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() == 200) {
+                System.out.println("API is healthy: " + response.body());
+            } else {
+                System.err.println("API is unhealthy. Status code: " + response.statusCode());
+            }
+        } catch (Exception e) {
+            System.err.println("Health check failed: " + e.getMessage());
+        }
+    }
 }
