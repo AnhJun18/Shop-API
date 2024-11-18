@@ -102,6 +102,16 @@ public class NotifySchedule {
     public void diDai() {
         notifyService.sendNotify(TK_GR_QC, "` CÓ AI ĐI >>> CHUNG HEM! `");
     }
+
+    
+    @Scheduled(cron = "0 30 8-17 * * 1-5")
+    public void drinkWater() {
+        int hour = LocalTime.now().getHour();
+        if (hour == 12) {
+            return;
+        }
+        notifyService.sendNotify(TK_GR_QC, "`Thùy Na! ` UỐNG NƯỚC ĐI KÌA:>");
+    }
   
 
     @Scheduled(fixedRate = 600000) // 600,000 milliseconds = 10 phút
