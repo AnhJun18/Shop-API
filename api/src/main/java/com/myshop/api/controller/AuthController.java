@@ -69,7 +69,7 @@ public class AuthController {
 
     @GetMapping("/health")
     public ApiResponse<String> healthCheck() {
-        return Mono.just("Ok");
+        return ApiResponse.of("Ok");
     }
 
 }

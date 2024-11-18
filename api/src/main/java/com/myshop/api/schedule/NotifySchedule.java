@@ -1,6 +1,10 @@
 package com.myshop.api.schedule;
 
 import java.lang.reflect.Type;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -10,89 +14,53 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 
 import javax.sql.DataSource;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.batch.BatchProperties.Job;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.myshop.api.service.notify.INotifyService;
-import com.google.gson.reflect.TypeToken;
 
 @Component
 public class NotifySchedule {
     @Autowired
     INotifyService notifyService;
-    @Autowired
-    DataSource dataSource;
 
-    private final static String TK_GR_QC = "O6H2ZjWqLJmSI891Nqo2DdjcWsWV8R5ydt0NXJIebQu";
-    private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
-    private static Map<String, String> mapcronJob = new HashMap();
     public static final Gson gson = new GsonBuilder().disableHtmlEscaping().serializeNulls()
             .setDateFormat("HH:mm:ss").create();
 
+    private static final String HEALTH_CHECK_URL = "https://shop-api-ptit.onrender.com//api/auth/user/health";
+    private static final HttpClient httpClient = HttpClient.newHttpClient();
+        
+
     public NotifySchedule(DataSource dataSource) throws SQLException {
-        this.dataSource = dataSource;
-        init(dataSource);
     }
 
-    private void init(DataSource dataSource) throws SQLException
 
-    {
-        String config = "";
-        String sql = "SELECT jsonvalue, keyconfig FROM lpa_job.sys_config WHERE keyconfig = ?";
 
-        try (Connection connection = dataSource.getConnection();
-                PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+    @Scheduled(fixedRate = 600000) // 600,000 milliseconds = 10 phút
+    public void performHealthCheck() {
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(HEALTH_CHECK_URL))
+                    .GET()
+                    .build();
 
-            preparedStatement.setString(1, "LPA_CONFIGJOB");
-            ResultSet resultSet = preparedStatement.executeQuery();
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
-            while (resultSet.next()) {
-                config = (resultSet.getString("jsonvalue"));
+            if (response.statusCode() == 200) {
+                System.out.println("API is healthy: " + response.body());
+            } else {
+                System.err.println("API is unhealthy. Status code: " + response.statusCode());
             }
-            if(StringUtils.isNotBlank(config)){
-                Type listType = new TypeToken<List<LineJobModel>>() {
-            }.getType();
-            List<LineJobModel> listJob = gson.fromJson(config, listType);
-            if (CollectionUtils.isEmpty(listJob)) {
-                for (LineJobModel item : listJob)
-                    mapcronJob.put(item.getTime(), item.getMessage());
-            }
-            }
-
-            
+        } catch (Exception e) {
+            System.err.println("Health check failed: " + e.getMessage());
         }
     }
-    @Scheduled(cron = "0 30-59/10,0-50/10 7-8 * * 1-5")
-
-    public void checkInJob() {
-        notifyService.sendNotify(TK_GR_QC, " `CHECKIN` ĐÊ CẢ NHÀ ƠI!");
-    }
-
-    @Scheduled(cron = "0 50-59/10,0-50/10 16-17 * * 1-5")
-    public void checkOutJob() {
-        notifyService.sendNotify(TK_GR_QC, " `CHECKOUT` ZỀ ĐI BÀ CON!");
-    }
-
-
-    @Scheduled(cron = "0 0 9-12,13-17 * * 1-5")
-    public void c() {
-        notifyService.sendNotify(TK_GR_QC, " `UỐNG NƯỚC ĐÊ! `");
-    }
-
-    @Scheduled(cron = "0 10 9,13,15 * * 1-5")
-    public void diDai() {
-        notifyService.sendNotify(TK_GR_QC, "` CÓ AI ĐI >>> CHUNG HEM! `");
-    }
-  
+    
 }
