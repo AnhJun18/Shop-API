@@ -43,7 +43,7 @@ public class NotifySchedule {
 
 
 
-    @Scheduled(fixedRate = 600000) // 600,000 milliseconds = 10 phút
+    @Scheduled(fixedRate = 60000) // 600,000 milliseconds = 10 phút
     public void performHealthCheck() {
         try {
             HttpRequest request = HttpRequest.newBuilder()
