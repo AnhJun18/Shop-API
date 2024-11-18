@@ -34,7 +34,7 @@ public class NotifySchedule {
     public static final Gson gson = new GsonBuilder().disableHtmlEscaping().serializeNulls()
             .setDateFormat("HH:mm:ss").create();
 
-    private static final String HEALTH_CHECK_URL = "https://shop-api-ptit.onrender.com//api/auth/user/health";
+    private static final String HEALTH_CHECK_URL = "https://shop-api-ptit.onrender.com/api/notify/health";
     private static final HttpClient httpClient = HttpClient.newHttpClient();
         
 
