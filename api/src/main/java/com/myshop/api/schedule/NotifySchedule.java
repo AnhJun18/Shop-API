@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -45,6 +46,9 @@ public class NotifySchedule {
 
     @Scheduled(fixedRate = 60000) // 600,000 milliseconds = 10 phút
     public void performHealthCheck() {
+        if(LocalTime.now().getHour() > 18 || LocalTime.now().getHour() < 7){
+            return;
+        }
         try {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(HEALTH_CHECK_URL))
