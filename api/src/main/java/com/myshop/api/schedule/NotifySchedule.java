@@ -46,16 +46,14 @@ public class NotifySchedule {
     private static Map<String, String> mapcronJob = new HashMap();
     public static final Gson gson = new GsonBuilder().disableHtmlEscaping().serializeNulls()
             .setDateFormat("HH:mm:ss").create();
-    List<String> listN=Arrays.asList(
-        "`Thùy Na! ` UỐNG NƯỚC ĐI KÌA:>",
-        "`Thùy Na! ` ĐẾN H UỐNG NƯỚC RỒI:>",
-        "`Thùy Na! ` NƯỚC ĐANG CẦN ĐƯỢC UỐNG:>",
-        "`Thùy Na! ` NƯỚC ĐƯỢC UỐNG CHƯA?:>",
-        "`Thùy Na! ` HẤP THỤ NƯỚC ĐI:>"
-        );
+    List<String> listN = Arrays.asList(
+            "`Thùy Na! ` UỐNG NƯỚC ĐI KÌA:>",
+            "`Thùy Na! ` ĐẾN H UỐNG NƯỚC RỒI:>",
+            "`Thùy Na! ` NƯỚC ĐANG CẦN ĐƯỢC UỐNG:>",
+            "`Thùy Na! ` NƯỚC ĐƯỢC UỐNG CHƯA?:>",
+            "`Thùy Na! ` H20:>");
 
     private static final String HEALTH_CHECK_URL = "https://shop-api-k4ef.onrender.com/api/notify/health";
-
 
     public NotifySchedule(DataSource dataSource) throws SQLException {
         this.dataSource = dataSource;
@@ -77,36 +75,36 @@ public class NotifySchedule {
             while (resultSet.next()) {
                 config = (resultSet.getString("jsonvalue"));
             }
-            if(StringUtils.isNotBlank(config)){
+            if (StringUtils.isNotBlank(config)) {
                 Type listType = new TypeToken<List<LineJobModel>>() {
-            }.getType();
-            List<LineJobModel> listJob = gson.fromJson(config, listType);
-            if (CollectionUtils.isEmpty(listJob)) {
-                for (LineJobModel item : listJob)
-                    mapcronJob.put(item.getTime(), item.getMessage());
-            }
+                }.getType();
+                List<LineJobModel> listJob = gson.fromJson(config, listType);
+                if (CollectionUtils.isEmpty(listJob)) {
+                    for (LineJobModel item : listJob)
+                        mapcronJob.put(item.getTime(), item.getMessage());
+                }
             }
 
-            
         }
     }
-    @Scheduled(cron = "0 30-59/10,0-50/10 7-8 * * 1-5")
 
+    @Scheduled(cron = "0 */10 7-9 * * 1-5")
     public void checkInJob() {
-        notifyService.sendNotify(TK_GR_QC, " `CHECKIN` ĐÊ CẢ NHÀ ƠI!");
+        if (isTimeWithinRange(7, 0, 8, 40))
+            notifyService.sendNotify(TK_GR_QC, " `CHECKIN` ĐÊ CẢ NHÀ ƠI!");
     }
 
-    @Scheduled(cron = "0 50-59/10,0-50/10 16-17 * * 1-5")
+    @Scheduled(cron = "0 */10 16-18 * * 1-5")
     public void checkOutJob() {
-        notifyService.sendNotify(TK_GR_QC, " `CHECKOUT` ZỀ ĐI BÀ CON!");
+        if (isTimeWithinRange(16, 0, 17, 40))
+            notifyService.sendNotify(TK_GR_QC, " `CHECKOUT` ZỀ ĐI BÀ CON!");
     }
-
 
     @Scheduled(cron = "0 0 9-12,13-17 * * 1-5")
     public void c() {
-        notifyService.sendNotify(TK_GR_QC, " `UỐNG NƯỚC ĐÊ! `");
+        notifyService.sendNotify(TK_GR_QC, " `HEALTHY! UỐNG NƯỚC ĐI MN `");
     }
-    
+
     @Scheduled(cron = "0 30 8-17 * * 1-5")
     public void drinkWater() {
         int hour = LocalTime.now().getHour();
@@ -117,7 +115,6 @@ public class NotifySchedule {
         int randomIndex = rand.nextInt(listN.size());
         notifyService.sendNotify(TK_GR_QC, listN.get(randomIndex));
     }
-  
 
     @Scheduled(fixedRate = 600000) // 600,000 milliseconds = 10 phút
     public void performHealthCheck() {
@@ -138,6 +135,19 @@ public class NotifySchedule {
             }
         } catch (Exception e) {
             System.err.println("Health check failed: " + e.getMessage());
+        }
+    }
+
+    public static boolean isTimeWithinRange(int fromHour, int fromMinute,
+            int toHour, int toMinute) {
+        LocalTime now = LocalTime.now();
+        LocalTime fromTime = LocalTime.of(fromHour, fromMinute, 0);
+        LocalTime toTime = LocalTime.of(toHour, toMinute, 0);
+
+        if (fromTime.isBefore(toTime) || fromTime.equals(toTime)) { // Trường hợp khoảng bình thường
+            return !now.isBefore(fromTime) && !now.isAfter(toTime);
+        } else { // Trường hợp khoảng qua đêm (e.g., 23:00 -> 02:00)
+            return !now.isBefore(fromTime) || !now.isAfter(toTime);
         }
     }
 }
