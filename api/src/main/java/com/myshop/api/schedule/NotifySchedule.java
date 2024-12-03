@@ -57,36 +57,36 @@ public class NotifySchedule {
 
     public NotifySchedule(DataSource dataSource) throws SQLException {
         this.dataSource = dataSource;
-        init(dataSource);
+        // init(dataSource);
     }
 
-    private void init(DataSource dataSource) throws SQLException
+    // private void init(DataSource dataSource) throws SQLException
 
-    {
-        String config = "";
-        String sql = "SELECT jsonvalue, keyconfig FROM lpa_job.sys_config WHERE keyconfig = ?";
+    // {
+    //     String config = "";
+    //     String sql = "SELECT jsonvalue, keyconfig FROM lpa_job.sys_config WHERE keyconfig = ?";
 
-        try (Connection connection = dataSource.getConnection();
-                PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+    //     try (Connection connection = dataSource.getConnection();
+    //             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
-            preparedStatement.setString(1, "LPA_CONFIGJOB");
-            ResultSet resultSet = preparedStatement.executeQuery();
+    //         preparedStatement.setString(1, "LPA_CONFIGJOB");
+    //         ResultSet resultSet = preparedStatement.executeQuery();
 
-            while (resultSet.next()) {
-                config = (resultSet.getString("jsonvalue"));
-            }
-            if (StringUtils.isNotBlank(config)) {
-                Type listType = new TypeToken<List<LineJobModel>>() {
-                }.getType();
-                List<LineJobModel> listJob = gson.fromJson(config, listType);
-                if (CollectionUtils.isEmpty(listJob)) {
-                    for (LineJobModel item : listJob)
-                        mapcronJob.put(item.getTime(), item.getMessage());
-                }
-            }
+    //         while (resultSet.next()) {
+    //             config = (resultSet.getString("jsonvalue"));
+    //         }
+    //         if (StringUtils.isNotBlank(config)) {
+    //             Type listType = new TypeToken<List<LineJobModel>>() {
+    //             }.getType();
+    //             List<LineJobModel> listJob = gson.fromJson(config, listType);
+    //             if (CollectionUtils.isEmpty(listJob)) {
+    //                 for (LineJobModel item : listJob)
+    //                     mapcronJob.put(item.getTime(), item.getMessage());
+    //             }
+    //         }
 
-        }
-    }
+    //     }
+    // }
 
     @Scheduled(cron = "0 */10 7-9 * * 1-5")
     public void checkInJob() {
