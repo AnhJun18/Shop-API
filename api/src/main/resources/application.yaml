@@ -17,11 +17,11 @@ spring:
         dialect: org.hibernate.dialect.SQLServer2008Dialect
     show-sql: true
   datasource:
-    url: "jdbc:postgresql://dpg-csiddaqj1k6c73ar548g-a.oregon-postgres.render.com/lpaapp"
+    url: jdbc:postgresql://dpg-ct76sg3tq21c73bju9qg-a.oregon-postgres.render.com/lpa_app
     sqlScriptEncoding: UTF-8
     driver-class-name: org.postgresql.Driver
-    username: lpaapp_user
-    password: UccRZIEjF9FgTpBr0gxRiRPUmAfR13yJ
+    username: lpa_app_user
+    password: 4ZExWumairHN9I5kQVYO2ntBqsipnscj
     hikari:
       max-lifetime: 30
 #  datasource:
