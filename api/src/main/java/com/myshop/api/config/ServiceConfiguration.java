@@ -19,9 +19,9 @@ public class ServiceConfiguration {
     @Bean
     public DataSource dataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setUrl("jdbc:postgresql://dpg-csiddaqj1k6c73ar548g-a.oregon-postgres.render.com/lpaapp");
-        dataSource.setUsername("lpaapp_user");
-        dataSource.setPassword("UccRZIEjF9FgTpBr0gxRiRPUmAfR13yJ");
+        dataSource.setUrl("jdbc:postgresql://dpg-ct76sg3tq21c73bju9qg-a.oregon-postgres.render.com/lpa_app");
+        dataSource.setUsername("lpa_app_user");
+        dataSource.setPassword("4ZExWumairHN9I5kQVYO2ntBqsipnscj");
         return dataSource;
     }
 
