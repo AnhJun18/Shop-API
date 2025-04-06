@@ -1,7 +1,7 @@
 package com.myshop.repositories.product_category.repos;
 
 import com.myshop.repositories.product.entities.Product;
-import com.myshop.repositories.product.entities.ProductCategory;
+import com.myshop.repositories.product_category.entities.ProductCategory;
 import com.myshop.repositories.product_category.entities.ProductCategoryKey;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.CrudRepository;

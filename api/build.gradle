@@ -33,7 +33,7 @@ dependencies {
 
 
     compileOnly 'org.projectlombok:lombok'
-    runtimeOnly 'com.microsoft.sqlserver:mssql-jdbc'
+    runtimeOnly 'org.postgresql:postgresql:42.3.1'  // Use the appropriate version
     implementation 'com.google.firebase:firebase-admin:6.4.0'
 
     annotationProcessor 'org.projectlombok:lombok'

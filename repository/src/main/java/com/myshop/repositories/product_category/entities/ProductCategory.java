@@ -1,7 +1,7 @@
-package com.myshop.repositories.product.entities;
+package com.myshop.repositories.product_category.entities;
 
 import com.myshop.repositories.category.entities.Category;
-import com.myshop.repositories.product_category.entities.ProductCategoryKey;
+import com.myshop.repositories.product.entities.Product;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
